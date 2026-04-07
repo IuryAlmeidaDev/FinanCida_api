@@ -26,3 +26,15 @@ ou externo, um programa oper�vel ou um arquivo em lotes.
 }
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: SidebarFooter is not defined
+    at AppSidebar (components\app-sidebar.tsx:71:8)
+  69 |         <NavMain items={data.navMain} />
+  70 |       </SidebarContent>
+> 71 |       <SidebarFooter>
+     |        ^
+  72 |         <NavUser user={data.user} />
+  73 |       </SidebarFooter>
+  74 |     </Sidebar> {
+  digest: '361920841'
+}

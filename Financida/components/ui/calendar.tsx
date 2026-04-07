@@ -35,7 +35,7 @@ export function Calendar({
   const markerMap = new Map(markers.map((marker) => [marker.date, marker.type]))
 
   return (
-    <div className={cn("rounded-xl border bg-card p-3", className)}>
+    <div className={cn("rounded-xl border bg-card p-2", className)}>
       <div className="mb-3 text-center text-sm font-medium capitalize">
         {visibleMonth.toLocaleDateString("pt-BR", {
           month: "long",
@@ -65,7 +65,7 @@ export function Calendar({
               key={dateKey}
               type="button"
               className={cn(
-                "relative flex aspect-square items-center justify-center rounded-lg bg-white text-sm text-black transition-colors hover:bg-white",
+                "relative flex aspect-square items-center justify-center rounded-lg bg-white text-xs text-black transition-colors hover:bg-white",
                 isSelected && "border border-black bg-white text-black hover:bg-white",
                 marker && !isSelected && "border border-black bg-white text-black"
               )}

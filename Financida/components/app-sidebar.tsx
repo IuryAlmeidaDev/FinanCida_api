@@ -3,9 +3,11 @@
 import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -20,6 +22,11 @@ import {
 } from "lucide-react"
 
 const data = {
+  user: {
+    name: "Usuario",
+    email: "usuario@financida.app",
+    avatar: "/avatars/shadcn.jpg",
+  },
   navMain: [
     {
       title: "visão geral",
@@ -44,7 +51,14 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  activeItem,
+  onItemSelect,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  activeItem?: string
+  onItemSelect?: (item: string) => void
+}) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -66,8 +80,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain
+          items={data.navMain}
+          activeItem={activeItem}
+          onItemSelect={onItemSelect}
+        />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   )
 }

@@ -36,6 +36,30 @@ function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10)
 }
 
+function formatBrazilianDate(date: Date) {
+  return date.toLocaleDateString("pt-BR")
+}
+
+function parseBrazilianDate(value: string) {
+  const [day, month, year] = value.split("/").map(Number)
+
+  if (!day || !month || !year) {
+    return undefined
+  }
+
+  const date = new Date(year, month - 1, day)
+
+  if (
+    date.getDate() !== day ||
+    date.getMonth() !== month - 1 ||
+    date.getFullYear() !== year
+  ) {
+    return undefined
+  }
+
+  return date
+}
+
 function addMonths(dateKey: string, amount: number) {
   const date = new Date(`${dateKey}T00:00:00`)
   date.setMonth(date.getMonth() + amount)
@@ -45,11 +69,16 @@ function addMonths(dateKey: string, amount: number) {
 export function FinanceWorkspace({
   dataset,
   onDatasetChange,
+  showCalendar = true,
+  showForm = true,
 }: {
   dataset: FinanceDataset
   onDatasetChange: (dataset: FinanceDataset) => void
+  showCalendar?: boolean
+  showForm?: boolean
 }) {
   const [selectedDate, setSelectedDate] = React.useState(new Date("2026-04-07T00:00:00"))
+  const [dateInput, setDateInput] = React.useState("07/04/2026")
   const [movementType, setMovementType] = React.useState<MovementType>("expense")
   const [recurrenceType, setRecurrenceType] = React.useState<RecurrenceType>("unique")
   const [description, setDescription] = React.useState("")
@@ -135,13 +164,20 @@ export function FinanceWorkspace({
     }
 
     const id = crypto.randomUUID()
+    const parsedDate = parseBrazilianDate(dateInput)
+
+    if (!parsedDate) {
+      return
+    }
+
+    const movementDateKey = toDateKey(parsedDate)
 
     if (movementType === "revenue") {
       const revenues = Array.from({
         length: recurrenceType === "recurring" ? 12 : 1,
       }).map((_, index) => ({
         id: `${id}-${index}`,
-        date: addMonths(selectedDateKey, index),
+        date: addMonths(movementDateKey, index),
         value: parsedValue,
       }))
 
@@ -156,7 +192,7 @@ export function FinanceWorkspace({
           ...dataset.fixedExpenses,
           {
             id,
-            transactionDate: selectedDateKey,
+            transactionDate: movementDateKey,
             description,
             category,
             value: parsedValue,
@@ -171,7 +207,7 @@ export function FinanceWorkspace({
           ...dataset.variableExpenses,
           {
             id,
-            date: selectedDateKey,
+            date: movementDateKey,
             description,
             category,
             value: parsedValue,
@@ -185,8 +221,17 @@ export function FinanceWorkspace({
   }
 
   return (
-    <div className="grid gap-4 px-4 lg:grid-cols-[360px_1fr] lg:px-6">
-      <Card>
+    <div
+      className={
+        showCalendar && showForm
+          ? "grid gap-4 px-4 lg:grid-cols-[360px_1fr] lg:px-6"
+          : showCalendar
+            ? "grid max-w-sm gap-4 px-4 lg:px-6"
+          : "grid gap-4 px-4 lg:px-6"
+      }
+    >
+      {showCalendar && (
+        <Card className="max-w-sm">
         <CardHeader>
           <CardTitle>Calendario financeiro</CardTitle>
           <CardDescription>
@@ -196,13 +241,16 @@ export function FinanceWorkspace({
         <CardContent className="space-y-4">
           <Calendar
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={(date) => {
+              setSelectedDate(date)
+              setDateInput(formatBrazilianDate(date))
+            }}
             month={selectedDate}
             markers={markers}
           />
           <div className="rounded-xl border p-3">
             <p className="text-sm font-medium">
-              Lancamentos de {selectedDate.toLocaleDateString("pt-BR")}
+              Lancamentos de {formatBrazilianDate(selectedDate)}
             </p>
             <div className="mt-3 space-y-2">
               {selectedMovements.length === 0 ? (
@@ -229,8 +277,10 @@ export function FinanceWorkspace({
           </div>
         </CardContent>
       </Card>
+      )}
 
-      <Card>
+      {showForm && (
+        <Card>
         <CardHeader>
           <CardTitle>Adicionar movimentacao</CardTitle>
           <CardDescription>
@@ -281,9 +331,16 @@ export function FinanceWorkspace({
                   <FieldLabel htmlFor="date">Data</FieldLabel>
                   <Input
                     id="date"
-                    type="date"
-                    value={selectedDateKey}
-                    onChange={(event) => setSelectedDate(new Date(`${event.target.value}T00:00:00`))}
+                    value={dateInput}
+                    onChange={(event) => {
+                      setDateInput(event.target.value)
+                      const parsedDate = parseBrazilianDate(event.target.value)
+
+                      if (parsedDate) {
+                        setSelectedDate(parsedDate)
+                      }
+                    }}
+                    placeholder="dd/mm/aaaa"
                     required
                   />
                 </Field>
@@ -345,6 +402,7 @@ export function FinanceWorkspace({
           </form>
         </CardContent>
       </Card>
+      )}
     </div>
   )
 }

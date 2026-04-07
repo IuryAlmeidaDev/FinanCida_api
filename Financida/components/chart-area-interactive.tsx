@@ -80,7 +80,7 @@ export function ChartAreaInteractive() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Fluxo financeiro</CardTitle>
+        <CardTitle>Grafico financeiro antigo</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
             Receitas e despesas dos ultimos meses
