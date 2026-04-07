@@ -64,6 +64,21 @@ export type FinanceDataset = {
   monthlyRevenues: MonthlyRevenue[]
 }
 
+export function createEmptyFinanceDataset(): FinanceDataset {
+  return {
+    fixedExpenses: [],
+    variableExpenses: [],
+    monthlyRevenues: [],
+  }
+}
+
+export function getCurrentMonthYear(referenceDate = new Date()): MonthYear {
+  return {
+    month: referenceDate.getMonth() + 1,
+    year: referenceDate.getFullYear(),
+  }
+}
+
 function toDate(value?: string) {
   return value ? new Date(`${value}T00:00:00`) : undefined
 }

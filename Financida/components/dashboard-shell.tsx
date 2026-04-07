@@ -5,9 +5,10 @@ import * as React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { FinanceDashboard } from "@/components/finance-dashboard"
 import { SiteHeader } from "@/components/site-header"
+import type { AuthUser } from "@/lib/auth"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-export function DashboardShell() {
+export function DashboardShell({ user }: { user: AuthUser }) {
   const [activeSection, setActiveSection] = React.useState("vis\u00e3o geral")
   const [addDialogOpen, setAddDialogOpen] = React.useState(false)
 
@@ -32,6 +33,7 @@ export function DashboardShell() {
       <AppSidebar
         variant="inset"
         activeItem={activeSection}
+        user={user}
         onItemSelect={handleItemSelect}
       />
       <SidebarInset>

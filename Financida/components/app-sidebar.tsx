@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import type { AuthUser } from "@/lib/auth"
 import {
   Sidebar,
   SidebarContent,
@@ -22,11 +23,6 @@ import {
 } from "lucide-react"
 
 const data = {
-  user: {
-    name: "Usuario",
-    email: "usuario@financida.app",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "visão geral",
@@ -53,10 +49,12 @@ const data = {
 
 export function AppSidebar({
   activeItem,
+  user,
   onItemSelect,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   activeItem?: string
+  user: AuthUser
   onItemSelect?: (item: string) => void
 }) {
   return (
@@ -87,7 +85,12 @@ export function AppSidebar({
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user.name,
+            email: user.email,
+          }}
+        />
       </SidebarFooter>
     </Sidebar>
   )

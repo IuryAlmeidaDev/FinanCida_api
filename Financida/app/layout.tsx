@@ -1,5 +1,12 @@
 import "./globals.css"
+import { Nunito } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
+})
 
 export default function RootLayout({
   children,
@@ -10,7 +17,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="font-sans antialiased"
+      className={`${nunito.variable} font-sans antialiased`}
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>

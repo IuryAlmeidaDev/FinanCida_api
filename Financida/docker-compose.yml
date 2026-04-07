@@ -26,6 +26,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://financida:financida_password@db:5432/financida
+      AUTH_JWT_SECRET: financida-session-secret
     ports:
       - "3000:3000"
     depends_on:

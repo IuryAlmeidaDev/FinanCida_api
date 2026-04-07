@@ -1,39 +1,90 @@
-import { mkdtemp, rm } from "node:fs/promises"
-import os from "node:os"
-import path from "node:path"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+const authMocks = vi.hoisted(() => ({
+  getAuthUserFromToken: vi.fn(),
+  readAuthTokenFromCookieHeader: vi.fn(),
+}))
+
+const financeStoreMocks = vi.hoisted(() => ({
+  readFinanceDataset: vi.fn(),
+  createFinanceMovement: vi.fn(),
+}))
+
+vi.mock("@/lib/auth", () => authMocks)
+vi.mock("@/lib/finance-store", () => financeStoreMocks)
 
 import { GET, POST } from "@/app/api/finance/movements/route"
 
-let tempDir: string | undefined
+const authUser = {
+  id: "user-1",
+  name: "Ana",
+  email: "ana@example.com",
+}
 
 describe("finance movements API", () => {
-  beforeEach(async () => {
-    tempDir = await mkdtemp(path.join(os.tmpdir(), "financida-test-"))
-    process.env.FINANCE_STORE_PATH = path.join(tempDir, "finance-store.json")
+  beforeEach(() => {
+    authMocks.getAuthUserFromToken.mockReset()
+    authMocks.readAuthTokenFromCookieHeader.mockReset()
+    financeStoreMocks.readFinanceDataset.mockReset()
+    financeStoreMocks.createFinanceMovement.mockReset()
   })
 
-  afterEach(async () => {
-    delete process.env.FINANCE_STORE_PATH
-
-    if (tempDir) {
-      await rm(tempDir, { force: true, recursive: true })
-      tempDir = undefined
-    }
+  afterEach(() => {
+    delete process.env.AUTH_JWT_SECRET
   })
 
-  it("retorna a lista de movimentacoes", async () => {
-    const response = await GET()
+  it("retorna 401 sem sessao", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue(undefined)
+    authMocks.getAuthUserFromToken.mockResolvedValue(null)
+
+    const response = await GET(
+      new Request("http://localhost/api/finance/movements")
+    )
+
+    expect(response.status).toBe(401)
+  })
+
+  it("retorna a lista de movimentacoes autenticado", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    financeStoreMocks.readFinanceDataset.mockResolvedValue({
+      fixedExpenses: [],
+      variableExpenses: [],
+      monthlyRevenues: [],
+    })
+
+    const response = await GET(
+      new Request("http://localhost/api/finance/movements", {
+        headers: { cookie: "financida_auth_token=token" },
+      })
+    )
     const payload = (await response.json()) as { movements: unknown[] }
 
     expect(response.status).toBe(200)
-    expect(payload.movements.length).toBeGreaterThan(0)
+    expect(payload.movements).toEqual([])
   })
 
-  it("salva uma nova movimentacao", async () => {
+  it("salva uma nova movimentacao autenticado", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    financeStoreMocks.createFinanceMovement.mockResolvedValue({
+      fixedExpenses: [],
+      variableExpenses: [
+        {
+          id: "mov-1",
+          date: "2026-04-09",
+          description: "Restaurante",
+          category: "Alimentacao",
+          value: 120,
+        },
+      ],
+      monthlyRevenues: [],
+    })
+
     const response = await POST(
       new Request("http://localhost/api/finance/movements", {
         method: "POST",
+        headers: { cookie: "financida_auth_token=token" },
         body: JSON.stringify({
           type: "expense",
           recurrence: "unique",
@@ -60,9 +111,13 @@ describe("finance movements API", () => {
   })
 
   it("rejeita movimentacao invalida", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+
     const response = await POST(
       new Request("http://localhost/api/finance/movements", {
         method: "POST",
+        headers: { cookie: "financida_auth_token=token" },
         body: JSON.stringify({
           type: "expense",
           recurrence: "unique",

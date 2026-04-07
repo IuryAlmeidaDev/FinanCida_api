@@ -41,6 +41,16 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
     total: item.total,
     fill: chartColors[index % chartColors.length],
   }))
+  const hasData = chartData.length > 0
+  const pieData = hasData
+    ? chartData
+    : [
+        {
+          category: "Sem dados",
+          total: 1,
+          fill: "#94a3b8",
+        },
+      ]
 
   return (
     <Card className="@container/card h-full border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
@@ -50,10 +60,10 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
           Distribuicao dos gastos no periodo selecionado.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-center gap-4 px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="flex flex-1 flex-col justify-center gap-4 px-2 pt-4 sm:px-6 sm:pt-6 lg:flex-row lg:items-center lg:justify-center lg:gap-8">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[190px]"
+          className="mx-auto aspect-square h-[240px] w-full lg:h-[320px] lg:w-auto lg:flex-1 lg:max-w-none"
         >
           <PieChart>
             <ChartTooltip
@@ -61,20 +71,25 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
               content={<ChartTooltipContent hideLabel nameKey="category" />}
             />
             <Pie
-              data={chartData}
+              data={pieData}
               dataKey="total"
               nameKey="category"
-              innerRadius={42}
-              outerRadius={72}
+              innerRadius="56%"
+              outerRadius="92%"
               strokeWidth={2}
             >
-              {chartData.map((item) => (
+              {pieData.map((item) => (
                 <Cell key={item.category} fill={item.fill} />
               ))}
             </Pie>
           </PieChart>
         </ChartContainer>
-        <div className="grid gap-2 text-sm sm:grid-cols-2">
+        <div className="grid w-full gap-2 text-sm sm:grid-cols-2 lg:grid-cols-1 lg:w-auto lg:flex-1">
+          {!hasData && (
+            <p className="text-sm text-muted-foreground">
+              Sem despesas no periodo selecionado.
+            </p>
+          )}
           {chartData.map((item) => (
             <div key={item.category} className="flex items-center gap-2">
               <span

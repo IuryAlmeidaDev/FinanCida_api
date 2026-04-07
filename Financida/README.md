@@ -19,3 +19,11 @@ To use the components in your app, import them as follows:
 ```tsx
 import { Button } from "@/components/ui/button";
 ```
+
+## Auth environment variables
+
+Copy `.env.example` to `.env.local` and fill the auth values:
+
+```bash
+AUTH_JWT_SECRET="your-long-random-secret"
+```

@@ -35,3 +35,11 @@ DATABASE_URL=postgres://financida:financida_password@db:5432/financida
 ```
 
 As tabelas sao criadas automaticamente pela API na primeira leitura/escrita.
+
+## Autenticacao
+
+O container tambem usa:
+
+```bash
+AUTH_JWT_SECRET=financida-session-secret
+```

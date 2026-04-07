@@ -1,0 +1,113 @@
+import { randomUUID } from "node:crypto"
+
+import bcrypt from "bcryptjs"
+import { jwtVerify, SignJWT } from "jose"
+
+export const authCookieName = "financida_auth_token"
+
+export type AuthUser = {
+  id: string
+  name: string
+  email: string
+}
+
+export function toPublicAuthUser(user: AuthUser): AuthUser {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  }
+}
+
+type JwtPayload = AuthUser & {
+  email: string
+  name: string
+}
+
+function getJwtSecret() {
+  const secret =
+    process.env.AUTH_JWT_SECRET ??
+    (process.env.NODE_ENV === "production"
+      ? ""
+      : "financida-development-secret")
+
+  if (!secret) {
+    throw new Error("AUTH_JWT_SECRET nao configurada.")
+  }
+
+  return new TextEncoder().encode(secret)
+}
+
+export function normalizeEmail(email: string) {
+  return email.trim().toLowerCase()
+}
+
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 10)
+}
+
+export async function verifyPassword(password: string, passwordHash: string) {
+  return bcrypt.compare(password, passwordHash)
+}
+
+export async function signAuthToken(user: AuthUser) {
+  return new SignJWT({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setJti(randomUUID())
+    .setSubject(user.id)
+    .setExpirationTime("7d")
+    .sign(getJwtSecret())
+}
+
+export async function verifyAuthToken(token: string) {
+  const { payload } = await jwtVerify(token, getJwtSecret())
+  const typedPayload = payload as Partial<JwtPayload>
+
+  if (
+    typeof typedPayload.id !== "string" ||
+    typeof typedPayload.name !== "string" ||
+    typeof typedPayload.email !== "string"
+  ) {
+    throw new Error("Token de autenticacao invalido.")
+  }
+
+  return {
+    id: typedPayload.id,
+    name: typedPayload.name,
+    email: typedPayload.email,
+  } satisfies AuthUser
+}
+
+export function readAuthTokenFromCookieHeader(cookieHeader: string | null) {
+  if (!cookieHeader) {
+    return undefined
+  }
+
+  const tokenPair = cookieHeader
+    .split(";")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(`${authCookieName}=`))
+
+  if (!tokenPair) {
+    return undefined
+  }
+
+  return tokenPair.slice(authCookieName.length + 1)
+}
+
+export async function getAuthUserFromToken(token?: string | null) {
+  if (!token) {
+    return null
+  }
+
+  try {
+    return await verifyAuthToken(token)
+  } catch {
+    return null
+  }
+}

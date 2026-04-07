@@ -1,55 +1,15 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises"
-import path from "node:path"
-import { Pool } from "pg"
-
 import type {
   ExpenseCategory,
   FinanceDataset,
   FixedExpenseStatus,
   MonthYear,
 } from "@/lib/finance"
+import { createEmptyFinanceDataset } from "@/lib/finance"
 import { calculateFinancialSummary } from "@/lib/finance"
 import { addMovementToDataset, type MovementInput } from "@/lib/finance-movements"
-import { financeDataset } from "@/lib/finance-sample-data"
+import { getPool, hasDatabaseUrl } from "@/lib/postgres"
 
-let writeQueue = Promise.resolve()
-let pool: Pool | undefined
 let schemaReady: Promise<void> | undefined
-
-function hasDatabaseUrl() {
-  return Boolean(process.env.DATABASE_URL)
-}
-
-function getPool() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL nao configurada.")
-  }
-
-  pool ??= new Pool({
-    connectionString: process.env.DATABASE_URL,
-  })
-
-  return pool
-}
-
-function getStorePath() {
-  return (
-    process.env.FINANCE_STORE_PATH ??
-    path.join(process.cwd(), "data", "finance-store.json")
-  )
-}
-
-async function ensureStore() {
-  const storePath = getStorePath()
-
-  await mkdir(path.dirname(storePath), { recursive: true })
-
-  try {
-    await readFile(storePath, "utf8")
-  } catch {
-    await writeFile(storePath, JSON.stringify(financeDataset, null, 2), "utf8")
-  }
-}
 
 async function ensureDatabase() {
   if (schemaReady) {
@@ -86,30 +46,21 @@ async function ensureDatabase() {
         created_at timestamptz not null default now()
       );
     `)
-
-    const result = await database.query<{ total: string }>(`
-      select
-        (select count(*) from fixed_expenses) +
-        (select count(*) from variable_expenses) +
-        (select count(*) from monthly_revenues) as total
-    `)
-
-    if (Number(result.rows[0]?.total ?? 0) > 0) {
-      return
-    }
-
-    await seedDatabase(financeDataset)
   })()
 
   return schemaReady
 }
 
-async function seedDatabase(dataset: FinanceDataset) {
+async function replaceDatabaseContents(dataset: FinanceDataset) {
   const database = getPool()
   const client = await database.connect()
 
   try {
     await client.query("begin")
+
+    await client.query("delete from monthly_revenues")
+    await client.query("delete from fixed_expenses")
+    await client.query("delete from variable_expenses")
 
     for (const expense of dataset.fixedExpenses) {
       await client.query(
@@ -245,11 +196,7 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
     await client.query("begin")
 
     const nextDataset = addMovementToDataset(
-      {
-        fixedExpenses: [],
-        variableExpenses: [],
-        monthlyRevenues: [],
-      },
+      createEmptyFinanceDataset(),
       input,
       id
     )
@@ -310,50 +257,35 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
 }
 
 export async function readFinanceDataset(): Promise<FinanceDataset> {
-  if (hasDatabaseUrl()) {
-    return readFinanceDatasetFromDatabase()
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
   }
 
-  await ensureStore()
-
-  const storeContent = await readFile(getStorePath(), "utf8")
-  return JSON.parse(storeContent) as FinanceDataset
+  return readFinanceDatasetFromDatabase()
 }
 
 export async function writeFinanceDataset(dataset: FinanceDataset) {
-  if (hasDatabaseUrl()) {
-    await seedDatabase(dataset)
-    return readFinanceDatasetFromDatabase()
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
   }
 
-  await mkdir(path.dirname(getStorePath()), { recursive: true })
-  await writeFile(getStorePath(), JSON.stringify(dataset, null, 2), "utf8")
-  return dataset
+  await replaceDatabaseContents(dataset)
+  return readFinanceDatasetFromDatabase()
 }
 
 export async function createFinanceMovement(input: MovementInput) {
-  if (hasDatabaseUrl()) {
-    return createFinanceMovementInDatabase(input)
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
   }
 
-  const writeOperation = writeQueue.then(async () => {
-    const dataset = await readFinanceDataset()
-    const nextDataset = addMovementToDataset(dataset, input)
-
-    await writeFinanceDataset(nextDataset)
-
-    return nextDataset
-  })
-
-  writeQueue = writeOperation.then(
-    () => undefined,
-    () => undefined
-  )
-
-  return writeOperation
+  return createFinanceMovementInDatabase(input)
 }
 
 export async function getFinancialSummary(range: MonthYear) {
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
+  }
+
   const dataset = await readFinanceDataset()
 
   return calculateFinancialSummary(dataset, range, new Date())

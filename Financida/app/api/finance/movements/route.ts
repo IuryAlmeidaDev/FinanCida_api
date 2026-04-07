@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { ZodError } from "zod"
 
+import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
 import { listFinanceMovements, movementInputSchema } from "@/lib/finance-movements"
 import {
   createFinanceMovement,
@@ -9,7 +10,14 @@ import {
 
 export const runtime = "nodejs"
 
-export async function GET() {
+export async function GET(request: Request) {
+  const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
+  const user = await getAuthUserFromToken(token)
+
+  if (!user) {
+    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+  }
+
   const dataset = await readFinanceDataset()
 
   return NextResponse.json({
@@ -19,6 +27,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
+    const user = await getAuthUserFromToken(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    }
+
     const input = movementInputSchema.parse(await request.json())
     const dataset = await createFinanceMovement(input)
 

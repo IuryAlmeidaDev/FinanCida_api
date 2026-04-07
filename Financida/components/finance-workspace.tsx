@@ -77,8 +77,11 @@ export function FinanceWorkspace({
   showCalendar?: boolean
   showForm?: boolean
 }) {
-  const [selectedDate, setSelectedDate] = React.useState(new Date("2026-04-07T00:00:00"))
-  const [dateInput, setDateInput] = React.useState("07/04/2026")
+  const currentDate = React.useMemo(() => new Date(), [])
+  const [selectedDate, setSelectedDate] = React.useState(currentDate)
+  const [dateInput, setDateInput] = React.useState(
+    formatBrazilianDate(currentDate)
+  )
   const [movementType, setMovementType] = React.useState<MovementType>("expense")
   const [recurrenceType, setRecurrenceType] = React.useState<RecurrenceType>("unique")
   const [description, setDescription] = React.useState("")

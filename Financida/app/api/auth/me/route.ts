@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
 import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
-import { readFinanceDataset } from "@/lib/finance-store"
 
 export const runtime = "nodejs"
 
@@ -13,7 +12,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
   }
 
-  const dataset = await readFinanceDataset()
-
-  return NextResponse.json({ dataset })
+  return NextResponse.json({ user })
 }

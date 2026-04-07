@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server"
 
+import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
 import { getFinancialSummary } from "@/lib/finance-store"
 
 export const runtime = "nodejs"
 
 export async function GET(request: Request) {
+  const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
+  const user = await getAuthUserFromToken(token)
+
+  if (!user) {
+    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+  }
+
   const url = new URL(request.url)
   const month = Number(url.searchParams.get("month"))
   const year = Number(url.searchParams.get("year"))

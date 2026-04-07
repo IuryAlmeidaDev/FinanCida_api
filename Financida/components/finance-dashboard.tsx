@@ -8,12 +8,13 @@ import { FinanceWorkspace } from "@/components/finance-workspace"
 import { MovementsTable } from "@/components/movements-table"
 import { SectionCards } from "@/components/section-cards"
 import { SpendingLimit } from "@/components/spending-limit"
-import { calculateFinancialSummary, type FinanceDataset } from "@/lib/finance"
-import type { MovementInput } from "@/lib/finance-movements"
 import {
-  currentFinanceRange,
-  financeDataset,
-} from "@/lib/finance-sample-data"
+  calculateFinancialSummary,
+  createEmptyFinanceDataset,
+  getCurrentMonthYear,
+  type FinanceDataset,
+} from "@/lib/finance"
+import type { MovementInput } from "@/lib/finance-movements"
 
 export function FinanceDashboard({
   activeSection,
@@ -24,15 +25,22 @@ export function FinanceDashboard({
   addDialogOpen: boolean
   onAddDialogOpenChange: (open: boolean) => void
 }) {
-  const [dataset, setDataset] = React.useState<FinanceDataset>(financeDataset)
+  const currentDate = React.useMemo(() => new Date(), [])
+  const currentFinanceRange = React.useMemo(
+    () => getCurrentMonthYear(currentDate),
+    [currentDate]
+  )
+  const [dataset, setDataset] = React.useState<FinanceDataset>(
+    createEmptyFinanceDataset()
+  )
   const summary = React.useMemo(
     () =>
       calculateFinancialSummary(
         dataset,
         currentFinanceRange,
-        new Date("2026-04-07T00:00:00")
+        currentDate
       ),
-    [dataset]
+    [dataset, currentDate, currentFinanceRange]
   )
 
   React.useEffect(() => {
@@ -148,7 +156,7 @@ export function FinanceDashboard({
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid max-w-5xl items-stretch gap-4 px-4 lg:grid-cols-[minmax(0,580px)_minmax(260px,320px)] lg:px-6">
+      <div className="grid max-w-6xl items-stretch gap-4 px-4 lg:grid-cols-[minmax(0,580px)_minmax(320px,420px)] lg:px-6">
         <div className="h-full [&>div]:h-full [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}
@@ -157,7 +165,7 @@ export function FinanceDashboard({
             showForm={false}
           />
         </div>
-        <div className="h-full max-w-xs">
+        <div className="h-full">
           <FinancePieChart summary={summary} />
         </div>
       </div>
