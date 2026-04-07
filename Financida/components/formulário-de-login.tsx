@@ -28,11 +28,10 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="text-center">
-        <p className="text-3xl font-bold tracking-tight">
-          <span className="text-emerald-700">Finan</span>
-          <span className="text-lime-600">Cida</span>
+        <p className="text-3xl font-bold tracking-tight text-black">
+          FinanCida
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-black">
           Gestao financeira simples e organizada
         </p>
       </div>

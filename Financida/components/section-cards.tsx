@@ -33,7 +33,7 @@ export function SectionCards({
   const ExpenseTrendIcon = expenseTrendIcon
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-white *:data-[slot=card]:text-black *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-white">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Receita mensal</CardDescription>
@@ -41,7 +41,7 @@ export function SectionCards({
             {moneyFormatter.format(summary.totalRevenue)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="border-emerald-200 text-emerald-700">
+            <Badge variant="outline" className="border-black text-black">
               <TrendingUpIcon />
               Entrada
             </Badge>
@@ -64,7 +64,7 @@ export function SectionCards({
             {moneyFormatter.format(summary.totalExpenses)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="border-sky-200 text-sky-700">
+            <Badge variant="outline" className="border-black text-black">
               <ExpenseTrendIcon />
               {percentFormatter.format(summary.expenseGrowthRate)}%
             </Badge>
@@ -90,9 +90,7 @@ export function SectionCards({
             <Badge
               variant="outline"
               className={
-                summary.operationalBalance >= 0
-                  ? "border-emerald-200 text-emerald-700"
-                  : "border-red-200 text-red-700"
+                "border-black text-black"
               }
             >
               {summary.operationalBalance >= 0 ? (
@@ -119,7 +117,7 @@ export function SectionCards({
             {moneyFormatter.format(summary.totalToPay)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="border-red-200 text-red-700">
+            <Badge variant="outline" className="border-black text-black">
               <TrendingDownIcon />
               {moneyFormatter.format(summary.totalLate)}
             </Badge>

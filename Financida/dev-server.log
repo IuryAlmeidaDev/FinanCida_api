@@ -70,3 +70,25 @@ Creating turbopack project {
  GET /avatars/shadcn.jpg 404 in 147ms (compile: 27ms, render: 119ms)
 ✓ Compiled in 8.4s
  GET /dashboard 200 in 12.6s (compile: 6.4s, render: 6.2s)
+✓ Compiled in 3.1s
+ GET /avatars/shadcn.jpg 404 in 2.8s (compile: 2.3s, render: 552ms)
+✓ Finished writing to filesystem cache in 13.0s
+ GET /dashboard 200 in 4.4s (compile: 776ms, render: 3.6s)
+ GET /avatars/shadcn.jpg 404 in 456ms (compile: 33ms, render: 423ms)
+ GET /avatars/shadcn.jpg 404 in 188ms (compile: 27ms, render: 161ms)
+ GET / 200 in 1160ms (compile: 647ms, render: 513ms)
+ GET / 200 in 912ms (compile: 192ms, render: 720ms)
+ GET / 200 in 917ms (compile: 105ms, render: 812ms)
+ GET /dashboard 200 in 3.6s (compile: 775ms, render: 2.9s)
+✓ Compiled in 2.7s
+ GET / 200 in 517ms (compile: 332ms, render: 185ms)
+ GET / 200 in 63ms (compile: 8ms, render: 55ms)
+ GET /dashboard 200 in 2.5s (compile: 58ms, render: 2.5s)
+ GET /signup 200 in 2.8s (compile: 1403ms, render: 1377ms)
+ GET / 200 in 1583ms (compile: 223ms, render: 1360ms)
+ GET / 200 in 362ms (compile: 67ms, render: 295ms)
+ GET /dashboard 200 in 314ms (compile: 60ms, render: 254ms)
+ GET /avatars/shadcn.jpg 404 in 264ms (compile: 126ms, render: 139ms)
+ GET /avatars/shadcn.jpg 404 in 203ms (compile: 26ms, render: 177ms)
+ GET /dashboard 200 in 2.4s (compile: 128ms, render: 2.2s)
+ GET /avatars/shadcn.jpg 404 in 188ms (compile: 27ms, render: 161ms)

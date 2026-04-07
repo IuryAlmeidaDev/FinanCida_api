@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-type CalendarMarker = {
+export type CalendarMarker = {
   date: string
   type: "revenue" | "expense" | "both"
 }
@@ -65,11 +65,9 @@ export function Calendar({
               key={dateKey}
               type="button"
               className={cn(
-                "relative flex aspect-square items-center justify-center rounded-lg text-sm transition-colors hover:bg-emerald-50",
-                isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-                marker === "revenue" && !isSelected && "bg-emerald-100 text-emerald-800",
-                marker === "expense" && !isSelected && "bg-red-50 text-red-700",
-                marker === "both" && !isSelected && "bg-lime-100 text-lime-800"
+                "relative flex aspect-square items-center justify-center rounded-lg bg-white text-sm text-black transition-colors hover:bg-white",
+                isSelected && "border border-black bg-white text-black hover:bg-white",
+                marker && !isSelected && "border border-black bg-white text-black"
               )}
               onClick={() => onSelect?.(date)}
             >
@@ -78,9 +76,7 @@ export function Calendar({
                 <span
                   className={cn(
                     "absolute bottom-1 size-1.5 rounded-full",
-                    marker === "revenue" && "bg-emerald-500",
-                    marker === "expense" && "bg-red-500",
-                    marker === "both" && "bg-lime-600"
+                    "bg-black"
                   )}
                 />
               )}

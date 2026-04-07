@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar, type CalendarMarker } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -18,7 +18,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import type { FinanceDataset, FixedExpenseStatus } from "@/lib/finance"
+import type {
+  ExpenseCategory,
+  FinanceDataset,
+  FixedExpenseStatus,
+} from "@/lib/finance"
 
 type MovementType = "expense" | "revenue"
 type RecurrenceType = "unique" | "recurring"
@@ -49,26 +53,39 @@ export function FinanceWorkspace({
   const [movementType, setMovementType] = React.useState<MovementType>("expense")
   const [recurrenceType, setRecurrenceType] = React.useState<RecurrenceType>("unique")
   const [description, setDescription] = React.useState("")
-  const [category, setCategory] = React.useState("Moradia")
+  const [category, setCategory] = React.useState<ExpenseCategory>("Moradia")
   const [value, setValue] = React.useState("")
   const [status, setStatus] = React.useState<FixedExpenseStatus>("Em aberto")
 
   const selectedDateKey = toDateKey(selectedDate)
-  const markers = React.useMemo(() => {
+  const markers = React.useMemo<CalendarMarker[]>(() => {
     const days = new Map<string, { revenue: boolean; expense: boolean }>()
 
     for (const revenue of dataset.monthlyRevenues) {
-      days.set(revenue.date, { ...(days.get(revenue.date) ?? {}), revenue: true, expense: days.get(revenue.date)?.expense ?? false })
+      const currentDay = days.get(revenue.date)
+
+      days.set(revenue.date, {
+        revenue: true,
+        expense: currentDay?.expense ?? false,
+      })
     }
 
-    for (const expense of [...dataset.fixedExpenses, ...dataset.variableExpenses]) {
-      const date = "transactionDate" in expense ? expense.transactionDate : expense.date
-
-      if (!date) {
+    for (const expense of dataset.fixedExpenses) {
+      if (!expense.transactionDate) {
         continue
       }
 
-      days.set(date, { revenue: days.get(date)?.revenue ?? false, expense: true })
+      days.set(expense.transactionDate, {
+        revenue: days.get(expense.transactionDate)?.revenue ?? false,
+        expense: true,
+      })
+    }
+
+    for (const expense of dataset.variableExpenses) {
+      days.set(expense.date, {
+        revenue: days.get(expense.date)?.revenue ?? false,
+        expense: true,
+      })
     }
 
     return [...days.entries()].map(([date, marker]) => ({
@@ -141,7 +158,7 @@ export function FinanceWorkspace({
             id,
             transactionDate: selectedDateKey,
             description,
-            category: category as never,
+            category,
             value: parsedValue,
             status,
           },
@@ -156,7 +173,7 @@ export function FinanceWorkspace({
             id,
             date: selectedDateKey,
             description,
-            category: category as never,
+            category,
             value: parsedValue,
           },
         ],
@@ -173,7 +190,7 @@ export function FinanceWorkspace({
         <CardHeader>
           <CardTitle>Calendario financeiro</CardTitle>
           <CardDescription>
-            Dias em verde tem receitas, vermelho tem despesas.
+            Dias com lancamentos ficam marcados com borda e ponto preto.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -287,7 +304,9 @@ export function FinanceWorkspace({
                     id="category"
                     className="h-9 rounded-md border bg-background px-3 text-sm"
                     value={category}
-                    onChange={(event) => setCategory(event.target.value)}
+                    onChange={(event) =>
+                      setCategory(event.target.value as ExpenseCategory)
+                    }
                   >
                     <option>Moradia</option>
                     <option>Familia</option>
