@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { CategoryIcon } from "@/components/category-icon"
 import {
   ChartContainer,
   ChartTooltip,
@@ -42,17 +43,17 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
   }))
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card h-full border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
       <CardHeader>
         <CardTitle>Despesas por categoria</CardTitle>
         <CardDescription>
           Distribuicao dos gastos no periodo selecionado.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="flex flex-1 flex-col justify-center gap-4 px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[260px]"
+          className="mx-auto aspect-square h-[190px]"
         >
           <PieChart>
             <ChartTooltip
@@ -63,8 +64,8 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
               data={chartData}
               dataKey="total"
               nameKey="category"
-              innerRadius={58}
-              outerRadius={98}
+              innerRadius={42}
+              outerRadius={72}
               strokeWidth={2}
             >
               {chartData.map((item) => (
@@ -80,6 +81,7 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
                 className="size-3 rounded-full"
                 style={{ backgroundColor: item.fill }}
               />
+              <CategoryIcon category={item.category} className="size-3.5" />
               <span>{item.category}</span>
             </div>
           ))}

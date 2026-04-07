@@ -181,7 +181,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => (
       <Badge variant="outline" className="px-1.5 text-muted-foreground">
         {row.original.status === "Done" ? (
-          <CircleCheckIcon className="fill-black dark:fill-black" />
+          <CircleCheckIcon className="fill-emerald-500 dark:fill-emerald-500" />
         ) : (
           <LoaderIcon
           />

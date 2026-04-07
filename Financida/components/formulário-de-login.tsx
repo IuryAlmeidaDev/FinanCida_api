@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card"
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
@@ -28,14 +27,14 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="text-center">
-        <p className="text-3xl font-bold tracking-tight text-black">
+        <p className="text-4xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300">
           FinanCida
         </p>
-        <p className="text-sm text-black">
+        <p className="mt-1 text-sm text-muted-foreground">
           Gestao financeira simples e organizada
         </p>
       </div>
-      <Card>
+      <Card className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
         <CardHeader>
           <CardTitle>Entrar na sua conta</CardTitle>
           <CardDescription>
@@ -83,9 +82,6 @@ export function LoginForm({
                 >
                   Entrar com Google
                 </Button>
-                <FieldDescription className="text-center">
-                  Ainda não tem uma conta? <a href="#">Cadastre-se</a>
-                </FieldDescription>
               </Field>
             </FieldGroup>
           </form>

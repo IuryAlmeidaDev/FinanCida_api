@@ -69,10 +69,10 @@ export function AppSidebar({
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#">
-                <WalletCardsIcon className="size-5! text-black" />
+                <WalletCardsIcon className="size-5! text-emerald-600 dark:text-emerald-300" />
                   <span className="text-base font-semibold">
-                  <span className="text-black">Finan</span>
-                  <span className="text-black">Cida</span>
+                  <span className="text-emerald-700 dark:text-emerald-300">Finan</span>
+                  <span className="text-sky-600 dark:text-sky-300">Cida</span>
                 </span>
               </a>
             </SidebarMenuButton>

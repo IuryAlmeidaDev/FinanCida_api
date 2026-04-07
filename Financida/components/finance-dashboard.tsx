@@ -8,7 +8,8 @@ import { FinanceWorkspace } from "@/components/finance-workspace"
 import { MovementsTable } from "@/components/movements-table"
 import { SectionCards } from "@/components/section-cards"
 import { SpendingLimit } from "@/components/spending-limit"
-import { calculateFinancialSummary } from "@/lib/finance"
+import { calculateFinancialSummary, type FinanceDataset } from "@/lib/finance"
+import type { MovementInput } from "@/lib/finance-movements"
 import {
   currentFinanceRange,
   financeDataset,
@@ -23,7 +24,7 @@ export function FinanceDashboard({
   addDialogOpen: boolean
   onAddDialogOpenChange: (open: boolean) => void
 }) {
-  const [dataset, setDataset] = React.useState(financeDataset)
+  const [dataset, setDataset] = React.useState<FinanceDataset>(financeDataset)
   const summary = React.useMemo(
     () =>
       calculateFinancialSummary(
@@ -34,21 +35,62 @@ export function FinanceDashboard({
     [dataset]
   )
 
+  React.useEffect(() => {
+    let ignore = false
+
+    async function loadDataset() {
+      const response = await fetch("/api/finance", { cache: "no-store" })
+
+      if (!response.ok) {
+        return
+      }
+
+      const payload = (await response.json()) as { dataset: FinanceDataset }
+
+      if (!ignore) {
+        setDataset(payload.dataset)
+      }
+    }
+
+    loadDataset()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  async function handleMovementCreate(movement: MovementInput) {
+    const response = await fetch("/api/finance/movements", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(movement),
+    })
+
+    if (!response.ok) {
+      throw new Error("Nao foi possivel salvar a movimentacao.")
+    }
+
+    const payload = (await response.json()) as { dataset: FinanceDataset }
+    setDataset(payload.dataset)
+  }
+
   const addMovementDialog = addDialogOpen ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-emerald-200 bg-white p-4 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-emerald-100 bg-card p-5 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-emerald-700">
+            <h2 className="text-xl font-semibold tracking-tight text-emerald-700 dark:text-emerald-300">
               Adicionar movimentacao
             </h2>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               Cadastre uma receita ou despesa sem sair da tela atual.
             </p>
           </div>
           <button
             type="button"
-            className="rounded-md border border-emerald-200 px-3 py-1 text-sm text-emerald-700"
+            className="rounded-xl border border-emerald-200 bg-card px-3 py-1.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-900/70 dark:text-emerald-200 dark:hover:bg-emerald-950/40"
             onClick={() => onAddDialogOpenChange(false)}
           >
             Fechar
@@ -58,6 +100,10 @@ export function FinanceDashboard({
           dataset={dataset}
           onDatasetChange={(nextDataset) => {
             setDataset(nextDataset)
+            onAddDialogOpenChange(false)
+          }}
+          onMovementCreate={async (movement) => {
+            await handleMovementCreate(movement)
             onAddDialogOpenChange(false)
           }}
           showCalendar={false}
@@ -72,6 +118,7 @@ export function FinanceDashboard({
         <FinanceWorkspace
           dataset={dataset}
           onDatasetChange={setDataset}
+          onMovementCreate={handleMovementCreate}
           showCalendar={false}
         />
         <MovementsTable dataset={dataset} />
@@ -101,14 +148,17 @@ export function FinanceDashboard({
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid gap-4 px-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-6">
-        <FinancePieChart summary={summary} />
-        <div className="[&>div]:px-0 [&>div]:lg:px-0">
+      <div className="grid max-w-5xl items-stretch gap-4 px-4 lg:grid-cols-[minmax(0,580px)_minmax(260px,320px)] lg:px-6">
+        <div className="h-full [&>div]:h-full [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}
             onDatasetChange={setDataset}
+            onMovementCreate={handleMovementCreate}
             showForm={false}
           />
+        </div>
+        <div className="h-full max-w-xs">
+          <FinancePieChart summary={summary} />
         </div>
       </div>
       {addMovementDialog}

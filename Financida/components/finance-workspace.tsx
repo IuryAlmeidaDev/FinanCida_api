@@ -23,6 +23,10 @@ import type {
   FinanceDataset,
   FixedExpenseStatus,
 } from "@/lib/finance"
+import {
+  addMovementToDataset,
+  type MovementInput,
+} from "@/lib/finance-movements"
 
 type MovementType = "expense" | "revenue"
 type RecurrenceType = "unique" | "recurring"
@@ -60,20 +64,16 @@ function parseBrazilianDate(value: string) {
   return date
 }
 
-function addMonths(dateKey: string, amount: number) {
-  const date = new Date(`${dateKey}T00:00:00`)
-  date.setMonth(date.getMonth() + amount)
-  return toDateKey(date)
-}
-
 export function FinanceWorkspace({
   dataset,
   onDatasetChange,
+  onMovementCreate,
   showCalendar = true,
   showForm = true,
 }: {
   dataset: FinanceDataset
   onDatasetChange: (dataset: FinanceDataset) => void
+  onMovementCreate?: (movement: MovementInput) => void | Promise<void>
   showCalendar?: boolean
   showForm?: boolean
 }) {
@@ -154,7 +154,7 @@ export function FinanceWorkspace({
     return [...revenues, ...fixed, ...variable]
   }, [dataset, selectedDateKey])
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const parsedValue = Number(value.replace(",", "."))
@@ -172,48 +172,20 @@ export function FinanceWorkspace({
 
     const movementDateKey = toDateKey(parsedDate)
 
-    if (movementType === "revenue") {
-      const revenues = Array.from({
-        length: recurrenceType === "recurring" ? 12 : 1,
-      }).map((_, index) => ({
-        id: `${id}-${index}`,
-        date: addMonths(movementDateKey, index),
-        value: parsedValue,
-      }))
+    const movement: MovementInput = {
+      type: movementType,
+      recurrence: recurrenceType,
+      date: movementDateKey,
+      description,
+      category,
+      value: parsedValue,
+      status,
+    }
 
-      onDatasetChange({
-        ...dataset,
-        monthlyRevenues: [...dataset.monthlyRevenues, ...revenues],
-      })
-    } else if (recurrenceType === "recurring") {
-      onDatasetChange({
-        ...dataset,
-        fixedExpenses: [
-          ...dataset.fixedExpenses,
-          {
-            id,
-            transactionDate: movementDateKey,
-            description,
-            category,
-            value: parsedValue,
-            status,
-          },
-        ],
-      })
+    if (onMovementCreate) {
+      await onMovementCreate(movement)
     } else {
-      onDatasetChange({
-        ...dataset,
-        variableExpenses: [
-          ...dataset.variableExpenses,
-          {
-            id,
-            date: movementDateKey,
-            description,
-            category,
-            value: parsedValue,
-          },
-        ],
-      })
+      onDatasetChange(addMovementToDataset(dataset, movement, id))
     }
 
     setDescription("")
@@ -226,12 +198,12 @@ export function FinanceWorkspace({
         showCalendar && showForm
           ? "grid gap-4 px-4 lg:grid-cols-[360px_1fr] lg:px-6"
           : showCalendar
-            ? "grid max-w-sm gap-4 px-4 lg:px-6"
+            ? "grid h-full max-w-xl gap-4 px-4 lg:px-6"
           : "grid gap-4 px-4 lg:px-6"
       }
     >
       {showCalendar && (
-        <Card className="max-w-sm">
+        <Card className="h-full border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
           <CardTitle>Calendario financeiro</CardTitle>
           <CardDescription>
@@ -248,7 +220,7 @@ export function FinanceWorkspace({
             month={selectedDate}
             markers={markers}
           />
-          <div className="rounded-xl border p-3">
+          <div className="rounded-xl border border-border bg-background/60 p-3">
             <p className="text-sm font-medium">
               Lancamentos de {formatBrazilianDate(selectedDate)}
             </p>
@@ -280,7 +252,7 @@ export function FinanceWorkspace({
       )}
 
       {showForm && (
-        <Card>
+        <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
           <CardTitle>Adicionar movimentacao</CardTitle>
           <CardDescription>
@@ -295,7 +267,7 @@ export function FinanceWorkspace({
                   <FieldLabel htmlFor="movement-type">Tipo</FieldLabel>
                   <select
                     id="movement-type"
-                    className="h-9 rounded-md border bg-background px-3 text-sm"
+                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
                     value={movementType}
                     onChange={(event) => setMovementType(event.target.value as MovementType)}
                   >
@@ -307,7 +279,7 @@ export function FinanceWorkspace({
                   <FieldLabel htmlFor="recurrence-type">Recorrencia</FieldLabel>
                   <select
                     id="recurrence-type"
-                    className="h-9 rounded-md border bg-background px-3 text-sm"
+                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
                     value={recurrenceType}
                     onChange={(event) => setRecurrenceType(event.target.value as RecurrenceType)}
                   >
@@ -359,7 +331,7 @@ export function FinanceWorkspace({
                   <FieldLabel htmlFor="category">Categoria</FieldLabel>
                   <select
                     id="category"
-                    className="h-9 rounded-md border bg-background px-3 text-sm"
+                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
                     value={category}
                     onChange={(event) =>
                       setCategory(event.target.value as ExpenseCategory)
@@ -382,7 +354,7 @@ export function FinanceWorkspace({
                   <FieldLabel htmlFor="status">Status da despesa fixa</FieldLabel>
                   <select
                     id="status"
-                    className="h-9 rounded-md border bg-background px-3 text-sm"
+                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
                     value={status}
                     onChange={(event) => setStatus(event.target.value as FixedExpenseStatus)}
                   >

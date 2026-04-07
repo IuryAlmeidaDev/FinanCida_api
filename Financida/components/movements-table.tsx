@@ -7,7 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { CategoryIcon } from "@/components/category-icon"
 import type { FinanceDataset } from "@/lib/finance"
+import { listFinanceMovements } from "@/lib/finance-movements"
 
 const moneyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -23,39 +25,11 @@ function formatBrazilianDate(date: string) {
 }
 
 export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
-  const movements = [
-    ...dataset.monthlyRevenues.map((revenue) => ({
-      id: revenue.id,
-      date: revenue.date,
-      description: "Receita mensal",
-      category: "Receita",
-      type: "Receita",
-      value: revenue.value,
-      status: "-",
-    })),
-    ...dataset.fixedExpenses.map((expense) => ({
-      id: expense.id,
-      date: expense.transactionDate ?? "-",
-      description: expense.description,
-      category: expense.category,
-      type: "Despesa fixa",
-      value: expense.value,
-      status: expense.status,
-    })),
-    ...dataset.variableExpenses.map((expense) => ({
-      id: expense.id,
-      date: expense.date,
-      description: expense.description,
-      category: expense.category,
-      type: "Despesa variavel",
-      value: expense.value,
-      status: "-",
-    })),
-  ].sort((left, right) => right.date.localeCompare(left.date))
+  const movements = listFinanceMovements(dataset)
 
   return (
     <div className="px-4 lg:px-6">
-      <Card>
+      <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
           <CardTitle>Tudo que foi lançado</CardTitle>
           <CardDescription>
@@ -63,9 +37,9 @@ export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-xl border">
+          <div className="overflow-x-auto rounded-2xl border border-emerald-100 dark:border-emerald-900/60">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="border-b bg-white text-black">
+              <thead className="border-b border-emerald-100 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-100">
                 <tr>
                   <th className="px-3 py-2 font-medium">Data</th>
                   <th className="px-3 py-2 font-medium">Descricao</th>
@@ -77,12 +51,24 @@ export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
               </thead>
               <tbody>
                 {movements.map((movement) => (
-                  <tr key={movement.id} className="border-b last:border-b-0">
+                  <tr
+                    key={movement.id}
+                    className="border-b border-emerald-50 transition-colors odd:bg-white even:bg-slate-50/60 hover:bg-emerald-50/70 last:border-b-0 dark:border-emerald-900/40 dark:odd:bg-card dark:even:bg-emerald-950/10 dark:hover:bg-emerald-950/30"
+                  >
                     <td className="px-3 py-2">
                       {formatBrazilianDate(movement.date)}
                     </td>
                     <td className="px-3 py-2">{movement.description}</td>
-                    <td className="px-3 py-2">{movement.category}</td>
+                    <td className="px-3 py-2">
+                      {movement.category === "Receita" ? (
+                        movement.category
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <CategoryIcon category={movement.category} />
+                          {movement.category}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-3 py-2">{movement.type}</td>
                     <td className="px-3 py-2">{movement.status}</td>
                     <td className="px-3 py-2 text-right tabular-nums">

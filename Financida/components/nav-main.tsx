@@ -35,7 +35,7 @@ export function NavMain({
           >
             <SidebarMenuButton
               tooltip="adicionar"
-              className="min-w-8 border border-black bg-white text-black duration-200 ease-linear hover:bg-white hover:text-black active:bg-white active:text-black"
+              className="min-w-8 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 duration-200 ease-linear hover:bg-emerald-700 hover:text-white active:bg-emerald-700 active:text-white dark:bg-emerald-400 dark:text-emerald-950 dark:hover:bg-emerald-300 dark:hover:text-emerald-950"
               onClick={() => onItemSelect?.("lançamentos")}
             >
               <CirclePlusIcon />
@@ -49,6 +49,7 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip={item.title}
                 isActive={activeItem === item.title}
+                className="data-[active=true]:bg-emerald-50 data-[active=true]:text-emerald-800 hover:bg-emerald-50 hover:text-emerald-800 dark:data-[active=true]:bg-emerald-950/40 dark:data-[active=true]:text-emerald-100 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-100"
                 onClick={() => onItemSelect?.(item.title)}
               >
                 {item.icon}

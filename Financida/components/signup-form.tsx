@@ -22,7 +22,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter()
 
   return (
-    <Card {...props}>
+    <Card
+      className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30"
+      {...props}
+    >
       <CardHeader>
         <CardTitle>Criar conta</CardTitle>
         <CardDescription>
