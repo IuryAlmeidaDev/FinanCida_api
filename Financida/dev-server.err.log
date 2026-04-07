@@ -1,0 +1,28 @@
+'wmic' n�o � reconhecido como um comando interno
+ou externo, um programa oper�vel ou um arquivo em lotes.
+⚠ Fast Refresh had to perform a full reload when ./components/chart-area-interactive.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ TypeError: Cannot read properties of undefined (reading 'expenseGrowthRate')
+    at SectionCards (components\section-cards.tsx:32:13)
+  30 | }) {
+  31 |   const expenseTrendIcon =
+> 32 |     summary.expenseGrowthRate > 0 ? TrendingUpIcon : TrendingDownIcon
+     |             ^
+  33 |   const ExpenseTrendIcon = expenseTrendIcon
+  34 |
+  35 |   return ( {
+  digest: '3899574313'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'expenseGrowthRate')
+    at SectionCards (components\section-cards.tsx:32:13)
+  30 | }) {
+  31 |   const expenseTrendIcon =
+> 32 |     summary.expenseGrowthRate > 0 ? TrendingUpIcon : TrendingDownIcon
+     |             ^
+  33 |   const ExpenseTrendIcon = expenseTrendIcon
+  34 |
+  35 |   return ( {
+  digest: '3899574313'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
