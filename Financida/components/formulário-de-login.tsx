@@ -76,9 +76,7 @@ export function LoginForm({
       </div>
       <Card className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
         <CardHeader>
-          <CardTitle className="w-fit rounded-full border border-[#007A55] px-3 py-1 text-[#007A55]">
-            Entrar na sua conta
-          </CardTitle>
+          <CardTitle>Entrar na sua conta</CardTitle>
           <CardDescription>
             Informe seu e-mail e senha para acessar
           </CardDescription>
