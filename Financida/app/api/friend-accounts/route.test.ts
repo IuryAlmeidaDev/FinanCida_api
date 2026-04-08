@@ -6,13 +6,13 @@ const authMocks = vi.hoisted(() => ({
 }))
 
 const accountsMocks = vi.hoisted(() => ({
+  acceptFriendAccount: vi.fn(),
   createFriendAccount: vi.fn(),
-  listFriendAccounts: vi.fn(),
-  payFriendAccountInstallment: vi.fn(),
-  friendAccountInputSchema: {
+  friendAccountAcceptSchema: {
     parse: vi.fn((input) => input),
   },
-  friendAccountPaymentSchema: {
+  listFriendAccounts: vi.fn(),
+  friendAccountInputSchema: {
     parse: vi.fn((input) => input),
   },
 }))
@@ -33,9 +33,9 @@ describe("friend accounts API", () => {
   beforeEach(() => {
     authMocks.getAuthUserFromToken.mockReset()
     authMocks.readAuthTokenFromCookieHeader.mockReset()
+    accountsMocks.acceptFriendAccount.mockReset()
     accountsMocks.createFriendAccount.mockReset()
     accountsMocks.listFriendAccounts.mockReset()
-    accountsMocks.payFriendAccountInstallment.mockReset()
   })
 
   it("lista contas do usuario autenticado", async () => {
@@ -76,10 +76,10 @@ describe("friend accounts API", () => {
     )
   })
 
-  it("confirma pagamento de parcela", async () => {
+  it("aceita uma conta compartilhada pendente", async () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
-    accountsMocks.payFriendAccountInstallment.mockResolvedValue([])
+    accountsMocks.acceptFriendAccount.mockResolvedValue([])
 
     const response = await PATCH(
       new Request("http://localhost/api/friend-accounts", {
@@ -89,7 +89,7 @@ describe("friend accounts API", () => {
     )
 
     expect(response.status).toBe(200)
-    expect(accountsMocks.payFriendAccountInstallment).toHaveBeenCalledWith(
+    expect(accountsMocks.acceptFriendAccount).toHaveBeenCalledWith(
       "user-1",
       "account-1"
     )

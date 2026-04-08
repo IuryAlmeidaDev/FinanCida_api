@@ -11,16 +11,17 @@ export type SharedFriendProfile = {
 
 export type SharedAccount = {
   id: string
+  requesterUserId: string
   friendUserId: string
-  friendName: string
-  friendHandle: string
+  counterpartName: string
+  counterpartHandle: string
   description: string
   totalAmount: number
   installments: number
-  paidInstallments: number
   installmentValue: number
   paymentDates: string[]
-  status: "Em aberto" | "Quitado"
+  status: "Pendente" | "Aceita"
+  role: "requester" | "recipient"
 }
 
 export function useSharedTransactions() {
@@ -76,7 +77,7 @@ export function useSharedTransactions() {
     []
   )
 
-  const confirmSharedPayment = React.useCallback(async (accountId: string) => {
+  const acceptSharedTransaction = React.useCallback(async (accountId: string) => {
     const response = await fetch("/api/friend-accounts", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -95,7 +96,7 @@ export function useSharedTransactions() {
     accounts,
     friends,
     createSharedTransaction,
-    confirmSharedPayment,
+    acceptSharedTransaction,
     reloadSharedTransactions: loadData,
   }
 }

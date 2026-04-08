@@ -23,13 +23,21 @@ export function FriendAccountsDashboard() {
     accounts,
     friends,
     createSharedTransaction,
-    confirmSharedPayment,
+    acceptSharedTransaction,
   } = useSharedTransactions()
   const [friendUserId, setFriendUserId] = React.useState("")
   const [description, setDescription] = React.useState("")
   const [totalAmount, setTotalAmount] = React.useState("")
   const [installments, setInstallments] = React.useState(2)
   const [paymentDates, setPaymentDates] = React.useState<string[]>(["", ""])
+
+  const incomingPendingAccounts = accounts.filter(
+    (account) => account.role === "recipient" && account.status === "Pendente"
+  )
+  const historyAccounts = accounts.filter(
+    (account) =>
+      account.role === "requester" || account.status === "Aceita"
+  )
 
   React.useEffect(() => {
     setPaymentDates((currentDates) =>
@@ -39,6 +47,7 @@ export function FriendAccountsDashboard() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
     await createSharedTransaction({
       friendUserId,
       description,
@@ -46,15 +55,12 @@ export function FriendAccountsDashboard() {
       installments,
       paymentDates,
     })
+
     setFriendUserId("")
     setDescription("")
     setTotalAmount("")
     setInstallments(2)
     setPaymentDates(["", ""])
-  }
-
-  async function handlePay(accountId: string) {
-    await confirmSharedPayment(accountId)
   }
 
   return (
@@ -63,7 +69,7 @@ export function FriendAccountsDashboard() {
         <CardHeader>
           <CardTitle>Criar conta compartilhada</CardTitle>
           <CardDescription>
-            Apenas amigos confirmados podem participar de contas parceladas.
+            A conta fica pendente ate o amigo aceitar. Depois disso, ela entra como despesa para voce e receita para ele.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -84,7 +90,7 @@ export function FriendAccountsDashboard() {
             <Input
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Ex: Emprestimo de 500 reais"
+              placeholder="Ex: Divida de 500 reais"
               required
             />
             <Input
@@ -123,46 +129,92 @@ export function FriendAccountsDashboard() {
           </form>
         </CardContent>
       </Card>
-      <Card className="border-emerald-100">
-        <CardHeader>
-          <CardTitle>Contas compartilhadas</CardTitle>
-          <CardDescription>
-            Cada pagamento confirma a parcela, vira despesa para voce e receita para o amigo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3">
-          {accounts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma conta compartilhada cadastrada ainda.
-            </p>
-          ) : (
-            accounts.map((account) => (
-              <div
-                key={account.id}
-                className="grid gap-3 rounded-2xl border border-emerald-100 p-4 md:grid-cols-[1fr_auto]"
-              >
-                <div>
-                  <p className="font-semibold">
-                    {account.friendName} ({account.friendHandle})
-                  </p>
-                  <p className="text-sm text-muted-foreground">{account.description}</p>
-                  <p className="mt-2 text-sm">
-                    {account.paidInstallments}/{account.installments} parcelas pagas de{" "}
+      <div className="grid gap-4">
+        <Card className="border-emerald-100">
+          <CardHeader>
+            <CardTitle>Solicitacoes recebidas</CardTitle>
+            <CardDescription>
+              Aceite aqui as contas compartilhadas enviadas por amigos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            {incomingPendingAccounts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nenhuma solicitacao pendente no momento.
+              </p>
+            ) : (
+              incomingPendingAccounts.map((account) => (
+                <div
+                  key={account.id}
+                  className="grid gap-3 rounded-2xl border border-emerald-100 p-4 md:grid-cols-[1fr_auto]"
+                >
+                  <div>
+                    <p className="font-semibold">
+                      {account.counterpartName} ({account.counterpartHandle})
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {account.description}
+                    </p>
+                    <p className="mt-2 text-sm">
+                      {account.installments} parcelas de{" "}
+                      {moneyFormatter.format(account.installmentValue)}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => void acceptSharedTransaction(account.id)}
+                  >
+                    Aceitar conta
+                  </Button>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+        <Card className="border-emerald-100">
+          <CardHeader>
+            <CardTitle>Historico de contas</CardTitle>
+            <CardDescription>
+              Contas criadas por voce e contas aceitas entre amigos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            {historyAccounts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nenhuma conta compartilhada cadastrada ainda.
+              </p>
+            ) : (
+              historyAccounts.map((account) => (
+                <div key={account.id} className="rounded-2xl border border-emerald-100 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold">
+                        {account.counterpartName} ({account.counterpartHandle})
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {account.description}
+                      </p>
+                    </div>
+                    <span
+                      className={
+                        account.status === "Aceita"
+                          ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                          : "rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700"
+                      }
+                    >
+                      {account.status}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm">
+                    {account.installments} parcelas de{" "}
                     {moneyFormatter.format(account.installmentValue)}
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  disabled={account.status === "Quitado"}
-                  onClick={() => handlePay(account.id)}
-                >
-                  Confirmar pagamento
-                </Button>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

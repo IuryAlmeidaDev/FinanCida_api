@@ -3,11 +3,11 @@ import { ZodError } from "zod"
 
 import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
 import {
+  acceptFriendAccount,
   createFriendAccount,
+  friendAccountAcceptSchema,
   friendAccountInputSchema,
-  friendAccountPaymentSchema,
   listFriendAccounts,
-  payFriendAccountInstallment,
 } from "@/lib/friend-accounts-store"
 
 export const runtime = "nodejs"
@@ -59,8 +59,8 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
     }
 
-    const input = friendAccountPaymentSchema.parse(await request.json())
-    const accounts = await payFriendAccountInstallment(user.id, input.accountId)
+    const input = friendAccountAcceptSchema.parse(await request.json())
+    const accounts = await acceptFriendAccount(user.id, input.accountId)
 
     return NextResponse.json({ accounts })
   } catch (error) {
@@ -69,7 +69,7 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel confirmar o pagamento." },
+      { error: "Nao foi possivel aceitar a conta compartilhada." },
       { status: 500 }
     )
   }
