@@ -17,6 +17,7 @@ describe("me API", () => {
       id: "user-1",
       name: "Ana",
       email: "ana@example.com",
+      handle: "ana#1234",
     })
 
     const response = await GET(

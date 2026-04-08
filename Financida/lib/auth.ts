@@ -9,6 +9,7 @@ export type AuthUser = {
   id: string
   name: string
   email: string
+  handle: string
 }
 
 export function toPublicAuthUser(user: AuthUser): AuthUser {
@@ -16,12 +17,14 @@ export function toPublicAuthUser(user: AuthUser): AuthUser {
     id: user.id,
     name: user.name,
     email: user.email,
+    handle: user.handle,
   }
 }
 
 type JwtPayload = AuthUser & {
   email: string
   name: string
+  handle: string
 }
 
 function getJwtSecret() {
@@ -55,6 +58,7 @@ export async function signAuthToken(user: AuthUser) {
     id: user.id,
     name: user.name,
     email: user.email,
+    handle: user.handle,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -71,7 +75,8 @@ export async function verifyAuthToken(token: string) {
   if (
     typeof typedPayload.id !== "string" ||
     typeof typedPayload.name !== "string" ||
-    typeof typedPayload.email !== "string"
+    typeof typedPayload.email !== "string" ||
+    typeof typedPayload.handle !== "string"
   ) {
     throw new Error("Token de autenticacao invalido.")
   }
@@ -80,6 +85,7 @@ export async function verifyAuthToken(token: string) {
     id: typedPayload.id,
     name: typedPayload.name,
     email: typedPayload.email,
+    handle: typedPayload.handle,
   } satisfies AuthUser
 }
 

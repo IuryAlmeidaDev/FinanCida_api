@@ -11,18 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-
-type FriendAccount = {
-  id: string
-  friendName: string
-  friendEmail: string
-  description: string
-  totalAmount: number
-  installments: number
-  paidInstallments: number
-  installmentValue: number
-  status: "Em aberto" | "Quitado"
-}
+import { useSharedTransactions } from "@/hooks/use-shared-transactions"
 
 const moneyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -30,95 +19,72 @@ const moneyFormatter = new Intl.NumberFormat("pt-BR", {
 })
 
 export function FriendAccountsDashboard() {
-  const [accounts, setAccounts] = React.useState<FriendAccount[]>([])
-  const [friendName, setFriendName] = React.useState("")
-  const [friendEmail, setFriendEmail] = React.useState("")
+  const {
+    accounts,
+    friends,
+    createSharedTransaction,
+    confirmSharedPayment,
+  } = useSharedTransactions()
+  const [friendUserId, setFriendUserId] = React.useState("")
   const [description, setDescription] = React.useState("")
   const [totalAmount, setTotalAmount] = React.useState("")
-  const [installments, setInstallments] = React.useState("2")
-
-  async function loadAccounts() {
-    const response = await fetch("/api/friend-accounts", { cache: "no-store" })
-
-    if (response.ok) {
-      const payload = (await response.json()) as { accounts: FriendAccount[] }
-      setAccounts(payload.accounts)
-    }
-  }
+  const [installments, setInstallments] = React.useState(2)
+  const [paymentDates, setPaymentDates] = React.useState<string[]>(["", ""])
 
   React.useEffect(() => {
-    loadAccounts()
-  }, [])
+    setPaymentDates((currentDates) =>
+      Array.from({ length: installments }, (_, index) => currentDates[index] ?? "")
+    )
+  }, [installments])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
-    const response = await fetch("/api/friend-accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        friendName,
-        friendEmail,
-        description,
-        totalAmount: Number(totalAmount.replace(",", ".")),
-        installments: Number(installments),
-      }),
+    await createSharedTransaction({
+      friendUserId,
+      description,
+      totalAmount: Number(totalAmount.replace(",", ".")),
+      installments,
+      paymentDates,
     })
-
-    if (!response.ok) {
-      return
-    }
-
-    const payload = (await response.json()) as { accounts: FriendAccount[] }
-    setAccounts(payload.accounts)
-    setFriendName("")
-    setFriendEmail("")
+    setFriendUserId("")
     setDescription("")
     setTotalAmount("")
-    setInstallments("2")
+    setInstallments(2)
+    setPaymentDates(["", ""])
   }
 
   async function handlePay(accountId: string) {
-    const response = await fetch("/api/friend-accounts", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accountId }),
-    })
-
-    if (response.ok) {
-      const payload = (await response.json()) as { accounts: FriendAccount[] }
-      setAccounts(payload.accounts)
-    }
+    await confirmSharedPayment(accountId)
   }
 
   return (
-    <div className="grid gap-4 px-4 py-4 lg:grid-cols-[380px_1fr] lg:px-6">
+    <div className="grid gap-4 px-4 py-4 lg:grid-cols-[420px_1fr] lg:px-6">
       <Card className="border-emerald-100">
         <CardHeader>
-          <CardTitle>Adicionar amigo e conta</CardTitle>
+          <CardTitle>Criar conta compartilhada</CardTitle>
           <CardDescription>
-            Registre uma conta parcelada para confirmar pagamentos.
+            Apenas amigos confirmados podem participar de contas parceladas.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form className="grid gap-3" onSubmit={handleSubmit}>
-            <Input
-              value={friendName}
-              onChange={(event) => setFriendName(event.target.value)}
-              placeholder="Nome do amigo"
+            <select
+              className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
+              value={friendUserId}
+              onChange={(event) => setFriendUserId(event.target.value)}
               required
-            />
-            <Input
-              type="email"
-              value={friendEmail}
-              onChange={(event) => setFriendEmail(event.target.value)}
-              placeholder="email@amigo.com"
-              required
-            />
+            >
+              <option value="">Selecione um amigo</option>
+              {friends.map((friend) => (
+                <option key={friend.id} value={friend.id}>
+                  {friend.name} ({friend.handle})
+                </option>
+              ))}
+            </select>
             <Input
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Ex: Emprestimo pessoal"
+              placeholder="Ex: Emprestimo de 500 reais"
               required
             />
             <Input
@@ -132,25 +98,42 @@ export function FriendAccountsDashboard() {
               type="number"
               min={1}
               value={installments}
-              onChange={(event) => setInstallments(event.target.value)}
+              onChange={(event) => setInstallments(Number(event.target.value))}
               placeholder="Parcelas"
               required
             />
+            <div className="grid gap-2">
+              {paymentDates.map((date, index) => (
+                <Input
+                  key={index}
+                  type="date"
+                  value={date}
+                  onChange={(event) =>
+                    setPaymentDates((currentDates) =>
+                      currentDates.map((currentDate, currentIndex) =>
+                        currentIndex === index ? event.target.value : currentDate
+                      )
+                    )
+                  }
+                  required
+                />
+              ))}
+            </div>
             <Button type="submit">Salvar conta</Button>
           </form>
         </CardContent>
       </Card>
       <Card className="border-emerald-100">
         <CardHeader>
-          <CardTitle>Contas com amigos</CardTitle>
+          <CardTitle>Contas compartilhadas</CardTitle>
           <CardDescription>
-            Ao confirmar uma parcela, ela entra como despesa para voce e receita para o amigo se ele tiver cadastro.
+            Cada pagamento confirma a parcela, vira despesa para voce e receita para o amigo.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
           {accounts.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nenhuma conta cadastrada ainda.
+              Nenhuma conta compartilhada cadastrada ainda.
             </p>
           ) : (
             accounts.map((account) => (
@@ -159,10 +142,10 @@ export function FriendAccountsDashboard() {
                 className="grid gap-3 rounded-2xl border border-emerald-100 p-4 md:grid-cols-[1fr_auto]"
               >
                 <div>
-                  <p className="font-semibold">{account.friendName}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {account.description} - {account.friendEmail}
+                  <p className="font-semibold">
+                    {account.friendName} ({account.friendHandle})
                   </p>
+                  <p className="text-sm text-muted-foreground">{account.description}</p>
                   <p className="mt-2 text-sm">
                     {account.paidInstallments}/{account.installments} parcelas pagas de{" "}
                     {moneyFormatter.format(account.installmentValue)}

@@ -63,7 +63,7 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
       <CardContent className="flex flex-1 flex-col justify-center gap-6 px-4 pt-4 sm:px-6 sm:pt-6 lg:flex-row lg:items-center lg:justify-center lg:gap-10">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[260px] w-full sm:h-[320px] lg:w-auto lg:flex-1 lg:max-w-[420px]"
+          className="mx-auto aspect-square h-[260px] w-full sm:h-[320px] lg:h-[340px] lg:flex-1 lg:max-w-none"
         >
           <PieChart>
             <ChartTooltip

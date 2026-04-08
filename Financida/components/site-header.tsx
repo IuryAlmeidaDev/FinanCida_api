@@ -19,7 +19,11 @@ function getHeaderTitle(activeSection: string) {
   }
 
   if (activeSection.startsWith("amigos")) {
-    return "Amigos e Contas"
+    return "Rede de Amigos"
+  }
+
+  if (activeSection.startsWith("contas")) {
+    return "Contas Compartilhadas"
   }
 
   return "Dashboard financeiro"

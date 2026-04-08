@@ -26,6 +26,7 @@ describe("signup API", () => {
       id: "user-1",
       name: "Ana",
       email: "ana@example.com",
+      handle: "ana#1234",
       passwordHash: "hashed-password",
     })
 
@@ -40,10 +41,13 @@ describe("signup API", () => {
       })
     )
 
-    const payload = (await response.json()) as { user: { email: string } }
+    const payload = (await response.json()) as {
+      user: { email: string; handle: string }
+    }
 
     expect(response.status).toBe(201)
     expect(payload.user.email).toBe("ana@example.com")
+    expect(payload.user.handle).toBe("ana#1234")
     expect(authStoreMocks.createUser).toHaveBeenCalledTimes(1)
     expect(response.headers.get("set-cookie")).toContain("financida_auth_token")
   })
@@ -53,6 +57,7 @@ describe("signup API", () => {
       id: "user-1",
       name: "Ana",
       email: "ana@example.com",
+      handle: "ana#1234",
       passwordHash: "hashed-password",
     })
 

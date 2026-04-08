@@ -26,6 +26,7 @@ const authUser = {
   id: "user-1",
   name: "Ana",
   email: "ana@example.com",
+  handle: "ana#1234",
 }
 
 describe("friend accounts API", () => {
@@ -59,11 +60,11 @@ describe("friend accounts API", () => {
       new Request("http://localhost/api/friend-accounts", {
         method: "POST",
         body: JSON.stringify({
-          friendName: "Joao",
-          friendEmail: "joao@example.com",
+          friendUserId: "friend-1",
           description: "Emprestimo",
           totalAmount: 500,
           installments: 2,
+          paymentDates: ["2026-04-10", "2026-05-10"],
         }),
       })
     )

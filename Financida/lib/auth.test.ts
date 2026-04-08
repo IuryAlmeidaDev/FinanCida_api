@@ -36,12 +36,14 @@ describe("auth helpers", () => {
       id: "user-1",
       name: "Ana",
       email: "ana@example.com",
+      handle: "ana#1234",
     })
 
     await expect(verifyAuthToken(token)).resolves.toMatchObject({
       id: "user-1",
       name: "Ana",
       email: "ana@example.com",
+      handle: "ana#1234",
     })
     await expect(getAuthUserFromToken(token)).resolves.toMatchObject({
       id: "user-1",

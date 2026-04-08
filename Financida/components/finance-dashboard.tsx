@@ -9,6 +9,7 @@ import { FinanceOverviewCharts } from "@/components/finance-overview-charts"
 import { FinancePieChart } from "@/components/finance-pie-chart"
 import { FinanceWorkspace } from "@/components/finance-workspace"
 import { FriendAccountsDashboard } from "@/components/friend-accounts-dashboard"
+import { FriendsDashboard } from "@/components/friends-dashboard"
 import { MovementsTable } from "@/components/movements-table"
 import { SectionCards } from "@/components/section-cards"
 import { SpendingLimit } from "@/components/spending-limit"
@@ -190,6 +191,15 @@ export function FinanceDashboard({
   if (activeSection.startsWith("amigos")) {
     return (
       <div className="flex flex-col gap-4">
+        <FriendsDashboard />
+        {addMovementDialog}
+      </div>
+    )
+  }
+
+  if (activeSection.startsWith("contas")) {
+    return (
+      <div className="flex flex-col gap-4">
         <FriendAccountsDashboard />
         {addMovementDialog}
       </div>
@@ -199,7 +209,7 @@ export function FinanceDashboard({
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid max-w-[92rem] items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(420px,1fr)] lg:px-6">
+      <div className="grid w-full items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(420px,1fr)] lg:px-6">
         <div className="h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}

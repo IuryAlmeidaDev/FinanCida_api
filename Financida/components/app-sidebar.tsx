@@ -52,7 +52,12 @@ const data = {
       icon: <BitcoinIcon />,
     },
     {
-      title: "amigos e contas",
+      title: "amigos",
+      url: "#",
+      icon: <HandCoinsIcon />,
+    },
+    {
+      title: "contas compartilhadas",
       url: "#",
       icon: <HandCoinsIcon />,
     },
