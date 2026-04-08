@@ -55,8 +55,8 @@ export function FinanceBarChart({
         <CardTitle>Receitas e despesas</CardTitle>
         <CardDescription>Historico dos ultimos 12 meses.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-1">
-        <ChartContainer config={chartConfig} className="min-h-[250px] w-full flex-1">
+      <CardContent className="flex flex-1 pt-2">
+        <ChartContainer config={chartConfig} className="min-h-[150px] w-full flex-1">
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
