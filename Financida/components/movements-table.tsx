@@ -9,7 +9,10 @@ import {
 } from "@/components/ui/card"
 import { CategoryIcon } from "@/components/category-icon"
 import type { FinanceDataset } from "@/lib/finance"
-import { listFinanceMovements } from "@/lib/finance-movements"
+import {
+  listFinanceMovements,
+  type MovementDeleteInput,
+} from "@/lib/finance-movements"
 
 const moneyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -24,7 +27,13 @@ function formatBrazilianDate(date: string) {
   return new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR")
 }
 
-export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
+export function MovementsTable({
+  dataset,
+  onMovementDelete,
+}: {
+  dataset: FinanceDataset
+  onMovementDelete?: (movement: MovementDeleteInput) => void | Promise<void>
+}) {
   const movements = listFinanceMovements(dataset)
 
   return (
@@ -47,6 +56,7 @@ export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
                   <th className="px-3 py-2 font-medium">Tipo</th>
                   <th className="px-3 py-2 font-medium">Status</th>
                   <th className="px-3 py-2 text-right font-medium">Valor</th>
+                  <th className="px-3 py-2 text-right font-medium">Acoes</th>
                 </tr>
               </thead>
               <tbody>
@@ -60,19 +70,29 @@ export function MovementsTable({ dataset }: { dataset: FinanceDataset }) {
                     </td>
                     <td className="px-3 py-2">{movement.description}</td>
                     <td className="px-3 py-2">
-                      {movement.category === "Receita" ? (
-                        movement.category
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <CategoryIcon category={movement.category} />
-                          {movement.category}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon category={movement.category} />
+                        {movement.category}
+                      </span>
                     </td>
                     <td className="px-3 py-2">{movement.type}</td>
                     <td className="px-3 py-2">{movement.status}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {moneyFormatter.format(movement.value)}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <button
+                        type="button"
+                        className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
+                        onClick={() =>
+                          onMovementDelete?.({
+                            id: movement.id,
+                            source: movement.source,
+                          })
+                        }
+                      >
+                        Excluir
+                      </button>
                     </td>
                   </tr>
                 ))}

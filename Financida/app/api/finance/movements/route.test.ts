@@ -8,12 +8,13 @@ const authMocks = vi.hoisted(() => ({
 const financeStoreMocks = vi.hoisted(() => ({
   readFinanceDataset: vi.fn(),
   createFinanceMovement: vi.fn(),
+  deleteFinanceMovement: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => authMocks)
 vi.mock("@/lib/finance-store", () => financeStoreMocks)
 
-import { GET, POST } from "@/app/api/finance/movements/route"
+import { DELETE, GET, POST } from "@/app/api/finance/movements/route"
 
 const authUser = {
   id: "user-1",
@@ -27,6 +28,7 @@ describe("finance movements API", () => {
     authMocks.readAuthTokenFromCookieHeader.mockReset()
     financeStoreMocks.readFinanceDataset.mockReset()
     financeStoreMocks.createFinanceMovement.mockReset()
+    financeStoreMocks.deleteFinanceMovement.mockReset()
   })
 
   afterEach(() => {
@@ -137,5 +139,35 @@ describe("finance movements API", () => {
     )
 
     expect(response.status).toBe(400)
+  })
+
+  it("remove uma movimentacao autenticada", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    financeStoreMocks.deleteFinanceMovement.mockResolvedValue({
+      fixedExpenses: [],
+      variableExpenses: [],
+      monthlyRevenues: [],
+    })
+
+    const response = await DELETE(
+      new Request("http://localhost/api/finance/movements", {
+        method: "DELETE",
+        headers: { cookie: "financida_auth_token=token" },
+        body: JSON.stringify({
+          id: "mov-1",
+          source: "variable-expense",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(financeStoreMocks.deleteFinanceMovement).toHaveBeenCalledWith(
+      "user-1",
+      {
+        id: "mov-1",
+        source: "variable-expense",
+      }
+    )
   })
 })

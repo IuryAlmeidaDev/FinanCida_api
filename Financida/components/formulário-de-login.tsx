@@ -68,7 +68,10 @@ export function LoginForm({
               aria-hidden="true"
             />
           </span>
-          FinanCida
+          <span>
+            <span>Finan</span>
+            <span className="text-sky-600">Cida</span>
+          </span>
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
           Gestao financeira simples e organizada

@@ -72,13 +72,13 @@
     --chart-4: #ef4444;
     --chart-5: #14b8a6;
     --radius: 0.875rem;
-    --sidebar: #ffffff;
-    --sidebar-foreground: #0f172a;
+    --sidebar: #2C2D2D;
+    --sidebar-foreground: #f8fafc;
     --sidebar-primary: #059669;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #ecfdf5;
-    --sidebar-accent-foreground: #065f46;
-    --sidebar-border: #d9e9e3;
+    --sidebar-accent: #3a3c3c;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #414343;
     --sidebar-ring: #10b981;
 }
 

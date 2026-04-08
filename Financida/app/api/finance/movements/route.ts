@@ -2,9 +2,14 @@ import { NextResponse } from "next/server"
 import { ZodError } from "zod"
 
 import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
-import { listFinanceMovements, movementInputSchema } from "@/lib/finance-movements"
+import {
+  listFinanceMovements,
+  movementDeleteSchema,
+  movementInputSchema,
+} from "@/lib/finance-movements"
 import {
   createFinanceMovement,
+  deleteFinanceMovement,
   readFinanceDataset,
 } from "@/lib/finance-store"
 
@@ -57,6 +62,40 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { error: "Nao foi possivel salvar a movimentacao." },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
+    const user = await getAuthUserFromToken(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    }
+
+    const input = movementDeleteSchema.parse(await request.json())
+    const dataset = await deleteFinanceMovement(user.id, input)
+
+    return NextResponse.json({
+      dataset,
+      movements: listFinanceMovements(dataset),
+    })
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: "Dados invalidos para remover a movimentacao.",
+          issues: error.issues,
+        },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: "Nao foi possivel remover a movimentacao." },
       { status: 500 }
     )
   }

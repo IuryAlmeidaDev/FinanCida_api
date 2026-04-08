@@ -1,12 +1,14 @@
 "use client"
 
 import {
+  CardAction,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { CategoryIcon } from "@/components/category-icon"
 import type { FinancialSummary } from "@/lib/finance"
 
@@ -24,6 +26,11 @@ export function FinancialReports({ summary }: { summary: FinancialSummary }) {
           <CardDescription>
             Uma leitura rapida para apoiar decisoes financeiras.
           </CardDescription>
+          <CardAction>
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
+              Download as PDF
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex justify-between rounded-xl bg-emerald-50 p-3 dark:bg-emerald-950/40">

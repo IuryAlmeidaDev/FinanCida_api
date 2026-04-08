@@ -1,5 +1,6 @@
 import {
   CarIcon,
+  CoinsIcon,
   GraduationCapIcon,
   HeartPulseIcon,
   HomeIcon,
@@ -30,10 +31,10 @@ export function CategoryIcon({
   category,
   className,
 }: {
-  category: ExpenseCategory
+  category: ExpenseCategory | "Receita"
   className?: string
 }) {
-  const Icon = categoryIcons[category]
+  const Icon = category === "Receita" ? CoinsIcon : categoryIcons[category]
 
   return (
     <Icon

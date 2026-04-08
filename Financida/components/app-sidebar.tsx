@@ -66,16 +66,17 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
-                <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 shadow-sm dark:bg-emerald-950 dark:text-emerald-300">
+              <a href="#" className="text-white">
+                <span className="flex size-8 items-center justify-center rounded-xl bg-white/10 text-white shadow-sm ring-1 ring-white/15">
                   <CircleDollarSign
                     className="size-5"
-                    color="#007A55"
+                    color="#34d399"
                     aria-hidden="true"
                   />
                 </span>
-                <span className="text-base font-bold tracking-tight text-emerald-700 dark:text-emerald-300">
-                  FinanCida
+                <span className="text-base font-bold tracking-tight">
+                  <span className="text-emerald-300">Finan</span>
+                  <span className="text-sky-300">Cida</span>
                 </span>
               </a>
             </SidebarMenuButton>

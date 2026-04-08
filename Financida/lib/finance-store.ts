@@ -6,7 +6,11 @@ import type {
 } from "@/lib/finance"
 import { createEmptyFinanceDataset } from "@/lib/finance"
 import { calculateFinancialSummary } from "@/lib/finance"
-import { addMovementToDataset, type MovementInput } from "@/lib/finance-movements"
+import {
+  addMovementToDataset,
+  type MovementDeleteInput,
+  type MovementInput,
+} from "@/lib/finance-movements"
 import { getPool, hasDatabaseUrl } from "@/lib/postgres"
 
 let schemaReady: Promise<void> | undefined
@@ -299,6 +303,32 @@ export async function createFinanceMovement(userId: string, input: MovementInput
   }
 
   return createFinanceMovementInDatabase(userId, input)
+}
+
+export async function deleteFinanceMovement(
+  userId: string,
+  input: MovementDeleteInput
+) {
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
+  }
+
+  await ensureDatabase()
+
+  const database = getPool()
+  const tableBySource = {
+    revenue: "monthly_revenues",
+    "fixed-expense": "fixed_expenses",
+    "variable-expense": "variable_expenses",
+  } satisfies Record<MovementDeleteInput["source"], string>
+  const table = tableBySource[input.source]
+
+  await database.query(`delete from ${table} where id = $1 and user_id = $2`, [
+    input.id,
+    userId,
+  ])
+
+  return readFinanceDatasetFromDatabase(userId)
 }
 
 export async function getFinancialSummary(userId: string, range: MonthYear) {

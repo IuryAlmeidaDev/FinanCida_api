@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+
 import {
   Card,
   CardContent,
@@ -7,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import type { FinancialSummary } from "@/lib/finance"
 
 const moneyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -15,7 +18,7 @@ const moneyFormatter = new Intl.NumberFormat("pt-BR", {
 })
 
 export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
-  const monthlyLimit = 6000
+  const [monthlyLimit, setMonthlyLimit] = React.useState(6000)
   const percentage = Math.min((summary.totalExpenses / monthlyLimit) * 100, 100)
 
   return (
@@ -37,9 +40,15 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-muted-foreground">Limite mensal</p>
-              <p className="text-xl font-medium tabular-nums">
-                {moneyFormatter.format(monthlyLimit)}
-              </p>
+              <Input
+                className="mt-1 w-36 text-right tabular-nums"
+                type="number"
+                min={1}
+                value={monthlyLimit}
+                onChange={(event) =>
+                  setMonthlyLimit(Math.max(Number(event.target.value), 1))
+                }
+              />
             </div>
           </div>
           <div>

@@ -63,8 +63,8 @@ export function FinanceBarChart({
   dataset: FinanceDataset
   range: MonthYear
 }) {
-  const chartData = Array.from({ length: 6 }, (_, index) => {
-    const date = createMonthDate(range, index - 5)
+  const chartData = Array.from({ length: 12 }, (_, index) => {
+    const date = createMonthDate(range, index - 11)
     const monthKey = toMonthKey(date)
     const receita = sumValues(
       dataset.monthlyRevenues
@@ -94,7 +94,7 @@ export function FinanceBarChart({
     <Card className="@container/card flex h-full flex-col border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
       <CardHeader>
         <CardTitle>Receitas e despesas</CardTitle>
-        <CardDescription>Comparativo dos ultimos 6 meses.</CardDescription>
+        <CardDescription>Historico dos ultimos 12 meses.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1">
         <ChartContainer config={chartConfig} className="min-h-[320px] w-full flex-1">

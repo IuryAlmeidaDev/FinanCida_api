@@ -37,7 +37,7 @@ export function DashboardShell({ user }: { user: AuthUser }) {
         onItemSelect={handleItemSelect}
       />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader activeSection={activeSection} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <FinanceDashboard

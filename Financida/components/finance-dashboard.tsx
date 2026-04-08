@@ -16,6 +16,7 @@ import {
   type FinanceDataset,
 } from "@/lib/finance"
 import type { MovementInput } from "@/lib/finance-movements"
+import type { MovementDeleteInput } from "@/lib/finance-movements"
 
 export function FinanceDashboard({
   activeSection,
@@ -85,6 +86,23 @@ export function FinanceDashboard({
     setDataset(payload.dataset)
   }
 
+  async function handleMovementDelete(movement: MovementDeleteInput) {
+    const response = await fetch("/api/finance/movements", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(movement),
+    })
+
+    if (!response.ok) {
+      throw new Error("Nao foi possivel remover a movimentacao.")
+    }
+
+    const payload = (await response.json()) as { dataset: FinanceDataset }
+    setDataset(payload.dataset)
+  }
+
   const addMovementDialog = addDialogOpen ? (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm">
       <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-emerald-100 bg-card p-5 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40">
@@ -130,7 +148,10 @@ export function FinanceDashboard({
           onMovementCreate={handleMovementCreate}
           showCalendar={false}
         />
-        <MovementsTable dataset={dataset} />
+        <MovementsTable
+          dataset={dataset}
+          onMovementDelete={handleMovementDelete}
+        />
         {addMovementDialog}
       </div>
     )
@@ -167,10 +188,10 @@ export function FinanceDashboard({
           />
         </div>
         <div className="h-full">
-          <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
+          <FinancePieChart summary={summary} />
         </div>
         <div className="h-full xl:col-span-2">
-          <FinancePieChart summary={summary} />
+          <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
         </div>
       </div>
       {addMovementDialog}

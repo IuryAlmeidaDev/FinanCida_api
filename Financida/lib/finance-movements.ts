@@ -35,9 +35,16 @@ export const movementInputSchema = z.object({
 })
 
 export type MovementInput = z.infer<typeof movementInputSchema>
+export const movementDeleteSchema = z.object({
+  id: z.string().min(1),
+  source: z.enum(["revenue", "fixed-expense", "variable-expense"]),
+})
+
+export type MovementDeleteInput = z.infer<typeof movementDeleteSchema>
 
 export type FinanceMovement = {
   id: string
+  source: MovementDeleteInput["source"]
   date: string
   description: string
   category: ExpenseCategory | "Receita"
@@ -110,6 +117,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
   return [
     ...dataset.monthlyRevenues.map((revenue) => ({
       id: revenue.id,
+      source: "revenue" as const,
       date: revenue.date,
       description: "Receita mensal",
       category: "Receita" as const,
@@ -119,6 +127,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
     })),
     ...dataset.fixedExpenses.map((expense) => ({
       id: expense.id,
+      source: "fixed-expense" as const,
       date: expense.transactionDate ?? "-",
       description: expense.description,
       category: expense.category,
@@ -128,6 +137,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
     })),
     ...dataset.variableExpenses.map((expense) => ({
       id: expense.id,
+      source: "variable-expense" as const,
       date: expense.date,
       description: expense.description,
       category: expense.category,
