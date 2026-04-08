@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,7 +24,7 @@ export function FriendAccountsDashboard() {
     accounts,
     friends,
     createSharedTransaction,
-    acceptSharedTransaction,
+    decideSharedTransaction,
   } = useSharedTransactions()
   const [friendUserId, setFriendUserId] = React.useState("")
   const [description, setDescription] = React.useState("")
@@ -47,20 +48,25 @@ export function FriendAccountsDashboard() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    try {
+      await createSharedTransaction({
+        friendUserId,
+        description,
+        totalAmount: Number(totalAmount.replace(",", ".")),
+        installments,
+        paymentDates,
+      })
 
-    await createSharedTransaction({
-      friendUserId,
-      description,
-      totalAmount: Number(totalAmount.replace(",", ".")),
-      installments,
-      paymentDates,
-    })
-
-    setFriendUserId("")
-    setDescription("")
-    setTotalAmount("")
-    setInstallments(2)
-    setPaymentDates(["", ""])
+      setFriendUserId("")
+      setDescription("")
+      setTotalAmount("")
+      setInstallments(2)
+      setPaymentDates(["", ""])
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Nao foi possivel salvar a conta."
+      )
+    }
   }
 
   return (
@@ -160,12 +166,32 @@ export function FriendAccountsDashboard() {
                       {moneyFormatter.format(account.installmentValue)}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={() => void acceptSharedTransaction(account.id)}
-                  >
-                    Aceitar conta
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        void decideSharedTransaction({
+                          accountId: account.id,
+                          action: "accept",
+                        })
+                      }
+                    >
+                      Aceitar conta
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-red-200 text-red-700 hover:bg-red-50"
+                      onClick={() =>
+                        void decideSharedTransaction({
+                          accountId: account.id,
+                          action: "reject",
+                        })
+                      }
+                    >
+                      Recusar
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
@@ -199,7 +225,9 @@ export function FriendAccountsDashboard() {
                       className={
                         account.status === "Aceita"
                           ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
-                          : "rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700"
+                          : account.status === "Recusada"
+                            ? "rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700"
+                            : "rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700"
                       }
                     >
                       {account.status}
@@ -208,6 +236,9 @@ export function FriendAccountsDashboard() {
                   <p className="mt-3 text-sm">
                     {account.installments} parcelas de{" "}
                     {moneyFormatter.format(account.installmentValue)}
+                  </p>
+                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {account.role === "requester" ? "Criada por voce" : "Recebida por voce"}
                   </p>
                 </div>
               ))

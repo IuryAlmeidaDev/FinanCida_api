@@ -16,6 +16,7 @@ export const friendAccountInputSchema = z.object({
 
 export const friendAccountAcceptSchema = z.object({
   accountId: z.string().min(1),
+  action: z.enum(["accept", "reject"]),
 })
 
 export type FriendAccount = {
@@ -29,7 +30,7 @@ export type FriendAccount = {
   installments: number
   installmentValue: number
   paymentDates: string[]
-  status: "Pendente" | "Aceita"
+  status: "Pendente" | "Aceita" | "Recusada"
   role: "requester" | "recipient"
 }
 
@@ -41,7 +42,7 @@ type FriendAccountRow = {
   total_amount: string
   installments: number
   payment_dates: string
-  status: "pending" | "accepted"
+  status: "pending" | "accepted" | "rejected"
   requester_name: string
   requester_handle: string
   friend_name: string
@@ -49,6 +50,14 @@ type FriendAccountRow = {
 }
 
 let schemaReady: Promise<void> | undefined
+
+async function notifySafely(input: Parameters<typeof createNotification>[0]) {
+  try {
+    await createNotification(input)
+  } catch (error) {
+    console.error("Falha ao criar notificacao de conta compartilhada.", error)
+  }
+}
 
 async function ensureSchema() {
   if (schemaReady) {
@@ -118,7 +127,12 @@ function mapFriendAccount(row: FriendAccountRow, userId: string): FriendAccount 
     installments: row.installments,
     installmentValue: totalAmount / row.installments,
     paymentDates: JSON.parse(row.payment_dates) as string[],
-    status: row.status === "accepted" ? "Aceita" : "Pendente",
+    status:
+      row.status === "accepted"
+        ? "Aceita"
+        : row.status === "rejected"
+          ? "Recusada"
+          : "Pendente",
     role,
   }
 }
@@ -199,7 +213,7 @@ export async function createFriendAccount(
   const requester = await findUserById(userId)
 
   if (requester) {
-    await createNotification({
+    await notifySafely({
       userId: parsedInput.friendUserId,
       type: "shared-transaction",
       title: "Conta compartilhada pendente",
@@ -239,14 +253,19 @@ async function syncAcceptedAccountToFinance(row: FriendAccountRow) {
   }
 }
 
-export async function acceptFriendAccount(userId: string, accountId: string) {
+export async function handleFriendAccountDecision(
+  userId: string,
+  input: z.infer<typeof friendAccountAcceptSchema>
+) {
   await ensureSchema()
 
   const database = getPool()
   const result = await database.query<FriendAccountRow>(
     `
       update friend_accounts fa
-      set status = 'accepted', accepted_at = now(), updated_at = now()
+      set status = $3,
+          accepted_at = case when $3 = 'accepted' then now() else accepted_at end,
+          updated_at = now()
       from app_users requester, app_users friend
       where fa.id = $1
         and fa.friend_user_id = $2
@@ -267,7 +286,7 @@ export async function acceptFriendAccount(userId: string, accountId: string) {
         friend.name as friend_name,
         friend.handle as friend_handle
     `,
-    [accountId, userId]
+    [input.accountId, userId, input.action === "accept" ? "accepted" : "rejected"]
   )
 
   const account = result.rows[0]
@@ -276,24 +295,34 @@ export async function acceptFriendAccount(userId: string, accountId: string) {
     return listFriendAccounts(userId)
   }
 
-  await syncAcceptedAccountToFinance(account)
+  if (input.action === "accept") {
+    await syncAcceptedAccountToFinance(account)
 
-  await database.query(
-    `
-      update friend_accounts
-      set finance_synced_at = now(), updated_at = now()
-      where id = $1
-    `,
-    [accountId]
-  )
+    await database.query(
+      `
+        update friend_accounts
+        set finance_synced_at = now(), updated_at = now()
+        where id = $1
+      `,
+      [input.accountId]
+    )
 
-  await createNotification({
-    userId: account.requester_user_id,
-    type: "shared-transaction",
-    title: "Conta compartilhada aceita",
-    message: `${account.friend_name} aceitou "${account.description}".`,
-    link: "Contas Compartilhadas",
-  })
+    await notifySafely({
+      userId: account.requester_user_id,
+      type: "shared-transaction",
+      title: "Conta compartilhada aceita",
+      message: `${account.friend_name} aceitou "${account.description}".`,
+      link: "Contas Compartilhadas",
+    })
+  } else {
+    await notifySafely({
+      userId: account.requester_user_id,
+      type: "shared-transaction",
+      title: "Conta compartilhada recusada",
+      message: `${account.friend_name} recusou "${account.description}".`,
+      link: "Contas Compartilhadas",
+    })
+  }
 
   return listFriendAccounts(userId)
 }

@@ -3,10 +3,10 @@ import { ZodError } from "zod"
 
 import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
 import {
-  acceptFriendAccount,
   createFriendAccount,
   friendAccountAcceptSchema,
   friendAccountInputSchema,
+  handleFriendAccountDecision,
   listFriendAccounts,
 } from "@/lib/friend-accounts-store"
 
@@ -45,7 +45,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel criar a conta." },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Nao foi possivel criar a conta.",
+      },
       { status: 500 }
     )
   }
@@ -60,7 +65,7 @@ export async function PATCH(request: Request) {
     }
 
     const input = friendAccountAcceptSchema.parse(await request.json())
-    const accounts = await acceptFriendAccount(user.id, input.accountId)
+    const accounts = await handleFriendAccountDecision(user.id, input)
 
     return NextResponse.json({ accounts })
   } catch (error) {
@@ -69,7 +74,12 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel aceitar a conta compartilhada." },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Nao foi possivel decidir sobre a conta compartilhada.",
+      },
       { status: 500 }
     )
   }

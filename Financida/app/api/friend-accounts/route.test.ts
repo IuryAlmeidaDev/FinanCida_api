@@ -6,11 +6,11 @@ const authMocks = vi.hoisted(() => ({
 }))
 
 const accountsMocks = vi.hoisted(() => ({
-  acceptFriendAccount: vi.fn(),
   createFriendAccount: vi.fn(),
   friendAccountAcceptSchema: {
     parse: vi.fn((input) => input),
   },
+  handleFriendAccountDecision: vi.fn(),
   listFriendAccounts: vi.fn(),
   friendAccountInputSchema: {
     parse: vi.fn((input) => input),
@@ -33,8 +33,8 @@ describe("friend accounts API", () => {
   beforeEach(() => {
     authMocks.getAuthUserFromToken.mockReset()
     authMocks.readAuthTokenFromCookieHeader.mockReset()
-    accountsMocks.acceptFriendAccount.mockReset()
     accountsMocks.createFriendAccount.mockReset()
+    accountsMocks.handleFriendAccountDecision.mockReset()
     accountsMocks.listFriendAccounts.mockReset()
   })
 
@@ -79,19 +79,19 @@ describe("friend accounts API", () => {
   it("aceita uma conta compartilhada pendente", async () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
-    accountsMocks.acceptFriendAccount.mockResolvedValue([])
+    accountsMocks.handleFriendAccountDecision.mockResolvedValue([])
 
     const response = await PATCH(
       new Request("http://localhost/api/friend-accounts", {
         method: "PATCH",
-        body: JSON.stringify({ accountId: "account-1" }),
+        body: JSON.stringify({ accountId: "account-1", action: "accept" }),
       })
     )
 
     expect(response.status).toBe(200)
-    expect(accountsMocks.acceptFriendAccount).toHaveBeenCalledWith(
+    expect(accountsMocks.handleFriendAccountDecision).toHaveBeenCalledWith(
       "user-1",
-      "account-1"
+      { accountId: "account-1", action: "accept" }
     )
   })
 })

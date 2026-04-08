@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 
 export type SharedFriendProfile = {
   id: string
@@ -20,7 +21,7 @@ export type SharedAccount = {
   installments: number
   installmentValue: number
   paymentDates: string[]
-  status: "Pendente" | "Aceita"
+  status: "Pendente" | "Aceita" | "Recusada"
   role: "requester" | "recipient"
 }
 
@@ -68,35 +69,50 @@ export function useSharedTransactions() {
       })
 
       if (!response.ok) {
-        throw new Error("Nao foi possivel criar a conta compartilhada.")
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null
+        throw new Error(payload?.error ?? "Nao foi possivel criar a conta compartilhada.")
       }
 
       const payload = (await response.json()) as { accounts: SharedAccount[] }
       setAccounts(payload.accounts)
+      toast.success("Conta compartilhada enviada para aceite.")
     },
     []
   )
 
-  const acceptSharedTransaction = React.useCallback(async (accountId: string) => {
+  const decideSharedTransaction = React.useCallback(async (input: {
+    accountId: string
+    action: "accept" | "reject"
+  }) => {
     const response = await fetch("/api/friend-accounts", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accountId }),
+      body: JSON.stringify(input),
     })
 
     if (!response.ok) {
-      throw new Error("Nao foi possivel confirmar o pagamento.")
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null
+      throw new Error(payload?.error ?? "Nao foi possivel atualizar a conta compartilhada.")
     }
 
     const payload = (await response.json()) as { accounts: SharedAccount[] }
     setAccounts(payload.accounts)
+    toast.success(
+      input.action === "accept"
+        ? "Conta compartilhada aceita."
+        : "Conta compartilhada recusada."
+    )
   }, [])
 
   return {
     accounts,
     friends,
     createSharedTransaction,
-    acceptSharedTransaction,
+    decideSharedTransaction,
     reloadSharedTransactions: loadData,
   }
 }

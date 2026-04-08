@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BellRingIcon } from "lucide-react"
 
 import { CryptoDashboard } from "@/components/crypto-dashboard"
 import { FinancialReports } from "@/components/financial-reports"
@@ -41,6 +42,7 @@ export function FinanceDashboard({
   const [dataset, setDataset] = React.useState<FinanceDataset>(
     createEmptyFinanceDataset()
   )
+  const [pendingSharedAccountsCount, setPendingSharedAccountsCount] = React.useState(0)
   const summary = React.useMemo(
     () =>
       calculateFinancialSummary(
@@ -72,6 +74,42 @@ export function FinanceDashboard({
 
     return () => {
       ignore = true
+    }
+  }, [])
+
+  React.useEffect(() => {
+    let ignore = false
+
+    async function loadSharedAccountWarnings() {
+      const response = await fetch("/api/friend-accounts", { cache: "no-store" })
+
+      if (!response.ok) {
+        return
+      }
+
+      const payload = (await response.json()) as {
+        accounts: Array<{ role: "requester" | "recipient"; status: "Pendente" | "Aceita" | "Recusada" }>
+      }
+
+      if (!ignore) {
+        setPendingSharedAccountsCount(
+          payload.accounts.filter(
+            (account) =>
+              account.role === "recipient" && account.status === "Pendente"
+          ).length
+        )
+      }
+    }
+
+    void loadSharedAccountWarnings()
+
+    const interval = window.setInterval(() => {
+      void loadSharedAccountWarnings()
+    }, 15000)
+
+    return () => {
+      ignore = true
+      window.clearInterval(interval)
     }
   }, [])
 
@@ -228,6 +266,21 @@ export function FinanceDashboard({
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      {pendingSharedAccountsCount > 0 ? (
+        <div className="px-4 lg:px-6">
+          <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+            <BellRingIcon className="mt-0.5 size-5 shrink-0" />
+            <div>
+              <p className="font-semibold">
+                Voce tem {pendingSharedAccountsCount} conta(s) compartilhada(s) aguardando aceite.
+              </p>
+              <p className="text-sm text-amber-800/80">
+                Abra a aba de contas compartilhadas para aceitar ou recusar.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <SectionCards summary={summary} range={currentFinanceRange} />
       <div className="grid w-full items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(420px,1fr)] lg:px-6">
         <div className="h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
