@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { Calendar, type CalendarMarker } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
+import { CategoryBadge } from "@/components/category-badge"
 import {
   Card,
   CardContent,
@@ -133,6 +134,7 @@ export function FinanceWorkspace({
         id: revenue.id,
         label: "Receita",
         description: "Receita mensal",
+        category: "Receita" as const,
         value: revenue.value,
       }))
 
@@ -142,6 +144,7 @@ export function FinanceWorkspace({
         id: expense.id,
         label: `Despesa fixa - ${expense.status}`,
         description: expense.description,
+        category: expense.category,
         value: expense.value,
       }))
 
@@ -151,6 +154,7 @@ export function FinanceWorkspace({
         id: expense.id,
         label: "Despesa variavel",
         description: expense.description,
+        category: expense.category,
         value: expense.value,
       }))
 
@@ -240,7 +244,10 @@ export function FinanceWorkspace({
                   >
                     <div>
                       <p className="font-medium">{movement.description}</p>
-                      <p className="text-xs text-muted-foreground">{movement.label}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <p className="text-xs text-muted-foreground">{movement.label}</p>
+                        <CategoryBadge category={movement.category} />
+                      </div>
                     </div>
                     <span className="font-medium">
                       {moneyFormatter.format(movement.value)}

@@ -9,8 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CategoryIcon } from "@/components/category-icon"
 import { Button } from "@/components/ui/button"
+import { CategoryBadge } from "@/components/category-badge"
 import { Input } from "@/components/ui/input"
 import type { FinanceDataset } from "@/lib/finance"
 import {
@@ -113,10 +113,7 @@ export function MovementsTable({
                     <td className="px-3 py-2">{formatBrazilianDate(movement.date)}</td>
                     <td className="px-3 py-2">{movement.description}</td>
                     <td className="px-3 py-2">
-                      <span className="flex items-center gap-2">
-                        <CategoryIcon category={movement.category} />
-                        {movement.category}
-                      </span>
+                      <CategoryBadge category={movement.category} />
                     </td>
                     <td className="px-3 py-2">{movement.type}</td>
                     <td className="px-3 py-2">{movement.status}</td>
