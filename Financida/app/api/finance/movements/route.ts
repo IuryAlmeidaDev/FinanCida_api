@@ -6,11 +6,13 @@ import {
   listFinanceMovements,
   movementDeleteSchema,
   movementInputSchema,
+  movementUpdateSchema,
 } from "@/lib/finance-movements"
 import {
   createFinanceMovement,
   deleteFinanceMovement,
   readFinanceDataset,
+  updateFinanceMovement,
 } from "@/lib/finance-store"
 
 export const runtime = "nodejs"
@@ -96,6 +98,40 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json(
       { error: "Nao foi possivel remover a movimentacao." },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
+    const user = await getAuthUserFromToken(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    }
+
+    const input = movementUpdateSchema.parse(await request.json())
+    const dataset = await updateFinanceMovement(user.id, input)
+
+    return NextResponse.json({
+      dataset,
+      movements: listFinanceMovements(dataset),
+    })
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: "Dados invalidos para atualizar a movimentacao.",
+          issues: error.issues,
+        },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: "Nao foi possivel atualizar a movimentacao." },
       { status: 500 }
     )
   }

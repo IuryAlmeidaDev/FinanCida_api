@@ -1,5 +1,7 @@
 "use client"
 
+import { CirclePlusIcon } from "lucide-react"
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,7 +9,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { CirclePlusIcon } from "lucide-react"
 
 export function NavMain({
   items,
@@ -34,12 +35,12 @@ export function NavMain({
             }}
           >
             <SidebarMenuButton
-              tooltip="adicionar"
-              className="min-w-8 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 duration-200 ease-linear hover:bg-emerald-700 hover:text-white active:bg-emerald-700 active:text-white dark:bg-emerald-400 dark:text-emerald-950 dark:hover:bg-emerald-300 dark:hover:text-emerald-950"
-              onClick={() => onItemSelect?.("lançamentos")}
+              tooltip="Adicionar"
+              className="min-w-8 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 duration-200 ease-linear hover:bg-emerald-700 hover:text-white active:bg-emerald-700 active:text-white"
+              onClick={() => onItemSelect?.("Lancamentos")}
             >
               <CirclePlusIcon />
-              <span>adicionar</span>
+              <span>Adicionar</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -49,7 +50,7 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip={item.title}
                 isActive={activeItem === item.title}
-                className="data-[active=true]:bg-emerald-50 data-[active=true]:text-emerald-800 hover:bg-emerald-50 hover:text-emerald-800 dark:data-[active=true]:bg-emerald-950/40 dark:data-[active=true]:text-emerald-100 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-100"
+                className="data-[active=true]:bg-emerald-50 data-[active=true]:text-emerald-800 hover:bg-emerald-50 hover:text-emerald-800"
                 onClick={() => onItemSelect?.(item.title)}
               >
                 {item.icon}

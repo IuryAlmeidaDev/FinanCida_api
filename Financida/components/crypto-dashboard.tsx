@@ -22,23 +22,31 @@ type CryptoPayload = {
   prices: Array<{
     name: string
     symbol: string
-    price: number
+    priceUsd: number
+    priceBrl: number
     change24h: number
   }>
   bitcoinHistory: Array<{
     date: string
-    value: number
+    valueUsd: number
+    valueBrl: number
   }>
+  usdToBrlRate: number
 }
 
 const bitcoinConfig = {
-  value: {
+  valueBrl: {
     label: "Bitcoin",
     color: "#f59e0b",
   },
 } satisfies ChartConfig
 
-const dollarFormatter = new Intl.NumberFormat("en-US", {
+const brlFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+})
+
+const usdFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 })
@@ -65,9 +73,11 @@ export function CryptoDashboard() {
       }
     }
 
-    loadCrypto()
+    void loadCrypto()
 
-    const interval = window.setInterval(loadCrypto, 60000)
+    const interval = window.setInterval(() => {
+      void loadCrypto()
+    }, 60000)
 
     return () => {
       ignore = true
@@ -89,7 +99,10 @@ export function CryptoDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold tabular-nums">
-                {dollarFormatter.format(crypto.price)}
+                {brlFormatter.format(crypto.priceBrl)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {usdFormatter.format(crypto.priceUsd)}
               </p>
               <p
                 className={
@@ -108,7 +121,7 @@ export function CryptoDashboard() {
         <CardHeader>
           <CardTitle>Bitcoin no ultimo ano</CardTitle>
           <CardDescription>
-            Historico em USD atualizado pela CoinGecko.
+            Historico convertido para BRL usando taxa de cambio em tempo real.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -119,10 +132,19 @@ export function CryptoDashboard() {
               <LineChart accessibilityLayer data={payload?.bitcoinHistory ?? []}>
                 <XAxis dataKey="date" tickLine={false} axisLine={false} />
                 <YAxis hide domain={["dataMin", "dataMax"]} />
-                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      indicator="line"
+                      formatter={(value) =>
+                        typeof value === "number" ? brlFormatter.format(value) : value
+                      }
+                    />
+                  }
+                />
                 <Line
-                  dataKey="value"
-                  stroke="var(--color-value)"
+                  dataKey="valueBrl"
+                  stroke="var(--color-valueBrl)"
                   strokeWidth={3}
                   dot={false}
                 />

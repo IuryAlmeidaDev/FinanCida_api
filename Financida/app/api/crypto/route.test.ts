@@ -13,6 +13,7 @@ const authUser = {
   id: "user-1",
   name: "Ana",
   email: "ana@example.com",
+  handle: "ana#1234",
 }
 
 describe("crypto API", () => {
@@ -39,17 +40,26 @@ describe("crypto API", () => {
             ],
           }),
         })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            rates: {
+              BRL: 5,
+            },
+          }),
+        })
     )
   })
 
-  it("retorna precos e historico para usuario autenticado", async () => {
+  it("retorna precos e historico convertidos para BRL", async () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
 
     const response = await GET(new Request("http://localhost/api/crypto"))
     const payload = (await response.json()) as {
-      prices: Array<{ symbol: string }>
-      bitcoinHistory: Array<{ value: number }>
+      prices: Array<{ symbol: string; priceBrl: number }>
+      bitcoinHistory: Array<{ valueBrl: number }>
+      usdToBrlRate: number
     }
 
     expect(response.status).toBe(200)
@@ -58,6 +68,8 @@ describe("crypto API", () => {
       "ETH",
       "SOL",
     ])
-    expect(payload.bitcoinHistory[0].value).toBe(50000)
+    expect(payload.prices[0].priceBrl).toBe(500000)
+    expect(payload.bitcoinHistory[0].valueBrl).toBe(250000)
+    expect(payload.usdToBrlRate).toBe(5)
   })
 })

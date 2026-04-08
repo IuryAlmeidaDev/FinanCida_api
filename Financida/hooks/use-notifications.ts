@@ -1,0 +1,88 @@
+"use client"
+
+import * as React from "react"
+import { toast } from "sonner"
+
+import type { AppNotification } from "@/lib/notifications-store"
+
+export function useNotifications() {
+  const [notifications, setNotifications] = React.useState<AppNotification[]>([])
+  const seenIdsRef = React.useRef<Set<string>>(new Set())
+  const hydratedRef = React.useRef(false)
+
+  const loadNotifications = React.useCallback(async () => {
+    const response = await fetch("/api/notifications", { cache: "no-store" })
+
+    if (!response.ok) {
+      return
+    }
+
+    const payload = (await response.json()) as {
+      notifications: AppNotification[]
+    }
+
+    const nextIds = new Set(payload.notifications.map((notification) => notification.id))
+
+    if (hydratedRef.current) {
+      payload.notifications
+        .filter((notification) => !notification.read)
+        .filter((notification) => !seenIdsRef.current.has(notification.id))
+        .slice(0, 3)
+        .forEach((notification) => {
+          toast(notification.title, {
+            description: notification.message,
+          })
+        })
+    }
+
+    seenIdsRef.current = nextIds
+    hydratedRef.current = true
+    setNotifications(payload.notifications)
+  }, [])
+
+  React.useEffect(() => {
+    void loadNotifications()
+
+    const interval = window.setInterval(() => {
+      void loadNotifications()
+    }, 15000)
+
+    return () => {
+      window.clearInterval(interval)
+    }
+  }, [loadNotifications])
+
+  const markAsRead = React.useCallback(
+    async (notificationId: string) => {
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationId }),
+      })
+
+      if (!response.ok) {
+        return
+      }
+
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((notification) =>
+          notification.id === notificationId
+            ? { ...notification, read: true }
+            : notification
+        )
+      )
+    },
+    []
+  )
+
+  const unreadCount = notifications.filter((notification) => !notification.read).length
+
+  return {
+    notifications,
+    unreadCount,
+    markAsRead,
+    reloadNotifications: loadNotifications,
+  }
+}

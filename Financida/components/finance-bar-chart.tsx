@@ -58,7 +58,7 @@ export function FinanceBarChart({
       <CardContent className="flex flex-1 pt-2">
         <ChartContainer
           config={chartConfig}
-          className="h-[150px] w-full flex-1 aspect-auto"
+          className="h-[180px] w-full flex-1 aspect-auto"
         >
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />

@@ -9,17 +9,19 @@ const financeStoreMocks = vi.hoisted(() => ({
   readFinanceDataset: vi.fn(),
   createFinanceMovement: vi.fn(),
   deleteFinanceMovement: vi.fn(),
+  updateFinanceMovement: vi.fn(),
 }))
 
 vi.mock("@/lib/auth", () => authMocks)
 vi.mock("@/lib/finance-store", () => financeStoreMocks)
 
-import { DELETE, GET, POST } from "@/app/api/finance/movements/route"
+import { DELETE, GET, POST, PUT } from "@/app/api/finance/movements/route"
 
 const authUser = {
   id: "user-1",
   name: "Ana",
   email: "ana@example.com",
+  handle: "ana#1234",
 }
 
 describe("finance movements API", () => {
@@ -29,6 +31,7 @@ describe("finance movements API", () => {
     financeStoreMocks.readFinanceDataset.mockReset()
     financeStoreMocks.createFinanceMovement.mockReset()
     financeStoreMocks.deleteFinanceMovement.mockReset()
+    financeStoreMocks.updateFinanceMovement.mockReset()
   })
 
   afterEach(() => {
@@ -168,6 +171,40 @@ describe("finance movements API", () => {
         id: "mov-1",
         source: "variable-expense",
       }
+    )
+  })
+
+  it("atualiza uma movimentacao autenticada", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    financeStoreMocks.updateFinanceMovement.mockResolvedValue({
+      fixedExpenses: [],
+      variableExpenses: [],
+      monthlyRevenues: [],
+    })
+
+    const response = await PUT(
+      new Request("http://localhost/api/finance/movements", {
+        method: "PUT",
+        headers: { cookie: "financida_auth_token=token" },
+        body: JSON.stringify({
+          id: "mov-1",
+          source: "variable-expense",
+          date: "2026-04-09",
+          description: "Mercado",
+          category: "Alimentacao",
+          value: 90,
+        }),
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(financeStoreMocks.updateFinanceMovement).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({
+        id: "mov-1",
+        value: 90,
+      })
     )
   })
 })

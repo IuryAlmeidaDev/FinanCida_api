@@ -1,6 +1,8 @@
 import "./globals.css"
 import { Nunito } from "next/font/google"
+
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -20,7 +22,10 @@ export default function RootLayout({
       className={`${nunito.variable} font-sans antialiased`}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -10,6 +10,7 @@ import {
   addMovementToDataset,
   type MovementDeleteInput,
   type MovementInput,
+  type MovementUpdateInput,
 } from "@/lib/finance-movements"
 import { getPool, hasDatabaseUrl } from "@/lib/postgres"
 
@@ -327,6 +328,76 @@ export async function deleteFinanceMovement(
     input.id,
     userId,
   ])
+
+  return readFinanceDatasetFromDatabase(userId)
+}
+
+export async function updateFinanceMovement(
+  userId: string,
+  input: MovementUpdateInput
+) {
+  if (!hasDatabaseUrl()) {
+    throw new Error("DATABASE_URL nao configurada.")
+  }
+
+  await ensureDatabase()
+
+  const database = getPool()
+
+  if (input.source === "revenue") {
+    await database.query(
+      `
+        update monthly_revenues
+        set date = $1, value = $2
+        where id = $3 and user_id = $4
+      `,
+      [input.date, input.value, input.id, userId]
+    )
+  }
+
+  if (input.source === "fixed-expense") {
+    await database.query(
+      `
+        update fixed_expenses
+        set transaction_date = $1,
+            description = $2,
+            category = $3,
+            value = $4,
+            status = $5
+        where id = $6 and user_id = $7
+      `,
+      [
+        input.date,
+        input.description ?? "Despesa fixa",
+        input.category ?? "Outros",
+        input.value,
+        input.status ?? "Em aberto",
+        input.id,
+        userId,
+      ]
+    )
+  }
+
+  if (input.source === "variable-expense") {
+    await database.query(
+      `
+        update variable_expenses
+        set date = $1,
+            description = $2,
+            category = $3,
+            value = $4
+        where id = $5 and user_id = $6
+      `,
+      [
+        input.date,
+        input.description ?? "Despesa variavel",
+        input.category ?? "Outros",
+        input.value,
+        input.id,
+        userId,
+      ]
+    )
+  }
 
   return readFinanceDatasetFromDatabase(userId)
 }

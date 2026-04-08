@@ -1,10 +1,19 @@
 "use client"
 
 import * as React from "react"
+import {
+  BitcoinIcon,
+  ChartBarIcon,
+  CircleDollarSign,
+  HandCoinsIcon,
+  LayoutDashboardIcon,
+  ListIcon,
+  PiggyBankIcon,
+  UsersIcon,
+} from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import type { AuthUser } from "@/lib/auth"
 import {
   Sidebar,
   SidebarContent,
@@ -14,50 +23,42 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {
-  ChartBarIcon,
-  HandCoinsIcon,
-  CircleDollarSign,
-  BitcoinIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  PiggyBankIcon,
-} from "lucide-react"
+import type { AuthUser } from "@/lib/auth"
 
 const data = {
   navMain: [
     {
-      title: "visão geral",
+      title: "Visao Geral",
       url: "#",
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "lançamentos",
+      title: "Lancamentos",
       url: "#",
       icon: <ListIcon />,
     },
     {
-      title: "relatórios",
+      title: "Relatorios",
       url: "#",
       icon: <ChartBarIcon />,
     },
     {
-      title: "limite de gastos",
+      title: "Limite de Gastos",
       url: "#",
       icon: <PiggyBankIcon />,
     },
     {
-      title: "criptomoedas",
+      title: "Criptomoedas",
       url: "#",
       icon: <BitcoinIcon />,
     },
     {
-      title: "amigos",
+      title: "Amigos",
       url: "#",
-      icon: <HandCoinsIcon />,
+      icon: <UsersIcon />,
     },
     {
-      title: "contas compartilhadas",
+      title: "Contas Compartilhadas",
       url: "#",
       icon: <HandCoinsIcon />,
     },

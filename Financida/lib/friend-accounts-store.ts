@@ -3,6 +3,7 @@ import { z } from "zod"
 import { findUserById } from "@/lib/auth-store"
 import { ensureConfirmedFriendship, listFriends } from "@/lib/friends-store"
 import { createFinanceMovement } from "@/lib/finance-store"
+import { createNotification } from "@/lib/notifications-store"
 import { getPool } from "@/lib/postgres"
 
 export const friendAccountInputSchema = z.object({
@@ -161,6 +162,18 @@ export async function createFriendAccount(
       JSON.stringify(parsedInput.paymentDates),
     ]
   )
+
+  const owner = await findUserById(userId)
+
+  if (owner) {
+    await createNotification({
+      userId: parsedInput.friendUserId,
+      type: "shared-transaction",
+      title: "Nova conta compartilhada",
+      message: `${owner.name} criou "${parsedInput.description}" em ${parsedInput.installments} parcelas.`,
+      link: "Contas Compartilhadas",
+    })
+  }
 
   return listFriendAccounts(userId)
 }

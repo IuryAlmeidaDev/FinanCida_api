@@ -1,6 +1,7 @@
 import { z } from "zod"
 
-import { findUserByHandle } from "@/lib/auth-store"
+import { findUserByHandle, findUserById } from "@/lib/auth-store"
+import { createNotification } from "@/lib/notifications-store"
 import { getPool } from "@/lib/postgres"
 
 export const friendRequestInputSchema = z.object({
@@ -145,9 +146,10 @@ export async function listPendingFriendRequests(userId: string) {
 export async function sendFriendRequest(userId: string, handle: string) {
   await ensureSchema()
 
+  const requester = await findUserById(userId)
   const targetUser = await findUserByHandle(handle.toLowerCase())
 
-  if (!targetUser || targetUser.id === userId) {
+  if (!requester || !targetUser || targetUser.id === userId) {
     throw new Error("Amigo invalido.")
   }
 
@@ -162,6 +164,14 @@ export async function sendFriendRequest(userId: string, handle: string) {
     `,
     [id, userId, targetUser.id]
   )
+
+  await createNotification({
+    userId: targetUser.id,
+    type: "friend-request",
+    title: "Novo pedido de amizade",
+    message: `${requester.name} (${requester.handle}) quer se conectar com voce.`,
+    link: "Amigos",
+  })
 }
 
 export async function acceptFriendRequest(userId: string, friendshipId: string) {

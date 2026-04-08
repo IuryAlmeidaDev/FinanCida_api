@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { EllipsisVerticalIcon, LogOutIcon, UserPenIcon, ZoomInIcon } from "lucide-react"
 
 import {
   Avatar,
@@ -9,7 +10,6 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +18,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, LogOutIcon, UserPenIcon } from "lucide-react"
+
+type DragState = {
+  pointerId: number
+  startX: number
+  startY: number
+  initialOffsetX: number
+  initialOffsetY: number
+}
 
 export function NavUser({
   user,
@@ -39,12 +47,14 @@ export function NavUser({
   const [displayName, setDisplayName] = React.useState(user.name)
   const [draftName, setDraftName] = React.useState(user.name)
   const [avatarUrl, setAvatarUrl] = React.useState<string | undefined>()
-  const [avatarPositionX, setAvatarPositionX] = React.useState(50)
-  const [avatarPositionY, setAvatarPositionY] = React.useState(50)
+  const [avatarOffsetX, setAvatarOffsetX] = React.useState(0)
+  const [avatarOffsetY, setAvatarOffsetY] = React.useState(0)
   const [avatarZoom, setAvatarZoom] = React.useState(1)
+  const dragStateRef = React.useRef<DragState | null>(null)
+
   const avatarStyle = {
-    objectPosition: `${avatarPositionX}% ${avatarPositionY}%`,
-    transform: `scale(${avatarZoom})`,
+    transform: `translate(${avatarOffsetX}px, ${avatarOffsetY}px) scale(${avatarZoom})`,
+    transformOrigin: "center center",
   } satisfies React.CSSProperties
 
   function handleAvatarUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -55,6 +65,42 @@ export function NavUser({
     }
 
     setAvatarUrl(URL.createObjectURL(file))
+    setAvatarOffsetX(0)
+    setAvatarOffsetY(0)
+    setAvatarZoom(1)
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (!avatarUrl) {
+      return
+    }
+
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      initialOffsetX: avatarOffsetX,
+      initialOffsetY: avatarOffsetY,
+    }
+
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current
+
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return
+    }
+
+    setAvatarOffsetX(dragState.initialOffsetX + (event.clientX - dragState.startX))
+    setAvatarOffsetY(dragState.initialOffsetY + (event.clientY - dragState.startY))
+  }
+
+  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    if (dragStateRef.current?.pointerId === event.pointerId) {
+      dragStateRef.current = null
+    }
   }
 
   return (
@@ -70,15 +116,15 @@ export function NavUser({
                 {avatarUrl ? (
                   <AvatarImage src={avatarUrl} alt={displayName} style={avatarStyle} />
                 ) : null}
-                <AvatarFallback className="rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                <AvatarFallback className="rounded-lg bg-emerald-100 text-emerald-700">
                   {displayName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{displayName}</span>
-                <span className="truncate text-xs text-sidebar-foreground/80">
-                  {user.email}
+                <span className="truncate font-medium text-sidebar-foreground">
+                  {displayName}
                 </span>
+                <span className="truncate text-xs text-white/75">{user.email}</span>
               </div>
               <EllipsisVerticalIcon className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -95,13 +141,13 @@ export function NavUser({
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt={displayName} style={avatarStyle} />
                   ) : null}
-                  <AvatarFallback className="rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                  <AvatarFallback className="rounded-lg bg-emerald-100 text-emerald-700">
                     {displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{displayName}</span>
-                  <span className="truncate text-xs text-sidebar-foreground/80">
+                  <span className="truncate text-xs text-muted-foreground">
                     {user.email}
                   </span>
                 </div>
@@ -129,87 +175,93 @@ export function NavUser({
       </SidebarMenuItem>
       {profileOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-2xl">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-5 shadow-2xl">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold tracking-tight">
-                Editar perfil
-              </h2>
+              <h2 className="text-lg font-semibold tracking-tight">Editar perfil</h2>
               <p className="text-sm text-muted-foreground">
-                Atualize sua foto e nome exibido no painel.
+                Arraste a foto para centralizar do jeito que preferir.
               </p>
             </div>
-            <div className="mt-5 space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-16 w-16 overflow-hidden rounded-xl">
+            <div className="mt-5 grid gap-5 md:grid-cols-[260px_1fr]">
+              <div className="space-y-3">
+                <div
+                  className="relative flex h-[260px] w-[260px] cursor-grab items-center justify-center overflow-hidden rounded-2xl border border-emerald-100 bg-slate-100 active:cursor-grabbing"
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                >
                   {avatarUrl ? (
-                    <AvatarImage src={avatarUrl} alt={displayName} style={avatarStyle} />
-                  ) : null}
-                  <AvatarFallback className="rounded-xl bg-emerald-100 text-emerald-700">
-                    {displayName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="max-w-none select-none object-cover"
+                      style={{
+                        width: 220,
+                        height: 220,
+                        ...avatarStyle,
+                      }}
+                      draggable={false}
+                    />
+                  ) : (
+                    <Avatar className="h-32 w-32 rounded-2xl">
+                      <AvatarFallback className="rounded-2xl bg-emerald-100 text-4xl text-emerald-700">
+                        {displayName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
                 <Input type="file" accept="image/*" onChange={handleAvatarUpload} />
               </div>
-              <div className="grid gap-3 text-sm">
-                <label className="grid gap-1">
-                  Centralizar horizontal
-                  <Input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={avatarPositionX}
-                    onChange={(event) =>
-                      setAvatarPositionX(Number(event.target.value))
-                    }
-                  />
-                </label>
-                <label className="grid gap-1">
-                  Centralizar vertical
-                  <Input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={avatarPositionY}
-                    onChange={(event) =>
-                      setAvatarPositionY(Number(event.target.value))
-                    }
-                  />
-                </label>
-                <label className="grid gap-1">
-                  Zoom
+              <div className="space-y-4">
+                <Input
+                  value={draftName}
+                  onChange={(event) => setDraftName(event.target.value)}
+                  placeholder="Nome de exibicao"
+                />
+                <label className="grid gap-2 text-sm">
+                  <span className="flex items-center gap-2 font-medium">
+                    <ZoomInIcon className="size-4" />
+                    Zoom
+                  </span>
                   <Input
                     type="range"
                     min={1}
-                    max={2}
+                    max={2.4}
                     step={0.05}
                     value={avatarZoom}
                     onChange={(event) => setAvatarZoom(Number(event.target.value))}
                   />
                 </label>
+                <p className="text-sm text-muted-foreground">
+                  Clique e arraste a imagem dentro do quadro para reposicionar.
+                </p>
+                <div className="rounded-xl border border-emerald-100 p-3">
+                  <p className="text-sm font-medium">Preview</p>
+                  <Avatar className="mt-3 h-20 w-20 rounded-2xl">
+                    {avatarUrl ? (
+                      <AvatarImage src={avatarUrl} alt={displayName} style={avatarStyle} />
+                    ) : null}
+                    <AvatarFallback className="rounded-2xl bg-emerald-100 text-emerald-700">
+                      {displayName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
-              <Input
-                value={draftName}
-                onChange={(event) => setDraftName(event.target.value)}
-                placeholder="Nome de exibicao"
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setDisplayName(draftName.trim() || user.name)
-                    setProfileOpen(false)
-                  }}
-                >
-                  Salvar
-                </Button>
-              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setProfileOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  setDisplayName(draftName.trim() || user.name)
+                  setProfileOpen(false)
+                }}
+              >
+                Salvar
+              </Button>
             </div>
           </div>
         </div>

@@ -41,6 +41,17 @@ export const movementDeleteSchema = z.object({
 })
 
 export type MovementDeleteInput = z.infer<typeof movementDeleteSchema>
+export const movementUpdateSchema = z.object({
+  id: z.string().min(1),
+  source: z.enum(["revenue", "fixed-expense", "variable-expense"]),
+  date: z.iso.date(),
+  description: z.string().trim().min(1).max(120).optional(),
+  category: z.enum([...expenseCategories, "Receita"]).optional(),
+  value: z.number().positive(),
+  status: z.enum(fixedExpenseStatuses).optional(),
+})
+
+export type MovementUpdateInput = z.infer<typeof movementUpdateSchema>
 
 export type FinanceMovement = {
   id: string
