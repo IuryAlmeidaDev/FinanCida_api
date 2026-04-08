@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { WalletCards } from "lucide-react"
+import { CircleDollarSign } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card"
 import {
   Field,
@@ -59,7 +62,11 @@ export function LoginForm({
       <div className="text-center">
         <p className="inline-flex items-center gap-3 text-4xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300">
           <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm dark:bg-emerald-950 dark:text-emerald-300">
-            <WalletCards className="size-6" aria-hidden="true" />
+            <CircleDollarSign
+              className="size-7"
+              color="#007A55"
+              aria-hidden="true"
+            />
           </span>
           FinanCida
         </p>
@@ -68,7 +75,15 @@ export function LoginForm({
         </p>
       </div>
       <Card className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle className="w-fit rounded-full border border-[#007A55] px-3 py-1 text-[#007A55]">
+            Entrar na sua conta
+          </CardTitle>
+          <CardDescription>
+            Informe seu e-mail e senha para acessar
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
