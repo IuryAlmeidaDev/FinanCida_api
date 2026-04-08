@@ -1,10 +1,10 @@
 "use client"
 
 import {
-  CardAction,
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -18,6 +18,28 @@ const moneyFormatter = new Intl.NumberFormat("pt-BR", {
 })
 
 export function FinancialReports({ summary }: { summary: FinancialSummary }) {
+  function downloadReport(format: "csv" | "txt") {
+    const rows = [
+      ["Receitas", moneyFormatter.format(summary.totalRevenue)],
+      ["Despesas fixas", moneyFormatter.format(summary.totalFixedExpenses)],
+      ["Despesas variaveis", moneyFormatter.format(summary.totalVariableExpenses)],
+      ["Saldo operacional", moneyFormatter.format(summary.operationalBalance)],
+    ]
+    const content =
+      format === "csv"
+        ? rows.map((row) => row.join(";")).join("\n")
+        : rows.map((row) => `${row[0]}: ${row[1]}`).join("\n")
+    const blob = new Blob([content], {
+      type: format === "csv" ? "text/csv;charset=utf-8" : "text/plain;charset=utf-8",
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `relatorio-financida.${format}`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="grid gap-4 px-4 lg:grid-cols-2 lg:px-6">
       <Card className="border-emerald-100 dark:border-emerald-900/60">
@@ -26,11 +48,6 @@ export function FinancialReports({ summary }: { summary: FinancialSummary }) {
           <CardDescription>
             Uma leitura rapida para apoiar decisoes financeiras.
           </CardDescription>
-          <CardAction>
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
-              Download as PDF
-            </Button>
-          </CardAction>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex justify-between rounded-xl bg-emerald-50 p-3 dark:bg-emerald-950/40">
@@ -50,6 +67,17 @@ export function FinancialReports({ summary }: { summary: FinancialSummary }) {
             <span className="font-semibold">{moneyFormatter.format(summary.operationalBalance)}</span>
           </div>
         </CardContent>
+        <CardFooter className="justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => downloadReport("txt")}>
+            TXT
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => downloadReport("csv")}>
+            Excel/CSV
+          </Button>
+          <Button size="sm" onClick={() => window.print()}>
+            Salvar PDF
+          </Button>
+        </CardFooter>
       </Card>
       <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>

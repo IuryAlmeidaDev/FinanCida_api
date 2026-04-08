@@ -2,10 +2,13 @@
 
 import * as React from "react"
 
+import { CryptoDashboard } from "@/components/crypto-dashboard"
 import { FinancialReports } from "@/components/financial-reports"
 import { FinanceBarChart } from "@/components/finance-bar-chart"
+import { FinanceOverviewCharts } from "@/components/finance-overview-charts"
 import { FinancePieChart } from "@/components/finance-pie-chart"
 import { FinanceWorkspace } from "@/components/finance-workspace"
+import { FriendAccountsDashboard } from "@/components/friend-accounts-dashboard"
 import { MovementsTable } from "@/components/movements-table"
 import { SectionCards } from "@/components/section-cards"
 import { SpendingLimit } from "@/components/spending-limit"
@@ -175,6 +178,24 @@ export function FinanceDashboard({
     )
   }
 
+  if (activeSection.startsWith("cripto")) {
+    return (
+      <div className="flex flex-col gap-4">
+        <CryptoDashboard />
+        {addMovementDialog}
+      </div>
+    )
+  }
+
+  if (activeSection.startsWith("amigos")) {
+    return (
+      <div className="flex flex-col gap-4">
+        <FriendAccountsDashboard />
+        {addMovementDialog}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
@@ -192,6 +213,9 @@ export function FinanceDashboard({
         </div>
         <div className="h-full xl:col-span-2">
           <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
+        </div>
+        <div className="xl:col-span-2">
+          <FinanceOverviewCharts dataset={dataset} range={currentFinanceRange} />
         </div>
       </div>
       {addMovementDialog}

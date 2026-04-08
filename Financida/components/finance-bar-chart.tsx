@@ -18,6 +18,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import type { FinanceDataset, MonthYear } from "@/lib/finance"
+import { buildMonthlyFinanceChartData } from "@/lib/finance-chart-data"
 
 const chartConfig = {
   receita: {
@@ -36,26 +37,6 @@ const moneyFormatter = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 0,
 })
 
-const monthFormatter = new Intl.DateTimeFormat("pt-BR", {
-  month: "short",
-})
-
-function createMonthDate(range: MonthYear, offset: number) {
-  return new Date(range.year, range.month - 1 + offset, 1)
-}
-
-function toMonthKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
-}
-
-function getDateMonthKey(value?: string) {
-  return value ? value.slice(0, 7) : undefined
-}
-
-function sumValues(values: number[]) {
-  return values.reduce((total, value) => total + value, 0)
-}
-
 export function FinanceBarChart({
   dataset,
   range,
@@ -63,29 +44,7 @@ export function FinanceBarChart({
   dataset: FinanceDataset
   range: MonthYear
 }) {
-  const chartData = Array.from({ length: 12 }, (_, index) => {
-    const date = createMonthDate(range, index - 11)
-    const monthKey = toMonthKey(date)
-    const receita = sumValues(
-      dataset.monthlyRevenues
-        .filter((revenue) => getDateMonthKey(revenue.date) === monthKey)
-        .map((revenue) => revenue.value)
-    )
-    const despesa = sumValues([
-      ...dataset.fixedExpenses
-        .filter((expense) => getDateMonthKey(expense.transactionDate) === monthKey)
-        .map((expense) => expense.value),
-      ...dataset.variableExpenses
-        .filter((expense) => getDateMonthKey(expense.date) === monthKey)
-        .map((expense) => expense.value),
-    ])
-
-    return {
-      month: monthFormatter.format(date).replace(".", ""),
-      receita,
-      despesa,
-    }
-  })
+  const chartData = buildMonthlyFinanceChartData(dataset, range, 12)
 
   const currentMonth = chartData.at(-1)
   const balance = (currentMonth?.receita ?? 0) - (currentMonth?.despesa ?? 0)

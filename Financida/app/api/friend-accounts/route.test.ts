@@ -1,0 +1,96 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+const authMocks = vi.hoisted(() => ({
+  getAuthUserFromToken: vi.fn(),
+  readAuthTokenFromCookieHeader: vi.fn(),
+}))
+
+const accountsMocks = vi.hoisted(() => ({
+  createFriendAccount: vi.fn(),
+  listFriendAccounts: vi.fn(),
+  payFriendAccountInstallment: vi.fn(),
+  friendAccountInputSchema: {
+    parse: vi.fn((input) => input),
+  },
+  friendAccountPaymentSchema: {
+    parse: vi.fn((input) => input),
+  },
+}))
+
+vi.mock("@/lib/auth", () => authMocks)
+vi.mock("@/lib/friend-accounts-store", () => accountsMocks)
+
+import { GET, PATCH, POST } from "@/app/api/friend-accounts/route"
+
+const authUser = {
+  id: "user-1",
+  name: "Ana",
+  email: "ana@example.com",
+}
+
+describe("friend accounts API", () => {
+  beforeEach(() => {
+    authMocks.getAuthUserFromToken.mockReset()
+    authMocks.readAuthTokenFromCookieHeader.mockReset()
+    accountsMocks.createFriendAccount.mockReset()
+    accountsMocks.listFriendAccounts.mockReset()
+    accountsMocks.payFriendAccountInstallment.mockReset()
+  })
+
+  it("lista contas do usuario autenticado", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    accountsMocks.listFriendAccounts.mockResolvedValue([])
+
+    const response = await GET(
+      new Request("http://localhost/api/friend-accounts")
+    )
+
+    expect(response.status).toBe(200)
+    expect(accountsMocks.listFriendAccounts).toHaveBeenCalledWith("user-1")
+  })
+
+  it("cria conta para o usuario autenticado", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    accountsMocks.createFriendAccount.mockResolvedValue([])
+
+    const response = await POST(
+      new Request("http://localhost/api/friend-accounts", {
+        method: "POST",
+        body: JSON.stringify({
+          friendName: "Joao",
+          friendEmail: "joao@example.com",
+          description: "Emprestimo",
+          totalAmount: 500,
+          installments: 2,
+        }),
+      })
+    )
+
+    expect(response.status).toBe(201)
+    expect(accountsMocks.createFriendAccount).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ totalAmount: 500 })
+    )
+  })
+
+  it("confirma pagamento de parcela", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+    accountsMocks.payFriendAccountInstallment.mockResolvedValue([])
+
+    const response = await PATCH(
+      new Request("http://localhost/api/friend-accounts", {
+        method: "PATCH",
+        body: JSON.stringify({ accountId: "account-1" }),
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(accountsMocks.payFriendAccountInstallment).toHaveBeenCalledWith(
+      "user-1",
+      "account-1"
+    )
+  })
+})

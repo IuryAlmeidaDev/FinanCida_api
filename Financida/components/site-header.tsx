@@ -14,6 +14,14 @@ function getHeaderTitle(activeSection: string) {
     return "Controle de Metas e Limites"
   }
 
+  if (activeSection.startsWith("cripto")) {
+    return "Mercado de Criptomoedas"
+  }
+
+  if (activeSection.startsWith("amigos")) {
+    return "Amigos e Contas"
+  }
+
   return "Dashboard financeiro"
 }
 

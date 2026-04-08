@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/sidebar"
 import {
   ChartBarIcon,
+  HandCoinsIcon,
   CircleDollarSign,
+  BitcoinIcon,
   LayoutDashboardIcon,
   ListIcon,
   PiggyBankIcon,
@@ -44,6 +46,16 @@ const data = {
       url: "#",
       icon: <PiggyBankIcon />,
     },
+    {
+      title: "criptomoedas",
+      url: "#",
+      icon: <BitcoinIcon />,
+    },
+    {
+      title: "amigos e contas",
+      url: "#",
+      icon: <HandCoinsIcon />,
+    },
   ],
 }
 
@@ -66,10 +78,10 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#" className="text-white">
-                <span className="flex size-8 items-center justify-center rounded-xl bg-white/10 text-white shadow-sm ring-1 ring-white/15">
+              <a href="#" className="h-11 text-white">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white shadow-sm ring-1 ring-white/15">
                   <CircleDollarSign
-                    className="size-5"
+                    className="size-5 shrink-0"
                     color="#34d399"
                     aria-hidden="true"
                   />
