@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/sidebar"
 import {
   ChartBarIcon,
+  CircleDollarSign,
   LayoutDashboardIcon,
   ListIcon,
   PiggyBankIcon,
-  WalletCardsIcon,
 } from "lucide-react"
 
 const data = {
@@ -67,10 +67,15 @@ export function AppSidebar({
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#">
-                <WalletCardsIcon className="size-5! text-emerald-600 dark:text-emerald-300" />
-                  <span className="text-base font-semibold">
-                  <span className="text-emerald-700 dark:text-emerald-300">Finan</span>
-                  <span className="text-sky-600 dark:text-sky-300">Cida</span>
+                <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 shadow-sm dark:bg-emerald-950 dark:text-emerald-300">
+                  <CircleDollarSign
+                    className="size-5"
+                    color="#007A55"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="text-base font-bold tracking-tight text-emerald-700 dark:text-emerald-300">
+                  FinanCida
                 </span>
               </a>
             </SidebarMenuButton>
