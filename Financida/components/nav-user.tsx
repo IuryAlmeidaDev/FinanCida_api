@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { EllipsisVerticalIcon, LogOutIcon, UserPenIcon, ZoomInIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import {
   Avatar,
@@ -34,6 +35,16 @@ type DragState = {
   initialOffsetY: number
 }
 
+type ProfilePayload = {
+  profile: {
+    displayName: string
+    avatarUrl: string | null
+    avatarOffsetX: number
+    avatarOffsetY: number
+    avatarZoom: number
+  }
+}
+
 export function NavUser({
   user,
 }: {
@@ -50,7 +61,38 @@ export function NavUser({
   const [avatarOffsetX, setAvatarOffsetX] = React.useState(0)
   const [avatarOffsetY, setAvatarOffsetY] = React.useState(0)
   const [avatarZoom, setAvatarZoom] = React.useState(1)
+  const [selectedAvatarFile, setSelectedAvatarFile] = React.useState<File | null>(null)
+  const [isSaving, setIsSaving] = React.useState(false)
   const dragStateRef = React.useRef<DragState | null>(null)
+
+  React.useEffect(() => {
+    let ignore = false
+
+    async function loadProfile() {
+      const response = await fetch("/api/profile", { cache: "no-store" })
+
+      if (!response.ok) {
+        return
+      }
+
+      const payload = (await response.json()) as ProfilePayload
+
+      if (!ignore) {
+        setDisplayName(payload.profile.displayName)
+        setDraftName(payload.profile.displayName)
+        setAvatarUrl(payload.profile.avatarUrl ?? undefined)
+        setAvatarOffsetX(payload.profile.avatarOffsetX)
+        setAvatarOffsetY(payload.profile.avatarOffsetY)
+        setAvatarZoom(payload.profile.avatarZoom)
+      }
+    }
+
+    void loadProfile()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
 
   const avatarStyle = {
     transform: `translate(${avatarOffsetX}px, ${avatarOffsetY}px) scale(${avatarZoom})`,
@@ -64,7 +106,10 @@ export function NavUser({
       return
     }
 
-    setAvatarUrl(URL.createObjectURL(file))
+    const previewUrl = URL.createObjectURL(file)
+
+    setSelectedAvatarFile(file)
+    setAvatarUrl(previewUrl)
     setAvatarOffsetX(0)
     setAvatarOffsetY(0)
     setAvatarZoom(1)
@@ -100,6 +145,67 @@ export function NavUser({
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
     if (dragStateRef.current?.pointerId === event.pointerId) {
       dragStateRef.current = null
+    }
+  }
+
+  async function handleSaveProfile() {
+    setIsSaving(true)
+
+    try {
+      let nextAvatarUrl = avatarUrl ?? null
+
+      if (selectedAvatarFile) {
+        const formData = new FormData()
+        formData.append("file", selectedAvatarFile)
+
+        const uploadResponse = await fetch("/api/profile/avatar", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error("Nao foi possivel enviar a imagem de perfil.")
+        }
+
+        const uploadPayload = (await uploadResponse.json()) as { avatarUrl: string }
+        nextAvatarUrl = uploadPayload.avatarUrl
+      }
+
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          displayName: draftName.trim() || user.name,
+          avatarUrl: nextAvatarUrl,
+          avatarOffsetX,
+          avatarOffsetY,
+          avatarZoom,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Nao foi possivel salvar o perfil.")
+      }
+
+      const payload = (await response.json()) as ProfilePayload
+
+      setDisplayName(payload.profile.displayName)
+      setDraftName(payload.profile.displayName)
+      setAvatarUrl(payload.profile.avatarUrl ?? undefined)
+      setAvatarOffsetX(payload.profile.avatarOffsetX)
+      setAvatarOffsetY(payload.profile.avatarOffsetY)
+      setAvatarZoom(payload.profile.avatarZoom)
+      setSelectedAvatarFile(null)
+      setProfileOpen(false)
+      toast.success("Perfil salvo com sucesso.")
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Nao foi possivel salvar o perfil."
+      )
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -179,7 +285,7 @@ export function NavUser({
             <div className="space-y-1">
               <h2 className="text-lg font-semibold tracking-tight">Editar perfil</h2>
               <p className="text-sm text-muted-foreground">
-                Arraste a foto para centralizar do jeito que preferir.
+                A imagem sera enviada para o Supabase Storage e o enquadramento sera salvo no banco.
               </p>
             </div>
             <div className="mt-5 grid gap-5 md:grid-cols-[260px_1fr]">
@@ -253,14 +359,8 @@ export function NavUser({
               <Button type="button" variant="outline" onClick={() => setProfileOpen(false)}>
                 Cancelar
               </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  setDisplayName(draftName.trim() || user.name)
-                  setProfileOpen(false)
-                }}
-              >
-                Salvar
+              <Button type="button" disabled={isSaving} onClick={() => void handleSaveProfile()}>
+                {isSaving ? "Salvando..." : "Salvar"}
               </Button>
             </div>
           </div>
