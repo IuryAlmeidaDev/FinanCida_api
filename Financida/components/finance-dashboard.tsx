@@ -157,7 +157,7 @@ export function FinanceDashboard({
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid max-w-[92rem] items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,400px)_minmax(360px,1fr)_minmax(420px,520px)] lg:px-6">
+      <div className="grid max-w-[92rem] items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(420px,1fr)] lg:px-6">
         <div className="h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}
@@ -169,7 +169,7 @@ export function FinanceDashboard({
         <div className="h-full">
           <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
         </div>
-        <div className="h-full">
+        <div className="h-full xl:col-span-2">
           <FinancePieChart summary={summary} />
         </div>
       </div>

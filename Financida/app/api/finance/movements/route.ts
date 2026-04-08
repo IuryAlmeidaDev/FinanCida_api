@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
   }
 
-  const dataset = await readFinanceDataset()
+  const dataset = await readFinanceDataset(user.id)
 
   return NextResponse.json({
     movements: listFinanceMovements(dataset),
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     const input = movementInputSchema.parse(await request.json())
-    const dataset = await createFinanceMovement(input)
+    const dataset = await createFinanceMovement(user.id, input)
 
     return NextResponse.json(
       {

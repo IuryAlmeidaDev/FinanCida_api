@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     )
   }
 
-  const summary = await getFinancialSummary({ month, year })
+  const summary = await getFinancialSummary(user.id, { month, year })
 
   return NextResponse.json({ summary })
 }

@@ -62,6 +62,7 @@ describe("finance movements API", () => {
 
     expect(response.status).toBe(200)
     expect(payload.movements).toEqual([])
+    expect(financeStoreMocks.readFinanceDataset).toHaveBeenCalledWith("user-1")
   })
 
   it("salva uma nova movimentacao autenticado", async () => {
@@ -103,6 +104,12 @@ describe("finance movements API", () => {
     }
 
     expect(response.status).toBe(201)
+    expect(financeStoreMocks.createFinanceMovement).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({
+        description: "Restaurante",
+      })
+    )
     expect(
       payload.dataset.variableExpenses.some(
         (expense) => expense.description === "Restaurante"

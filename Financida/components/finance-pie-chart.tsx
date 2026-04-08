@@ -60,10 +60,10 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
           Distribuicao dos gastos no periodo selecionado.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-center gap-4 px-4 pt-4 sm:px-6 sm:pt-6 2xl:flex-row 2xl:items-center 2xl:justify-center 2xl:gap-8">
+      <CardContent className="flex flex-1 flex-col justify-center gap-6 px-4 pt-4 sm:px-6 sm:pt-6 lg:flex-row lg:items-center lg:justify-center lg:gap-10">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[240px] w-full sm:h-[300px] 2xl:h-[320px] 2xl:w-auto 2xl:flex-1 2xl:max-w-none"
+          className="mx-auto aspect-square h-[260px] w-full sm:h-[320px] lg:w-auto lg:flex-1 lg:max-w-[420px]"
         >
           <PieChart>
             <ChartTooltip
@@ -84,7 +84,7 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
             </Pie>
           </PieChart>
         </ChartContainer>
-        <div className="grid w-full gap-2 text-sm sm:grid-cols-2 2xl:w-auto 2xl:flex-1 2xl:grid-cols-1">
+        <div className="grid w-full gap-2 text-sm sm:grid-cols-2 lg:flex-1">
           {!hasData && (
             <p className="text-sm text-muted-foreground">
               Sem despesas no periodo selecionado.

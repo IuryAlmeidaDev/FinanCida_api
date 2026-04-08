@@ -91,13 +91,13 @@ export function FinanceBarChart({
   const balance = (currentMonth?.receita ?? 0) - (currentMonth?.despesa ?? 0)
 
   return (
-    <Card className="@container/card h-full border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
+    <Card className="@container/card flex h-full flex-col border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
       <CardHeader>
         <CardTitle>Receitas e despesas</CardTitle>
         <CardDescription>Comparativo dos ultimos 6 meses.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[260px] w-full">
+      <CardContent className="flex flex-1">
+        <ChartContainer config={chartConfig} className="min-h-[320px] w-full flex-1">
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis

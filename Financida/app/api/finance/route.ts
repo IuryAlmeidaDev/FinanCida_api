@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
   }
 
-  const dataset = await readFinanceDataset()
+  const dataset = await readFinanceDataset(user.id)
 
   return NextResponse.json({ dataset })
 }

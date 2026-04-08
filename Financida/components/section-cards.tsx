@@ -34,7 +34,7 @@ export function SectionCards({
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      <Card className="@container/card border-emerald-100 bg-gradient-to-br from-white to-emerald-50/70 dark:border-emerald-900/60 dark:from-card dark:to-emerald-950/30">
+      <Card className="@container/card border-emerald-100 bg-gradient-to-br from-white to-emerald-100/80 transition-colors hover:to-emerald-200/70 dark:border-emerald-900/60 dark:from-card dark:to-emerald-950/40 dark:hover:to-emerald-900/50">
         <CardHeader>
           <CardDescription>Receita mensal</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -57,7 +57,7 @@ export function SectionCards({
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-sky-100 bg-gradient-to-br from-white to-sky-50/70 dark:border-sky-900/60 dark:from-card dark:to-sky-950/30">
+      <Card className="@container/card border-sky-100 bg-gradient-to-br from-white to-sky-100/80 transition-colors hover:to-sky-200/70 dark:border-sky-900/60 dark:from-card dark:to-sky-950/40 dark:hover:to-sky-900/50">
         <CardHeader>
           <CardDescription>Total de despesas</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -80,7 +80,7 @@ export function SectionCards({
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-emerald-100 bg-gradient-to-br from-white to-emerald-50/70 dark:border-emerald-900/60 dark:from-card dark:to-emerald-950/30">
+      <Card className="@container/card border-emerald-100 bg-gradient-to-br from-white to-emerald-100/80 transition-colors hover:to-emerald-200/70 dark:border-emerald-900/60 dark:from-card dark:to-emerald-950/40 dark:hover:to-emerald-900/50">
         <CardHeader>
           <CardDescription>Saldo operacional</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -112,7 +112,7 @@ export function SectionCards({
           <div className="text-muted-foreground">Indicador de saude financeira</div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-amber-100 bg-gradient-to-br from-white to-amber-50/70 dark:border-amber-900/60 dark:from-card dark:to-amber-950/20">
+      <Card className="@container/card border-amber-100 bg-gradient-to-br from-white to-amber-100/80 transition-colors hover:to-amber-200/70 dark:border-amber-900/60 dark:from-card dark:to-amber-950/40 dark:hover:to-amber-900/50">
         <CardHeader>
           <CardDescription>Total a pagar</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

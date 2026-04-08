@@ -22,6 +22,7 @@ async function ensureDatabase() {
     await database.query(`
       create table if not exists fixed_expenses (
         id text primary key,
+        user_id text,
         transaction_date date,
         description text not null,
         category text not null,
@@ -32,6 +33,7 @@ async function ensureDatabase() {
 
       create table if not exists variable_expenses (
         id text primary key,
+        user_id text,
         date date not null,
         description text not null,
         category text not null,
@@ -41,37 +43,47 @@ async function ensureDatabase() {
 
       create table if not exists monthly_revenues (
         id text primary key,
+        user_id text,
         date date not null,
         value numeric(12, 2) not null,
         created_at timestamptz not null default now()
       );
+
+      alter table fixed_expenses add column if not exists user_id text;
+      alter table variable_expenses add column if not exists user_id text;
+      alter table monthly_revenues add column if not exists user_id text;
+
+      create index if not exists fixed_expenses_user_id_idx on fixed_expenses (user_id);
+      create index if not exists variable_expenses_user_id_idx on variable_expenses (user_id);
+      create index if not exists monthly_revenues_user_id_idx on monthly_revenues (user_id);
     `)
   })()
 
   return schemaReady
 }
 
-async function replaceDatabaseContents(dataset: FinanceDataset) {
+async function replaceDatabaseContents(userId: string, dataset: FinanceDataset) {
   const database = getPool()
   const client = await database.connect()
 
   try {
     await client.query("begin")
 
-    await client.query("delete from monthly_revenues")
-    await client.query("delete from fixed_expenses")
-    await client.query("delete from variable_expenses")
+    await client.query("delete from monthly_revenues where user_id = $1", [userId])
+    await client.query("delete from fixed_expenses where user_id = $1", [userId])
+    await client.query("delete from variable_expenses where user_id = $1", [userId])
 
     for (const expense of dataset.fixedExpenses) {
       await client.query(
         `
           insert into fixed_expenses
-            (id, transaction_date, description, category, value, status)
-          values ($1, $2, $3, $4, $5, $6)
+            (id, user_id, transaction_date, description, category, value, status)
+          values ($1, $2, $3, $4, $5, $6, $7)
           on conflict (id) do nothing
         `,
         [
           expense.id,
+          userId,
           expense.transactionDate ?? null,
           expense.description,
           expense.category,
@@ -84,12 +96,13 @@ async function replaceDatabaseContents(dataset: FinanceDataset) {
     for (const expense of dataset.variableExpenses) {
       await client.query(
         `
-          insert into variable_expenses (id, date, description, category, value)
-          values ($1, $2, $3, $4, $5)
+          insert into variable_expenses (id, user_id, date, description, category, value)
+          values ($1, $2, $3, $4, $5, $6)
           on conflict (id) do nothing
         `,
         [
           expense.id,
+          userId,
           expense.date,
           expense.description,
           expense.category,
@@ -101,11 +114,11 @@ async function replaceDatabaseContents(dataset: FinanceDataset) {
     for (const revenue of dataset.monthlyRevenues) {
       await client.query(
         `
-          insert into monthly_revenues (id, date, value)
-          values ($1, $2, $3)
+          insert into monthly_revenues (id, user_id, date, value)
+          values ($1, $2, $3, $4)
           on conflict (id) do nothing
         `,
-        [revenue.id, revenue.date, revenue.value]
+        [revenue.id, userId, revenue.date, revenue.value]
       )
     }
 
@@ -130,7 +143,7 @@ function formatDatabaseDate(value: Date | string | null) {
   return value.slice(0, 10)
 }
 
-async function readFinanceDatasetFromDatabase(): Promise<FinanceDataset> {
+async function readFinanceDatasetFromDatabase(userId: string): Promise<FinanceDataset> {
   await ensureDatabase()
 
   const database = getPool()
@@ -143,7 +156,8 @@ async function readFinanceDatasetFromDatabase(): Promise<FinanceDataset> {
       value: string
       status: FixedExpenseStatus
     }>(
-      "select id, transaction_date, description, category, value, status from fixed_expenses order by transaction_date nulls last, created_at"
+      "select id, transaction_date, description, category, value, status from fixed_expenses where user_id = $1 order by transaction_date nulls last, created_at",
+      [userId]
     ),
     database.query<{
       id: string
@@ -152,13 +166,17 @@ async function readFinanceDatasetFromDatabase(): Promise<FinanceDataset> {
       category: ExpenseCategory
       value: string
     }>(
-      "select id, date, description, category, value from variable_expenses order by date, created_at"
+      "select id, date, description, category, value from variable_expenses where user_id = $1 order by date, created_at",
+      [userId]
     ),
     database.query<{
       id: string
       date: Date | string
       value: string
-    }>("select id, date, value from monthly_revenues order by date, created_at"),
+    }>(
+      "select id, date, value from monthly_revenues where user_id = $1 order by date, created_at",
+      [userId]
+    ),
   ])
 
   return {
@@ -185,7 +203,7 @@ async function readFinanceDatasetFromDatabase(): Promise<FinanceDataset> {
   }
 }
 
-async function createFinanceMovementInDatabase(input: MovementInput) {
+async function createFinanceMovementInDatabase(userId: string, input: MovementInput) {
   await ensureDatabase()
 
   const database = getPool()
@@ -204,10 +222,10 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
     for (const revenue of nextDataset.monthlyRevenues) {
       await client.query(
         `
-          insert into monthly_revenues (id, date, value)
-          values ($1, $2, $3)
+          insert into monthly_revenues (id, user_id, date, value)
+          values ($1, $2, $3, $4)
         `,
-        [revenue.id, revenue.date, revenue.value]
+        [revenue.id, userId, revenue.date, revenue.value]
       )
     }
 
@@ -215,11 +233,12 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
       await client.query(
         `
           insert into fixed_expenses
-            (id, transaction_date, description, category, value, status)
-          values ($1, $2, $3, $4, $5, $6)
+            (id, user_id, transaction_date, description, category, value, status)
+          values ($1, $2, $3, $4, $5, $6, $7)
         `,
         [
           expense.id,
+          userId,
           expense.transactionDate ?? null,
           expense.description,
           expense.category,
@@ -232,11 +251,12 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
     for (const expense of nextDataset.variableExpenses) {
       await client.query(
         `
-          insert into variable_expenses (id, date, description, category, value)
-          values ($1, $2, $3, $4, $5)
+          insert into variable_expenses (id, user_id, date, description, category, value)
+          values ($1, $2, $3, $4, $5, $6)
         `,
         [
           expense.id,
+          userId,
           expense.date,
           expense.description,
           expense.category,
@@ -253,40 +273,40 @@ async function createFinanceMovementInDatabase(input: MovementInput) {
     client.release()
   }
 
-  return readFinanceDatasetFromDatabase()
+  return readFinanceDatasetFromDatabase(userId)
 }
 
-export async function readFinanceDataset(): Promise<FinanceDataset> {
+export async function readFinanceDataset(userId: string): Promise<FinanceDataset> {
   if (!hasDatabaseUrl()) {
     throw new Error("DATABASE_URL nao configurada.")
   }
 
-  return readFinanceDatasetFromDatabase()
+  return readFinanceDatasetFromDatabase(userId)
 }
 
-export async function writeFinanceDataset(dataset: FinanceDataset) {
+export async function writeFinanceDataset(userId: string, dataset: FinanceDataset) {
   if (!hasDatabaseUrl()) {
     throw new Error("DATABASE_URL nao configurada.")
   }
 
-  await replaceDatabaseContents(dataset)
-  return readFinanceDatasetFromDatabase()
+  await replaceDatabaseContents(userId, dataset)
+  return readFinanceDatasetFromDatabase(userId)
 }
 
-export async function createFinanceMovement(input: MovementInput) {
+export async function createFinanceMovement(userId: string, input: MovementInput) {
   if (!hasDatabaseUrl()) {
     throw new Error("DATABASE_URL nao configurada.")
   }
 
-  return createFinanceMovementInDatabase(input)
+  return createFinanceMovementInDatabase(userId, input)
 }
 
-export async function getFinancialSummary(range: MonthYear) {
+export async function getFinancialSummary(userId: string, range: MonthYear) {
   if (!hasDatabaseUrl()) {
     throw new Error("DATABASE_URL nao configurada.")
   }
 
-  const dataset = await readFinanceDataset()
+  const dataset = await readFinanceDataset(userId)
 
   return calculateFinancialSummary(dataset, range, new Date())
 }
