@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { FinancialReports } from "@/components/financial-reports"
+import { FinanceBarChart } from "@/components/finance-bar-chart"
 import { FinancePieChart } from "@/components/finance-pie-chart"
 import { FinanceWorkspace } from "@/components/finance-workspace"
 import { MovementsTable } from "@/components/movements-table"
@@ -156,14 +157,17 @@ export function FinanceDashboard({
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid max-w-6xl items-stretch gap-4 px-4 lg:grid-cols-[minmax(0,580px)_minmax(320px,420px)] lg:px-6">
-        <div className="h-full [&>div]:h-full [&>div]:px-0 [&>div]:lg:px-0">
+      <div className="grid max-w-7xl items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(360px,1fr)_minmax(320px,420px)] lg:px-6">
+        <div className="h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}
             onDatasetChange={setDataset}
             onMovementCreate={handleMovementCreate}
             showForm={false}
           />
+        </div>
+        <div className="h-full">
+          <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
         </div>
         <div className="h-full">
           <FinancePieChart summary={summary} />
