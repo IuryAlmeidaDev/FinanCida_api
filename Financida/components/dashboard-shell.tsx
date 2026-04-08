@@ -31,7 +31,6 @@ export function DashboardShell({ user }: { user: AuthUser }) {
       }
     >
       <AppSidebar
-        variant="inset"
         activeItem={activeSection}
         user={user}
         onItemSelect={handleItemSelect}
