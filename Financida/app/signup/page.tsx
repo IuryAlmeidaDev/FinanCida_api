@@ -13,8 +13,8 @@ export default async function Page() {
   }
 
   return (
-    <main className="relative flex min-h-svh w-full items-center justify-center bg-background p-6 text-foreground md:p-10">
-      <div className="w-full max-w-sm">
+    <main className="relative flex min-h-svh w-full items-center justify-center bg-slate-50 p-6 text-foreground md:p-10">
+      <div className="w-full max-w-5xl">
         <SignupForm />
       </div>
     </main>

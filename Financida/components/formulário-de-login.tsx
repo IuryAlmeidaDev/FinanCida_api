@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { CircleDollarSign } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
@@ -58,73 +59,114 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="text-center">
-        <p className="inline-flex items-center gap-3 text-4xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm dark:bg-emerald-950 dark:text-emerald-300">
-            <CircleDollarSign
-              className="size-7"
-              color="#007A55"
-              aria-hidden="true"
-            />
-          </span>
-          <span>
-            <span>Finan</span>
-            <span className="text-sky-600">Cida</span>
-          </span>
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Gestao financeira simples e organizada
-        </p>
-      </div>
-      <Card className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
-        <CardHeader>
-          <CardTitle>Entrar na sua conta</CardTitle>
-          <CardDescription>
-            Informe seu e-mail e senha para acessar
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
+    <div className={cn("w-full", className)} {...props}>
+      <Card className="overflow-hidden border-slate-200 shadow-2xl shadow-slate-900/5">
+        <div className="grid min-h-[620px] md:grid-cols-2">
+          <div className="flex flex-col justify-center p-8 md:p-10">
+            <div className="mb-8 flex items-center gap-3">
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+                <CircleDollarSign
+                  className="size-7"
+                  color="#007A55"
+                  aria-hidden="true"
                 />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Senha</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Esqueceu sua senha?
-                  </a>
+              </span>
+              <div className="flex items-center text-3xl font-bold tracking-tight">
+                <span className="text-foreground">Finan</span>
+                <span className="text-sky-600">Cida</span>
+              </div>
+            </div>
+            <CardHeader className="px-0 pt-0">
+              <CardTitle className="text-3xl">Bem-vindo de volta</CardTitle>
+              <CardDescription className="text-base">
+                Entre na sua conta para acompanhar receitas, despesas e metas.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-0 pb-0">
+              <form onSubmit={handleSubmit}>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <div className="flex items-center">
+                      <FieldLabel htmlFor="password">Senha</FieldLabel>
+                      <a
+                        href="#"
+                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                      >
+                        Esqueceu sua senha?
+                      </a>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full bg-[#007A55] hover:bg-[#006346]"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Entrando..." : "Entrar"}
+                    </Button>
+                    {error ? (
+                      <p className="text-sm text-destructive">{error}</p>
+                    ) : null}
+                  </Field>
+                </FieldGroup>
+              </form>
+              <p className="mt-6 text-sm text-muted-foreground">
+                Ainda nao tem uma conta?{" "}
+                <Link
+                  className="font-medium text-foreground underline underline-offset-4"
+                  href="/signup"
+                >
+                  Cadastre-se
+                </Link>
+              </p>
+            </CardContent>
+          </div>
+          <div className="relative hidden bg-[#2C2D2D] md:flex">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_42%),linear-gradient(135deg,_rgba(0,122,85,0.95),_rgba(44,45,45,0.98))]" />
+            <div className="relative flex h-full flex-col justify-between p-10 text-white">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
+                <CircleDollarSign className="size-4" />
+                Controle financeiro com clareza
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
+                    Plataforma Financeira
+                  </p>
+                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
+                    Organize seu dinheiro com uma experiencia leve e objetiva.
+                  </h2>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                />
-              </Field>
-              <Field>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Entrando..." : "Entrar"}
-                </Button>
-                {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
+                <div className="grid gap-3 text-sm text-white/80">
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Acompanhe metas, limites e movimentacoes em um unico painel.
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Tenha visao rapida das contas compartilhadas e do calendario financeiro.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </Card>
     </div>
   )

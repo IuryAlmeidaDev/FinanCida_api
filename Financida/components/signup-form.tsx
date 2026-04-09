@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { CircleDollarSign } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -18,8 +20,12 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function SignupForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const router = useRouter()
   const [name, setName] = React.useState("")
   const [email, setEmail] = React.useState("")
@@ -62,92 +68,138 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   }
 
   return (
-    <Card
-      className="border-emerald-100 shadow-xl shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30"
-      {...props}
-    >
-      <CardHeader>
-        <CardTitle>Criar conta</CardTitle>
-        <CardDescription>
-          Informe seus dados para criar sua conta.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Nome completo</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Joao Silva"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-              <FieldDescription>
-                Vamos usar este email para entrar em contato com voce.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Senha</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                minLength={8}
-              />
-              <FieldDescription>
-                A senha precisa ter pelo menos 8 caracteres.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirmar senha
-              </FieldLabel>
-              <Input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                required
-              />
-              <FieldDescription>Confirme sua senha.</FieldDescription>
-            </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Criando..." : "Criar conta"}
-                </Button>
-                {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                <FieldDescription className="px-6 text-center">
-                  Ja tem uma conta?{" "}
-                  <button
-                    type="button"
-                    className="underline underline-offset-4"
-                    onClick={() => router.push("/")}
-                  >
-                    Entrar
-                  </button>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+    <div className={cn("w-full", className)} {...props}>
+      <Card className="overflow-hidden border-slate-200 shadow-2xl shadow-slate-900/5">
+        <div className="grid min-h-[660px] md:grid-cols-2">
+          <div className="relative hidden bg-[#2C2D2D] md:flex">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.2),_transparent_42%),linear-gradient(145deg,_rgba(44,45,45,0.98),_rgba(0,122,85,0.95))]" />
+            <div className="relative flex h-full flex-col justify-between p-10 text-white">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
+                <CircleDollarSign className="size-4" />
+                Organize metas, contas e compartilhamentos
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
+                    Sua rotina financeira
+                  </p>
+                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
+                    Crie sua conta e centralize sua vida financeira em um so lugar.
+                  </h2>
+                </div>
+                <div className="grid gap-3 text-sm text-white/80">
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Controle despesas, receitas e limites com uma visao simples.
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Compartilhe contas com amigos e acompanhe tudo em tempo real.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col justify-center p-8 md:p-10">
+            <div className="mb-8 flex items-center gap-3">
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+                <CircleDollarSign
+                  className="size-7"
+                  color="#007A55"
+                  aria-hidden="true"
+                />
+              </span>
+              <div className="flex items-center text-3xl font-bold tracking-tight">
+                <span className="text-foreground">Finan</span>
+                <span className="text-sky-600">Cida</span>
+              </div>
+            </div>
+            <CardHeader className="px-0 pt-0">
+              <CardTitle className="text-3xl">Crie sua conta</CardTitle>
+              <CardDescription className="text-base">
+                Informe seus dados para comecar a organizar sua vida financeira.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-0 pb-0">
+              <form onSubmit={handleSubmit}>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="name">Nome completo</FieldLabel>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Joao Silva"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      required
+                    />
+                    <FieldDescription>
+                      Vamos usar este email para acessar sua conta.
+                    </FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="password">Senha</FieldLabel>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                      minLength={8}
+                    />
+                    <FieldDescription>
+                      A senha precisa ter pelo menos 8 caracteres.
+                    </FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="confirm-password">
+                      Confirmar senha
+                    </FieldLabel>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(event) => setConfirmPassword(event.target.value)}
+                      required
+                    />
+                    <FieldDescription>Confirme sua senha.</FieldDescription>
+                  </Field>
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full bg-[#007A55] hover:bg-[#006346]"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Criando..." : "Criar conta"}
+                    </Button>
+                    {error ? (
+                      <p className="text-sm text-destructive">{error}</p>
+                    ) : null}
+                  </Field>
+                </FieldGroup>
+              </form>
+              <p className="mt-6 text-sm text-muted-foreground">
+                Ja tem uma conta?{" "}
+                <Link
+                  href="/"
+                  className="font-medium text-foreground underline underline-offset-4"
+                >
+                  Entrar
+                </Link>
+              </p>
+            </CardContent>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }
