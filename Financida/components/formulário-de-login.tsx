@@ -125,7 +125,7 @@ export function LoginForm({
         {...props}
       >
         <div className="flex flex-col items-center gap-4">
-          <div className="size-10 animate-pulse rounded-full bg-[#15B789]/15" />
+          <div className="size-10 animate-pulse rounded-full bg-[#007A55]/15" />
           <p className="text-sm text-muted-foreground">Carregando FinanCida...</p>
         </div>
       </div>
@@ -134,10 +134,10 @@ export function LoginForm({
 
   return (
     <div className={cn("w-full", className)} {...props}>
-      <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-2xl shadow-[#15B789]/10">
+      <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-2xl shadow-[#007A55]/10">
         <div className="grid min-h-[620px] md:grid-cols-2">
-          <div className="hidden bg-[#15B789] md:flex">
-            <div className="flex h-full flex-col justify-between bg-[#15B789] p-10 text-white">
+          <div className="hidden bg-[#007A55] md:flex">
+            <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
                 Controle financeiro com clareza
               </div>
@@ -199,7 +199,7 @@ export function LoginForm({
                   <Field>
                     <Button
                       type="submit"
-                      className="w-full bg-[#15B789] hover:bg-[#007A55]"
+                      className="w-full bg-[#007A55] hover:bg-[#006346]"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? "Entrando..." : "Entrar"}

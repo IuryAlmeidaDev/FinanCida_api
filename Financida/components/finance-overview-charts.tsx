@@ -21,14 +21,14 @@ import { buildMonthlyFinanceChartData } from "@/lib/finance-chart-data"
 const balanceConfig = {
   saldo: {
     label: "Saldo",
-    color: "#15B789",
+    color: "#007A55",
   },
 } satisfies ChartConfig
 
 const cashflowConfig = {
   receita: {
     label: "Receita",
-    color: "#15B789",
+    color: "#007A55",
   },
   despesa: {
     label: "Despesa",
