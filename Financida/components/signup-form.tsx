@@ -118,7 +118,7 @@ export function SignupForm({
           </div>
           <div className="flex flex-col justify-center p-8 md:p-10">
             <div className="mb-10 flex justify-center">
-              <BrandLogo className="text-6xl leading-none md:text-7xl" priority />
+              <BrandLogo className="h-42 w-[33rem] max-w-full" priority />
             </div>
             <CardHeader className="px-0 pt-0">
               <CardTitle className="text-3xl">Crie sua conta</CardTitle>
