@@ -17,7 +17,6 @@ export function BrandLogo({
         alt="FinanCida"
         fill
         priority={priority}
-        placeholder="blur"
         className="object-contain"
         sizes="176px"
       />
