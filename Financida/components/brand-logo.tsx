@@ -18,52 +18,52 @@ export function BrandLogo({
   return (
     <div className={cn("flex items-center", className)} aria-label="FinanCida">
       <svg
-        viewBox="0 0 670 150"
+        viewBox="0 0 620 150"
         role="img"
         aria-hidden="true"
         className="h-full w-full"
         preserveAspectRatio="xMidYMid meet"
       >
         <path
-          d="M28 26H120L109 52H46C37 52 32 46 35 39L28 26Z"
+          d="M30 28H116L106 50H47C39 50 34 45 36 39L30 28Z"
           fill={secondaryGreen}
         />
         <path
-          d="M35 70H111L101 96H35V70Z"
+          d="M36 68H108L99 92H36V68Z"
           fill={primaryGreen}
         />
-        <path d="M35 96H67V136H35V96Z" fill={darkGreen} />
+        <path d="M36 92H66V130H36V92Z" fill={darkGreen} />
 
         <text
-          x="115"
-          y="106"
+          x="101"
+          y="103"
           fill={textColor}
-          fontSize="86"
+          fontSize="82"
           fontWeight="800"
-          letterSpacing="-2"
+          letterSpacing="-2.5"
           style={{ fontFamily: "var(--font-nunito), Nunito, sans-serif" }}
         >
           inan
         </text>
 
         <path
-          d="M340 36H394L380 56H354L340 36Z"
+          d="M308 38H358L346 55H322L308 38Z"
           fill={secondaryGreen}
         />
         <path
-          d="M340 36V110L371 138H438L424 118H388V56L340 36Z"
+          d="M308 38V108L338 134H404L392 116H352V55L308 38Z"
           fill={primaryGreen}
         />
-        <path d="M394 36L421 63L394 80L380 56L394 36Z" fill={darkGreen} />
-        <path d="M388 118H424L438 138H371L388 118Z" fill={secondaryGreen} />
+        <path d="M358 38L383 62L358 78L346 55L358 38Z" fill={darkGreen} />
+        <path d="M352 116H392L404 134H338L352 116Z" fill={secondaryGreen} />
 
         <text
-          x="426"
-          y="106"
+          x="389"
+          y="103"
           fill={textColor}
-          fontSize="86"
+          fontSize="82"
           fontWeight="800"
-          letterSpacing="-2"
+          letterSpacing="-2.5"
           style={{ fontFamily: "var(--font-nunito), Nunito, sans-serif" }}
         >
           ida
