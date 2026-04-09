@@ -87,6 +87,10 @@ async function ensureSchema() {
       alter table friend_accounts add column if not exists requester_user_id text;
       alter table friend_accounts add column if not exists friend_user_id text;
       alter table friend_accounts add column if not exists payment_dates jsonb;
+      alter table friend_accounts add column if not exists requester_name text;
+      alter table friend_accounts add column if not exists requester_handle text;
+      alter table friend_accounts add column if not exists friend_name text;
+      alter table friend_accounts add column if not exists friend_handle text;
       alter table friend_accounts add column if not exists status text not null default 'pending';
       alter table friend_accounts add column if not exists accepted_at timestamptz;
       alter table friend_accounts add column if not exists finance_synced_at timestamptz;
@@ -98,6 +102,20 @@ async function ensureSchema() {
       update friend_accounts
       set owner_user_id = coalesce(owner_user_id, requester_user_id)
       where owner_user_id is null;
+
+      update friend_accounts fa
+      set requester_name = coalesce(fa.requester_name, requester.name),
+          requester_handle = coalesce(fa.requester_handle, requester.handle)
+      from app_users requester
+      where requester.id = fa.requester_user_id
+        and (fa.requester_name is null or fa.requester_handle is null);
+
+      update friend_accounts fa
+      set friend_name = coalesce(fa.friend_name, friend.name),
+          friend_handle = coalesce(fa.friend_handle, friend.handle)
+      from app_users friend
+      where friend.id = fa.friend_user_id
+        and (fa.friend_name is null or fa.friend_handle is null);
 
       update friend_accounts
       set payment_dates = '[]'::jsonb
@@ -205,12 +223,28 @@ export async function createFriendAccount(
 
   const database = getPool()
   const id = crypto.randomUUID()
+  const requester = await findUserById(userId)
+  const friend = await findUserById(parsedInput.friendUserId)
 
   await database.query(
     `
       insert into friend_accounts
-        (id, owner_user_id, requester_user_id, friend_user_id, description, total_amount, installments, payment_dates, status)
-      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending')
+        (
+          id,
+          owner_user_id,
+          requester_user_id,
+          friend_user_id,
+          description,
+          total_amount,
+          installments,
+          payment_dates,
+          status,
+          requester_name,
+          requester_handle,
+          friend_name,
+          friend_handle
+        )
+      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending', $9, $10, $11, $12)
     `,
     [
       id,
@@ -221,10 +255,12 @@ export async function createFriendAccount(
       parsedInput.totalAmount,
       parsedInput.installments,
       JSON.stringify(parsedInput.paymentDates),
+      requester?.name ?? "",
+      requester?.handle ?? "",
+      friend?.name ?? "",
+      friend?.handle ?? "",
     ]
   )
-
-  const requester = await findUserById(userId)
 
   if (requester) {
     await notifySafely({
