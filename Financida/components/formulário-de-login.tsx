@@ -145,7 +145,7 @@ export function LoginForm({
           </div>
           <div className="flex flex-col justify-center bg-white p-8 md:p-10">
             <div className="mb-10 flex flex-col items-center gap-3 text-center">
-              <BrandLogo className="h-48 w-[37rem] max-w-full" priority />
+              <BrandLogo className="text-7xl leading-none md:text-8xl" priority />
             </div>
             <CardContent className="px-0 pb-0">
               <form onSubmit={handleSubmit}>
