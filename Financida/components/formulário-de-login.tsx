@@ -120,6 +120,33 @@ export function LoginForm({
     <div className={cn("w-full", className)} {...props}>
       <Card className="overflow-hidden border-slate-200 shadow-2xl shadow-slate-900/5">
         <div className="grid min-h-[620px] md:grid-cols-2">
+          <div className="relative hidden bg-[#2C2D2D] md:flex">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_42%),linear-gradient(135deg,_rgba(0,122,85,0.95),_rgba(44,45,45,0.98))]" />
+            <div className="relative flex h-full flex-col justify-between p-10 text-white">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
+                <CircleDollarSign className="size-4" />
+                Controle financeiro com clareza
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
+                    Plataforma Financeira
+                  </p>
+                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
+                    Organize seu dinheiro com uma experiencia leve e objetiva.
+                  </h2>
+                </div>
+                <div className="grid gap-3 text-sm text-white/80">
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Acompanhe metas, limites e movimentacoes em um unico painel.
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+                    Tenha visao rapida das contas compartilhadas e do calendario financeiro.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-col justify-center p-8 md:p-10">
             <div className="mb-8 flex items-center gap-3">
               <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
@@ -223,33 +250,6 @@ export function LoginForm({
                 </Link>
               </p>
             </CardContent>
-          </div>
-          <div className="relative hidden bg-[#2C2D2D] md:flex">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_42%),linear-gradient(135deg,_rgba(0,122,85,0.95),_rgba(44,45,45,0.98))]" />
-            <div className="relative flex h-full flex-col justify-between p-10 text-white">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
-                <CircleDollarSign className="size-4" />
-                Controle financeiro com clareza
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
-                    Plataforma Financeira
-                  </p>
-                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
-                    Organize seu dinheiro com uma experiencia leve e objetiva.
-                  </h2>
-                </div>
-                <div className="grid gap-3 text-sm text-white/80">
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Acompanhe metas, limites e movimentacoes em um unico painel.
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Tenha visao rapida das contas compartilhadas e do calendario financeiro.
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </Card>
