@@ -14,22 +14,25 @@ export function BrandLogo({
   const iconColor = isSidebar ? "#95F0A0" : "#007A55"
 
   return (
-    <div className={cn("flex items-center", className)} aria-label="FinanCida">
+    <div
+      className={cn("flex items-center justify-center", className)}
+      aria-label="FinanCida"
+    >
       <svg
-        viewBox="0 0 680 120"
+        viewBox="0 0 560 120"
         role="img"
         aria-hidden="true"
         className="h-full w-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        <g transform="translate(8 10) scale(0.19)">
+        <g transform="translate(26 10) scale(0.19)">
           <path
             d="M0 385.49L63.1 448 191.74 319.73 255.42 383.18 387.69 250.34 419.73 281.84 512 89.6 320.91 122.78 353.54 154.87 255.41 253.76 191.74 190.31 0 385.49Z"
             fill={iconColor}
           />
         </g>
         <text
-          x="128"
+          x="114"
           y="78"
           fill={textColor}
           fontSize="68"

@@ -69,6 +69,19 @@ const socialProviders = [
   },
 ]
 
+const featureHighlights = [
+  {
+    title: "Compartilhe uma divida",
+    description:
+      "Lance valores com amigos, acompanhe pendencias e organize cada aceite com mais transparencia.",
+  },
+  {
+    title: "Acompanhe metas e limites",
+    description:
+      "Visualize receitas, despesas e alertas do mes em um dashboard simples e direto.",
+  },
+]
+
 export function LoginForm({
   className,
   ...props
@@ -116,10 +129,29 @@ export function LoginForm({
                 <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
                   Plataforma Financeira
                 </div>
+                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
+                  Compartilhe uma divida
+                </div>
+                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
+                  Metas e limites
+                </div>
                 <div className="space-y-4">
                   <h2 className="text-4xl font-semibold leading-tight">
                     Organize seu dinheiro com mais clareza e menos atrito.
                   </h2>
+                </div>
+                <div className="grid gap-3 pt-2">
+                  {featureHighlights.map((highlight) => (
+                    <div
+                      key={highlight.title}
+                      className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur"
+                    >
+                      <p className="text-sm font-semibold">{highlight.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-white/80">
+                        {highlight.description}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
