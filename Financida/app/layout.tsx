@@ -1,4 +1,5 @@
 import "./globals.css"
+import type { Metadata } from "next"
 import { Nunito } from "next/font/google"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -9,6 +10,10 @@ const nunito = Nunito({
   variable: "--font-nunito",
   display: "swap",
 })
+
+export const metadata: Metadata = {
+  title: "FinanCida",
+}
 
 export default function RootLayout({
   children,

@@ -10,9 +10,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   Field,
@@ -118,11 +115,10 @@ export function LoginForm({
 
   return (
     <div className={cn("w-full", className)} {...props}>
-      <Card className="overflow-hidden border-slate-200 shadow-2xl shadow-slate-900/5">
+      <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-2xl shadow-[#007A55]/10">
         <div className="grid min-h-[620px] md:grid-cols-2">
-          <div className="relative hidden bg-[#2C2D2D] md:flex">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_42%),linear-gradient(135deg,_rgba(0,122,85,0.95),_rgba(44,45,45,0.98))]" />
-            <div className="relative flex h-full flex-col justify-between p-10 text-white">
+          <div className="hidden bg-[#007A55] md:flex">
+            <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
                 <CircleDollarSign className="size-4" />
                 Controle financeiro com clareza
@@ -147,8 +143,8 @@ export function LoginForm({
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center p-8 md:p-10">
-            <div className="mb-8 flex items-center gap-3">
+          <div className="flex flex-col justify-center bg-white p-8 md:p-10">
+            <div className="mb-8 flex flex-col items-center gap-3 text-center">
               <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
                 <CircleDollarSign
                   className="size-7"
@@ -161,12 +157,6 @@ export function LoginForm({
                 <span className="text-sky-600">Cida</span>
               </div>
             </div>
-            <CardHeader className="px-0 pt-0">
-              <CardTitle className="text-3xl">Bem-vindo de volta</CardTitle>
-              <CardDescription className="text-base">
-                Entre na sua conta para acompanhar receitas, despesas e metas.
-              </CardDescription>
-            </CardHeader>
             <CardContent className="px-0 pb-0">
               <form onSubmit={handleSubmit}>
                 <FieldGroup>
@@ -175,7 +165,6 @@ export function LoginForm({
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       required
