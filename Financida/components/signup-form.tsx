@@ -98,8 +98,8 @@ export function SignupForm({
             </div>
           </div>
           <div className="flex flex-col justify-center p-8 md:p-10">
-            <div className="mb-8 flex justify-center">
-              <BrandLogo className="h-16 w-56" priority />
+            <div className="mb-10 flex justify-center">
+              <BrandLogo className="h-24 w-80 max-w-full" priority />
             </div>
             <CardHeader className="px-0 pt-0">
               <CardTitle className="text-3xl">Crie sua conta</CardTitle>
