@@ -139,47 +139,13 @@ export function LoginForm({
                   <h2 className="text-4xl font-semibold leading-tight">
                     Organize seu dinheiro com mais clareza e menos atrito.
                   </h2>
-                  <p className="max-w-md text-sm leading-6 text-white/80">
-                    Tudo o que voce precisa para acompanhar metas, despesas,
-                    contas compartilhadas e indicadores em um unico lugar.
-                  </p>
-                </div>
-              </div>
-              <div className="grid gap-3 text-sm">
-                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                  <p className="font-medium text-white">Dashboard intuitivo</p>
-                  <p className="mt-1 leading-6 text-white/75">
-                    Monitore receitas, despesas e limites com uma leitura mais
-                    direta.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                  <p className="font-medium text-white">Relatorios claros</p>
-                  <p className="mt-1 leading-6 text-white/75">
-                    Encontre tendencias do seu historico financeiro sem perder
-                    contexto.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                  <p className="font-medium text-white">Contas compartilhadas</p>
-                  <p className="mt-1 leading-6 text-white/75">
-                    Acompanhe pendencias com amigos e aprovacoes com mais
-                    transparencia.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                  <p className="font-medium text-white">Alertas e metas</p>
-                  <p className="mt-1 leading-6 text-white/75">
-                    Tenha mais controle do mes e acompanhe limites com menos
-                    atrito.
-                  </p>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-col justify-center bg-white p-8 md:p-10">
             <div className="mb-10 flex flex-col items-center gap-3 text-center">
-              <BrandLogo className="h-42 w-[33rem] max-w-full" priority />
+              <BrandLogo className="h-48 w-[37rem] max-w-full" priority />
             </div>
             <CardContent className="px-0 pb-0">
               <form onSubmit={handleSubmit}>
