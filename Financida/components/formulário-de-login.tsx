@@ -20,6 +20,64 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
+
+const socialProviders = [
+  {
+    name: "Google",
+    icon: (
+      <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
+        <path
+          d="M21.8 12.2c0-.72-.06-1.26-.2-1.82H12v3.44h5.64c-.11.86-.72 2.16-2.07 3.03l-.02.11 3 2.32.2.02c1.82-1.68 2.87-4.14 2.87-7.1Z"
+          fill="#4285F4"
+        />
+        <path
+          d="M12 22c2.76 0 5.08-.9 6.78-2.43l-3.23-2.5c-.86.6-2.02 1.01-3.55 1.01-2.7 0-4.98-1.78-5.8-4.25l-.1.01-3.12 2.4-.03.1A10.24 10.24 0 0 0 12 22Z"
+          fill="#34A853"
+        />
+        <path
+          d="M6.2 13.83A6.13 6.13 0 0 1 5.88 12c0-.64.11-1.26.3-1.83l-.01-.12-3.15-2.43-.1.05A10 10 0 0 0 2 12c0 1.6.38 3.11 1.06 4.44l3.14-2.61Z"
+          fill="#FBBC05"
+        />
+        <path
+          d="M12 5.92c1.93 0 3.23.83 3.97 1.53l2.9-2.83C17.07 2.96 14.76 2 12 2a10.24 10.24 0 0 0-8.98 5.56l3.26 2.5c.84-2.47 3.12-4.14 5.72-4.14Z"
+          fill="#EA4335"
+        />
+      </svg>
+    ),
+  },
+  {
+    name: "iCloud",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="size-4 text-foreground"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7.5 18.5a4.5 4.5 0 1 1 .87-8.92A5.5 5.5 0 0 1 19 11.5h.25a3.25 3.25 0 0 1 0 6.5H7.5Z"
+          fill="currentColor"
+          opacity="0.82"
+        />
+      </svg>
+    ),
+  },
+  {
+    name: "GitHub",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="size-4 text-foreground"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.6 2 12.27c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.88-2.78.62-3.37-1.2-3.37-1.2-.45-1.18-1.11-1.5-1.11-1.5-.9-.64.07-.63.07-.63 1 .07 1.52 1.05 1.52 1.05.88 1.56 2.3 1.11 2.86.85.09-.66.35-1.11.63-1.36-2.22-.26-4.56-1.15-4.56-5.14 0-1.14.4-2.08 1.04-2.82-.1-.26-.45-1.3.1-2.72 0 0 .85-.28 2.8 1.07A9.43 9.43 0 0 1 12 6.68c.85 0 1.7.12 2.5.37 1.95-1.35 2.8-1.07 2.8-1.07.56 1.42.21 2.46.1 2.72.65.74 1.04 1.68 1.04 2.82 0 4-2.35 4.87-4.59 5.13.36.32.69.95.69 1.92 0 1.38-.01 2.5-.01 2.84 0 .27.18.59.69.49A10.16 10.16 0 0 0 22 12.27C22 6.6 17.52 2 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+    ),
+  },
+]
 
 export function LoginForm({
   className,
@@ -128,6 +186,33 @@ export function LoginForm({
                   </Field>
                 </FieldGroup>
               </form>
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 tracking-[0.16em] text-muted-foreground">
+                      Em breve
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  {socialProviders.map((provider) => (
+                    <Button
+                      key={provider.name}
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-center border-dashed text-muted-foreground opacity-80"
+                      disabled
+                      aria-label={`${provider.name} em breve`}
+                    >
+                      {provider.icon}
+                      <span className="hidden sm:inline">{provider.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
               <p className="mt-6 text-sm text-muted-foreground">
                 Ainda nao tem uma conta?{" "}
                 <Link
