@@ -89,8 +89,10 @@ async function ensureSchema() {
       alter table friend_accounts add column if not exists payment_dates jsonb;
       alter table friend_accounts add column if not exists requester_name text;
       alter table friend_accounts add column if not exists requester_handle text;
+      alter table friend_accounts add column if not exists requester_email text;
       alter table friend_accounts add column if not exists friend_name text;
       alter table friend_accounts add column if not exists friend_handle text;
+      alter table friend_accounts add column if not exists friend_email text;
       alter table friend_accounts add column if not exists status text not null default 'pending';
       alter table friend_accounts add column if not exists accepted_at timestamptz;
       alter table friend_accounts add column if not exists finance_synced_at timestamptz;
@@ -105,17 +107,27 @@ async function ensureSchema() {
 
       update friend_accounts fa
       set requester_name = coalesce(fa.requester_name, requester.name),
-          requester_handle = coalesce(fa.requester_handle, requester.handle)
+          requester_handle = coalesce(fa.requester_handle, requester.handle),
+          requester_email = coalesce(fa.requester_email, requester.email)
       from app_users requester
       where requester.id = fa.requester_user_id
-        and (fa.requester_name is null or fa.requester_handle is null);
+        and (
+          fa.requester_name is null
+          or fa.requester_handle is null
+          or fa.requester_email is null
+        );
 
       update friend_accounts fa
       set friend_name = coalesce(fa.friend_name, friend.name),
-          friend_handle = coalesce(fa.friend_handle, friend.handle)
+          friend_handle = coalesce(fa.friend_handle, friend.handle),
+          friend_email = coalesce(fa.friend_email, friend.email)
       from app_users friend
       where friend.id = fa.friend_user_id
-        and (fa.friend_name is null or fa.friend_handle is null);
+        and (
+          fa.friend_name is null
+          or fa.friend_handle is null
+          or fa.friend_email is null
+        );
 
       update friend_accounts
       set payment_dates = '[]'::jsonb
@@ -241,10 +253,12 @@ export async function createFriendAccount(
           status,
           requester_name,
           requester_handle,
+          requester_email,
           friend_name,
-          friend_handle
+          friend_handle,
+          friend_email
         )
-      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending', $9, $10, $11, $12)
+      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending', $9, $10, $11, $12, $13, $14)
     `,
     [
       id,
@@ -257,8 +271,10 @@ export async function createFriendAccount(
       JSON.stringify(parsedInput.paymentDates),
       requester?.name ?? "",
       requester?.handle ?? "",
+      requester?.email ?? "",
       friend?.name ?? "",
       friend?.handle ?? "",
+      friend?.email ?? "",
     ]
   )
 
