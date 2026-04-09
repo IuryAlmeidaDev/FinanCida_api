@@ -4,7 +4,6 @@ import * as React from "react"
 import {
   BitcoinIcon,
   ChartBarIcon,
-  CircleDollarSign,
   HandCoinsIcon,
   LayoutDashboardIcon,
   ListIcon,
@@ -12,6 +11,7 @@ import {
   UsersIcon,
 } from "lucide-react"
 
+import { BrandLogo } from "@/components/brand-logo"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -84,18 +84,8 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#" className="h-11 text-white">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white shadow-sm ring-1 ring-white/15">
-                  <CircleDollarSign
-                    className="size-5 shrink-0"
-                    color="#34d399"
-                    aria-hidden="true"
-                  />
-                </span>
-                <span className="text-base font-bold tracking-tight">
-                  <span className="text-emerald-300">Finan</span>
-                  <span className="text-sky-300">Cida</span>
-                </span>
+              <a href="#" className="h-12 text-white">
+                <BrandLogo className="h-10 w-36 shrink-0" />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

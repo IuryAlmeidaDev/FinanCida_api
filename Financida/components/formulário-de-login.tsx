@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { CircleDollarSign } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
+import { BrandLogo } from "@/components/brand-logo"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -120,7 +120,6 @@ export function LoginForm({
           <div className="hidden bg-[#007A55] md:flex">
             <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
-                <CircleDollarSign className="size-4" />
                 Controle financeiro com clareza
               </div>
               <div className="space-y-6">
@@ -145,17 +144,7 @@ export function LoginForm({
           </div>
           <div className="flex flex-col justify-center bg-white p-8 md:p-10">
             <div className="mb-8 flex flex-col items-center gap-3 text-center">
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
-                <CircleDollarSign
-                  className="size-7"
-                  color="#007A55"
-                  aria-hidden="true"
-                />
-              </span>
-              <div className="flex items-center text-3xl font-bold tracking-tight">
-                <span className="text-foreground">Finan</span>
-                <span className="text-sky-600">Cida</span>
-              </div>
+              <BrandLogo className="h-16 w-56" priority />
             </div>
             <CardContent className="px-0 pb-0">
               <form onSubmit={handleSubmit}>
