@@ -52,9 +52,9 @@ export function CategoryIcon({
   return (
     <span
       className={cn(
-        "inline-flex size-6 shrink-0 items-center justify-center rounded-full ring-1",
+        "inline-flex size-7 shrink-0 items-center justify-center rounded-2xl border shadow-sm",
         theme.iconSurfaceClassName,
-        theme.iconRingClassName,
+        theme.iconBorderClassName,
         className
       )}
     >
