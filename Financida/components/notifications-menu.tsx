@@ -54,7 +54,7 @@ export function NotificationsMenu() {
         <DropdownMenuLabel className="flex items-center justify-between gap-3">
           <span>Notificacoes</span>
           <span className="text-xs text-muted-foreground">
-            {unreadCount} nao lidas
+            {unreadCount} não lidas
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

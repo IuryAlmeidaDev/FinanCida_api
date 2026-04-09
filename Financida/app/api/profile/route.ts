@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const user = await getRequestUser(request)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   return NextResponse.json({
@@ -32,7 +32,7 @@ export async function PUT(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = profileUpdateSchema.parse(await request.json())
@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel atualizar o perfil." },
+      { error: "Não foi possível atualizar o perfil." },
       { status: 500 }
     )
   }

@@ -5,6 +5,7 @@ import * as React from "react"
 import { Calendar, type CalendarMarker } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { CategoryBadge } from "@/components/category-badge"
+import { CurrencyInput } from "@/components/currency-input"
 import {
   Card,
   CardContent,
@@ -19,6 +20,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type {
   ExpenseCategory,
   FinanceDataset,
@@ -26,23 +34,17 @@ import type {
 } from "@/lib/finance"
 import {
   addMovementToDataset,
+  expenseCategories,
+  fixedExpenseStatuses,
   type MovementInput,
 } from "@/lib/finance-movements"
+import { formatBrazilianDate, moneyFormatter, parseCurrencyInput } from "@/lib/formatters"
 
 type MovementType = "expense" | "revenue"
 type RecurrenceType = "unique" | "recurring"
 
-const moneyFormatter = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-})
-
 function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10)
-}
-
-function formatBrazilianDate(date: Date) {
-  return date.toLocaleDateString("pt-BR")
 }
 
 function parseBrazilianDate(value: string) {
@@ -152,7 +154,7 @@ export function FinanceWorkspace({
       .filter((expense) => expense.date === selectedDateKey)
       .map((expense) => ({
         id: expense.id,
-        label: "Despesa variavel",
+        label: "Despesa variável",
         description: expense.description,
         category: expense.category,
         value: expense.value,
@@ -164,7 +166,7 @@ export function FinanceWorkspace({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const parsedValue = Number(value.replace(",", "."))
+    const parsedValue = parseCurrencyInput(value)
 
     if (!description.trim() || Number.isNaN(parsedValue) || parsedValue <= 0) {
       return
@@ -212,9 +214,9 @@ export function FinanceWorkspace({
       {showCalendar && (
         <Card className="h-full border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
-          <CardTitle>Calendario financeiro</CardTitle>
+          <CardTitle>Calendário financeiro</CardTitle>
           <CardDescription>
-            Dias com lancamentos ficam marcados com borda e ponto preto.
+            Dias com lançamentos ficam marcados com destaque visual.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -229,12 +231,12 @@ export function FinanceWorkspace({
           />
           <div className="rounded-xl border border-border bg-background/60 p-3">
             <p className="text-sm font-medium">
-              Lancamentos de {formatBrazilianDate(selectedDate)}
+              Lançamentos de {formatBrazilianDate(selectedDate)}
             </p>
             <div className="mt-3 space-y-2">
               {selectedMovements.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nenhuma movimentacao neste dia.
+                  Nenhuma movimentação neste dia.
                 </p>
               ) : (
                 selectedMovements.map((movement) => (
@@ -264,9 +266,9 @@ export function FinanceWorkspace({
       {showForm && (
         <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
-          <CardTitle>Adicionar movimentacao</CardTitle>
+          <CardTitle>Adicionar movimentação</CardTitle>
           <CardDescription>
-            Cadastre receita ou despesa unica/recorrente para atualizar o dashboard.
+            Cadastre receita ou despesa única/recorrente para atualizar o dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -275,36 +277,42 @@ export function FinanceWorkspace({
               <div className="grid gap-4 md:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="movement-type">Tipo</FieldLabel>
-                  <select
-                    id="movement-type"
-                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                  <Select
                     value={movementType}
-                    onChange={(event) => setMovementType(event.target.value as MovementType)}
+                    onValueChange={(value) => setMovementType(value as MovementType)}
                   >
-                    <option value="expense">Despesa</option>
-                    <option value="revenue">Receita</option>
-                  </select>
+                    <SelectTrigger id="movement-type" className="h-10 w-full rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectItem value="expense">Despesa</SelectItem>
+                      <SelectItem value="revenue">Receita</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="recurrence-type">Recorrencia</FieldLabel>
-                  <select
-                    id="recurrence-type"
-                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                  <FieldLabel htmlFor="recurrence-type">Recorrência</FieldLabel>
+                  <Select
                     value={recurrenceType}
-                    onChange={(event) => setRecurrenceType(event.target.value as RecurrenceType)}
+                    onValueChange={(value) => setRecurrenceType(value as RecurrenceType)}
                   >
-                    <option value="unique">Unica</option>
-                    <option value="recurring">Recorrente</option>
-                  </select>
+                    <SelectTrigger id="recurrence-type" className="h-10 w-full rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectItem value="unique">Única</SelectItem>
+                      <SelectItem value="recurring">Recorrente</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
               </div>
               <Field>
-                <FieldLabel htmlFor="description">Descricao</FieldLabel>
+                <FieldLabel htmlFor="description">Descrição</FieldLabel>
                 <Input
                   id="description"
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Ex: Aluguel, salario, supermercado"
+                  placeholder="Ex.: Aluguel, salário, supermercado"
                   required
                 />
               </Field>
@@ -328,57 +336,58 @@ export function FinanceWorkspace({
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="value">Valor</FieldLabel>
-                  <Input
+                  <CurrencyInput
                     id="value"
-                    inputMode="decimal"
                     value={value}
-                    onChange={(event) => setValue(event.target.value)}
+                    onValueChange={(maskedValue) => setValue(maskedValue)}
                     placeholder="0,00"
                     required
                   />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="category">Categoria</FieldLabel>
-                  <select
-                    id="category"
-                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                  <Select
                     value={category}
-                    onChange={(event) =>
-                      setCategory(event.target.value as ExpenseCategory)
-                    }
+                    onValueChange={(value) => setCategory(value as ExpenseCategory)}
                   >
-                    <option>Moradia</option>
-                    <option>Familia</option>
-                    <option>Educacao</option>
-                    <option>Comunicacao</option>
-                    <option>Transporte</option>
-                    <option>Alimentacao</option>
-                    <option>Saude</option>
-                    <option>Lazer</option>
-                    <option>Outros</option>
-                  </select>
+                    <SelectTrigger id="category" className="h-10 w-full rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      {expenseCategories.map((item) => (
+                        <SelectItem key={item} value={item}>
+                          {item}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
               </div>
               {movementType === "expense" && recurrenceType === "recurring" && (
                 <Field>
                   <FieldLabel htmlFor="status">Status da despesa fixa</FieldLabel>
-                  <select
-                    id="status"
-                    className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                  <Select
                     value={status}
-                    onChange={(event) => setStatus(event.target.value as FixedExpenseStatus)}
+                    onValueChange={(value) => setStatus(value as FixedExpenseStatus)}
                   >
-                    <option>Em aberto</option>
-                    <option>Pago</option>
-                    <option>Atrasado</option>
-                  </select>
+                    <SelectTrigger id="status" className="h-10 w-full rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      {fixedExpenseStatuses.map((item) => (
+                        <SelectItem key={item} value={item}>
+                          {item}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FieldDescription>
-                    Despesas vencidas e nao pagas entram como atrasadas automaticamente nos calculos.
+                    Despesas vencidas e não pagas entram como atrasadas automaticamente nos cálculos.
                   </FieldDescription>
                 </Field>
               )}
               <Button type="submit" className="w-full md:w-fit">
-                Adicionar movimentacao
+                Adicionar movimentação
               </Button>
             </FieldGroup>
           </form>

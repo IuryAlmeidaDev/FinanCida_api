@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const user = await getRequestUser(request)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   return NextResponse.json({ accounts: await listFriendAccounts(user.id) })
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = friendAccountInputSchema.parse(await request.json())
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ accounts }, { status: 201 })
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
+      return NextResponse.json({ error: "Dados inválidos." }, { status: 400 })
     }
 
     return NextResponse.json(
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel criar a conta.",
+            : "Não foi possível criar a conta.",
       },
       { status: 500 }
     )
@@ -61,7 +61,7 @@ export async function PATCH(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = friendAccountAcceptSchema.parse(await request.json())
@@ -70,7 +70,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ accounts })
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
+      return NextResponse.json({ error: "Dados inválidos." }, { status: 400 })
     }
 
     return NextResponse.json(
@@ -78,7 +78,7 @@ export async function PATCH(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel decidir sobre a conta compartilhada.",
+            : "Não foi possível decidir sobre a conta compartilhada.",
       },
       { status: 500 }
     )

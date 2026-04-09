@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { findUserById } from "@/lib/auth-store"
+import { expenseCategories } from "@/lib/finance-movements"
 import { ensureConfirmedFriendship, listFriends } from "@/lib/friends-store"
 import { createFinanceMovement } from "@/lib/finance-store"
 import { createNotification } from "@/lib/notifications-store"
@@ -9,7 +10,10 @@ import { getPool } from "@/lib/postgres"
 export const friendAccountInputSchema = z.object({
   friendUserId: z.string().min(1),
   description: z.string().trim().min(1).max(160),
+  category: z.enum(expenseCategories),
+  note: z.string().trim().max(280).optional().default(""),
   totalAmount: z.number().positive(),
+  recurrenceType: z.enum(["unique", "installment", "recurring"]),
   installments: z.number().int().min(1).max(120),
   paymentDates: z.array(z.iso.date()).min(1).max(120),
 })
@@ -26,10 +30,13 @@ export type FriendAccount = {
   counterpartName: string
   counterpartHandle: string
   description: string
+  category: (typeof expenseCategories)[number]
+  note: string
   totalAmount: number
   installments: number
   installmentValue: number
   paymentDates: string[]
+  recurrenceType: "unique" | "installment" | "recurring"
   status: "Pendente" | "Aceita" | "Recusada"
   role: "requester" | "recipient"
 }
@@ -39,9 +46,12 @@ type FriendAccountRow = {
   requester_user_id: string
   friend_user_id: string
   description: string
+  category: (typeof expenseCategories)[number]
+  note: string | null
   total_amount: string
   installments: number
   payment_dates: string
+  recurrence_type: "unique" | "installment" | "recurring"
   status: "pending" | "accepted" | "rejected"
   requester_name: string
   requester_handle: string
@@ -73,9 +83,12 @@ async function ensureSchema() {
         requester_user_id text not null,
         friend_user_id text not null,
         description text not null,
+        category text not null default 'Outros',
+        note text not null default '',
         total_amount numeric(12, 2) not null,
         installments integer not null,
         payment_dates jsonb not null,
+        recurrence_type text not null default 'installment',
         status text not null default 'pending',
         accepted_at timestamptz,
         finance_synced_at timestamptz,
@@ -86,7 +99,10 @@ async function ensureSchema() {
       alter table friend_accounts add column if not exists owner_user_id text;
       alter table friend_accounts add column if not exists requester_user_id text;
       alter table friend_accounts add column if not exists friend_user_id text;
+      alter table friend_accounts add column if not exists category text;
+      alter table friend_accounts add column if not exists note text;
       alter table friend_accounts add column if not exists payment_dates jsonb;
+      alter table friend_accounts add column if not exists recurrence_type text;
       alter table friend_accounts add column if not exists requester_name text;
       alter table friend_accounts add column if not exists requester_handle text;
       alter table friend_accounts add column if not exists requester_email text;
@@ -104,6 +120,24 @@ async function ensureSchema() {
       update friend_accounts
       set owner_user_id = coalesce(owner_user_id, requester_user_id)
       where owner_user_id is null;
+
+      update friend_accounts
+      set category = coalesce(category, 'Outros')
+      where category is null or category = '';
+
+      update friend_accounts
+      set note = coalesce(note, '')
+      where note is null;
+
+      update friend_accounts
+      set recurrence_type = coalesce(
+        recurrence_type,
+        case
+          when installments <= 1 then 'unique'
+          else 'installment'
+        end
+      )
+      where recurrence_type is null or recurrence_type = '';
 
       update friend_accounts fa
       set requester_name = coalesce(fa.requester_name, requester.name),
@@ -136,6 +170,15 @@ async function ensureSchema() {
       alter table friend_accounts
       alter column payment_dates set not null;
 
+      alter table friend_accounts
+      alter column category set not null;
+
+      alter table friend_accounts
+      alter column note set not null;
+
+      alter table friend_accounts
+      alter column recurrence_type set not null;
+
       update friend_accounts
       set status = coalesce(status, 'accepted')
       where status is null or status = '';
@@ -166,10 +209,13 @@ function mapFriendAccount(row: FriendAccountRow, userId: string): FriendAccount 
     counterpartName,
     counterpartHandle,
     description: row.description,
+    category: row.category,
+    note: row.note ?? "",
     totalAmount,
     installments: row.installments,
     installmentValue: totalAmount / row.installments,
     paymentDates: JSON.parse(row.payment_dates) as string[],
+    recurrenceType: row.recurrence_type,
     status:
       row.status === "accepted"
         ? "Aceita"
@@ -191,9 +237,12 @@ export async function listFriendAccounts(userId: string) {
         fa.requester_user_id,
         fa.friend_user_id,
         fa.description,
+        fa.category,
+        fa.note,
         fa.total_amount,
         fa.installments,
         fa.payment_dates::text as payment_dates,
+        fa.recurrence_type,
         fa.status,
         requester.name as requester_name,
         requester.handle as requester_handle,
@@ -247,9 +296,12 @@ export async function createFriendAccount(
           requester_user_id,
           friend_user_id,
           description,
+          category,
+          note,
           total_amount,
           installments,
           payment_dates,
+          recurrence_type,
           status,
           requester_name,
           requester_handle,
@@ -258,7 +310,26 @@ export async function createFriendAccount(
           friend_handle,
           friend_email
         )
-      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending', $9, $10, $11, $12, $13, $14)
+      values (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10::jsonb,
+        $11,
+        'pending',
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17
+      )
     `,
     [
       id,
@@ -266,9 +337,12 @@ export async function createFriendAccount(
       userId,
       parsedInput.friendUserId,
       parsedInput.description,
+      parsedInput.category,
+      parsedInput.note,
       parsedInput.totalAmount,
       parsedInput.installments,
       JSON.stringify(parsedInput.paymentDates),
+      parsedInput.recurrenceType,
       requester?.name ?? "",
       requester?.handle ?? "",
       requester?.email ?? "",
@@ -303,7 +377,7 @@ async function syncAcceptedAccountToFinance(row: FriendAccountRow) {
       recurrence: "unique",
       date: paymentDate,
       description,
-      category: "Outros",
+      category: row.category,
       value: installmentValue,
       status: "Em aberto",
     })
@@ -313,7 +387,7 @@ async function syncAcceptedAccountToFinance(row: FriendAccountRow) {
       recurrence: "unique",
       date: paymentDate,
       description,
-      category: "Outros",
+      category: row.category,
       value: installmentValue,
     })
   }
@@ -343,9 +417,12 @@ export async function handleFriendAccountDecision(
         fa.requester_user_id,
         fa.friend_user_id,
         fa.description,
+        fa.category,
+        fa.note,
         fa.total_amount,
         fa.installments,
         fa.payment_dates::text as payment_dates,
+        fa.recurrence_type,
         fa.status,
         requester.name as requester_name,
         requester.handle as requester_handle,

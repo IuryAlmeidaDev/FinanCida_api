@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const formData = await request.formData()
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel enviar a imagem.",
+            : "Não foi possível enviar a imagem.",
       },
       { status: 500 }
     )

@@ -28,17 +28,17 @@ import type { AuthUser } from "@/lib/auth"
 const data = {
   navMain: [
     {
-      title: "Visao Geral",
+      title: "Visão Geral",
       url: "#",
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "Lancamentos",
+      title: "Lançamentos",
       url: "#",
       icon: <ListIcon />,
     },
     {
-      title: "Relatorios",
+      title: "Relatórios",
       url: "#",
       icon: <ChartBarIcon />,
     },

@@ -8,14 +8,14 @@ import {
 import { financeDataset } from "@/lib/finance-sample-data"
 
 describe("finance movements", () => {
-  it("adiciona despesa unica como despesa variavel", () => {
+  it("adiciona despesa única como despesa variável", () => {
     const dataset = addMovementToDataset(
       financeDataset,
       {
         type: "expense",
         recurrence: "unique",
         date: "2026-04-08",
-        description: "Almoco",
+        description: "Almoço",
         category: "Alimentacao",
         value: 45.9,
         status: "Em aberto",
@@ -26,7 +26,7 @@ describe("finance movements", () => {
     expect(dataset.variableExpenses.at(-1)).toMatchObject({
       id: "test-expense",
       date: "2026-04-08",
-      description: "Almoco",
+      description: "Almoço",
       category: "Alimentacao",
       value: 45.9,
     })
@@ -39,7 +39,7 @@ describe("finance movements", () => {
         type: "revenue",
         recurrence: "recurring",
         date: "2026-04-01",
-        description: "Salario",
+        description: "Salário",
         category: "Outros",
         value: 5000,
       },
@@ -63,15 +63,15 @@ describe("finance movements", () => {
     })
   })
 
-  it("lista movimentacoes unificadas", () => {
+  it("lista movimentações unificadas", () => {
     const movements = listFinanceMovements(financeDataset)
 
     expect(movements.some((movement) => movement.type === "Receita")).toBe(true)
     expect(movements.some((movement) => movement.type === "Despesa fixa")).toBe(true)
-    expect(movements.some((movement) => movement.type === "Despesa variavel")).toBe(true)
+    expect(movements.some((movement) => movement.type === "Despesa variável")).toBe(true)
   })
 
-  it("valida entrada invalida", () => {
+  it("valida entrada inválida", () => {
     expect(() =>
       movementInputSchema.parse({
         type: "expense",

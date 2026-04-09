@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel criar a conta." },
+      { error: "Não foi possível criar a conta." },
       { status: 500 }
     )
   }

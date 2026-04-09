@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel autenticar." },
+      { error: "Não foi possível autenticar." },
       { status: 500 }
     )
   }

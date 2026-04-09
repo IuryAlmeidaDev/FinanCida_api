@@ -9,7 +9,7 @@ import type { AuthUser } from "@/lib/auth"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 export function DashboardShell({ user }: { user: AuthUser }) {
-  const [activeSection, setActiveSection] = React.useState("Visao Geral")
+  const [activeSection, setActiveSection] = React.useState("Visão Geral")
   const [addDialogOpen, setAddDialogOpen] = React.useState(false)
 
   function handleItemSelect(item: string) {

@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { CurrencyInput } from "@/components/currency-input"
 import {
   Card,
   CardContent,
@@ -13,13 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import type { FinancialSummary } from "@/lib/finance"
-
-const moneyFormatter = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-})
+import { formatCurrencyInput, moneyFormatter } from "@/lib/formatters"
 
 const suggestedLimits = [3000, 6000, 10000, 15000]
 
@@ -33,19 +29,20 @@ function getLimitStatus(percentage: number) {
 
   if (percentage >= 80) {
     return {
-      label: "Atencao",
+      label: "Atenção",
       className: "border-amber-200 bg-amber-50 text-amber-700",
     }
   }
 
   return {
-    label: "Saudavel",
+    label: "Saudável",
     className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   }
 }
 
 export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
   const [monthlyLimit, setMonthlyLimit] = React.useState(6000)
+  const [monthlyLimitInput, setMonthlyLimitInput] = React.useState("6.000,00")
   const [isLoading, setIsLoading] = React.useState(true)
   const [isSaving, setIsSaving] = React.useState(false)
   const percentage = Math.min((summary.totalExpenses / monthlyLimit) * 100, 100)
@@ -69,6 +66,7 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
 
       if (!ignore) {
         setMonthlyLimit(payload.monthlyLimit)
+        setMonthlyLimitInput(formatCurrencyInput(payload.monthlyLimit))
         setIsLoading(false)
       }
     }
@@ -94,11 +92,11 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
     setIsSaving(false)
 
     if (!response.ok) {
-      toast.error("Nao foi possivel salvar o limite de gastos.")
+      toast.error("Não foi possível salvar o limite de gastos.")
       return
     }
 
-    toast.success("Limite de gastos salvo com sucesso.")
+      toast.success("Limite de gastos salvo com sucesso.")
   }
 
   return (
@@ -109,7 +107,7 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
             <div>
               <CardTitle>Limite de gastos</CardTitle>
               <CardDescription>
-                Ajuste seu teto mensal com uma experiencia mais visual e acompanhe o uso em tempo real.
+                Ajuste seu teto mensal com uma experiência mais visual e acompanhe o uso em tempo real.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -136,7 +134,10 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
                     ? "justify-start bg-emerald-600 text-white hover:bg-emerald-700"
                     : "justify-start border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                 }
-                onClick={() => setMonthlyLimit(limit)}
+                onClick={() => {
+                  setMonthlyLimit(limit)
+                  setMonthlyLimitInput(formatCurrencyInput(limit))
+                }}
                 disabled={isLoading || isSaving}
               >
                 {moneyFormatter.format(limit)}
@@ -170,9 +171,11 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
                   step={100}
                   value={monthlyLimit}
                   disabled={isLoading || isSaving}
-                  onChange={(event) =>
-                    setMonthlyLimit(Math.max(Number(event.target.value), 1000))
-                  }
+                  onChange={(event) => {
+                    const nextLimit = Math.max(Number(event.target.value), 1000)
+                    setMonthlyLimit(nextLimit)
+                    setMonthlyLimitInput(formatCurrencyInput(nextLimit))
+                  }}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{moneyFormatter.format(1000)}</span>
@@ -210,7 +213,7 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
                 </p>
               </div>
               <div className="rounded-2xl border border-emerald-100 p-4">
-                <p className="text-sm font-medium text-muted-foreground">Saldo disponivel</p>
+                <p className="text-sm font-medium text-muted-foreground">Saldo disponível</p>
                 <p
                   className={
                     remainingAmount >= 0
@@ -223,16 +226,14 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
               </div>
               <div className="rounded-2xl border border-emerald-100 p-4">
                 <p className="text-sm font-medium text-muted-foreground">Ajuste manual</p>
-                <Input
+                <CurrencyInput
                   className="mt-2 text-right tabular-nums"
-                  type="number"
-                  min={1000}
-                  step={100}
-                  value={monthlyLimit}
+                  value={monthlyLimitInput}
                   disabled={isLoading || isSaving}
-                  onChange={(event) =>
-                    setMonthlyLimit(Math.max(Number(event.target.value), 1000))
-                  }
+                  onValueChange={(maskedValue, numericValue) => {
+                    setMonthlyLimitInput(maskedValue)
+                    setMonthlyLimit(Math.max(numericValue, 1000))
+                  }}
                 />
               </div>
             </div>

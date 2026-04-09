@@ -71,9 +71,9 @@ const socialProviders = [
 
 const featureHighlights = [
   {
-    title: "Compartilhe uma divida",
+    title: "Compartilhe uma dívida",
     description:
-      "Lance valores com amigos, acompanhe pendencias e organize cada aceite com mais transparencia.",
+      "Lance valores com amigos, acompanhe pendências e organize cada aceite com mais transparência.",
   },
   {
     title: "Acompanhe metas e limites",
@@ -109,7 +109,7 @@ export function LoginForm({
         const payload = (await response.json().catch(() => null)) as
           | { error?: string }
           | null
-        setError(payload?.error ?? "Nao foi possivel autenticar.")
+        setError(payload?.error ?? "Não foi possível autenticar.")
         return
       }
 
@@ -130,7 +130,7 @@ export function LoginForm({
                   Plataforma Financeira
                 </div>
                 <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
-                  Compartilhe uma divida
+                  Compartilhe uma dívida
                 </div>
                 <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
                   Metas e limites
@@ -233,7 +233,7 @@ export function LoginForm({
                 </div>
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                Ainda nao tem uma conta?{" "}
+                Ainda não tem uma conta?{" "}
                 <Link
                   className="font-medium text-foreground underline underline-offset-4"
                   href="/signup"

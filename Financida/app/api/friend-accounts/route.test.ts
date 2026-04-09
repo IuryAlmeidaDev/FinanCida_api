@@ -62,7 +62,10 @@ describe("friend accounts API", () => {
         body: JSON.stringify({
           friendUserId: "friend-1",
           description: "Emprestimo",
+          category: "Outros",
+          note: "Divisao do jantar",
           totalAmount: 500,
+          recurrenceType: "installment",
           installments: 2,
           paymentDates: ["2026-04-10", "2026-05-10"],
         }),

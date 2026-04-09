@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const user = await getRequestUser(request)
 
   if (!user) {
-    return new Response("Nao autenticado.", { status: 401 })
+    return new Response("Não autenticado.", { status: 401 })
   }
 
   const authUser = user

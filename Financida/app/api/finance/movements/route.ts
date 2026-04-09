@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const user = await getAuthUserFromToken(token)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   const dataset = await readFinanceDataset(user.id)
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const user = await getAuthUserFromToken(token)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = movementInputSchema.parse(await request.json())
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
-          error: "Dados invalidos para a movimentacao.",
+          error: "Dados inválidos para a movimentação.",
           issues: error.issues,
         },
         { status: 400 }
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel salvar a movimentacao." },
+      { error: "Não foi possível salvar a movimentação." },
       { status: 500 }
     )
   }
@@ -75,7 +75,7 @@ export async function DELETE(request: Request) {
     const user = await getAuthUserFromToken(token)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = movementDeleteSchema.parse(await request.json())
@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
-          error: "Dados invalidos para remover a movimentacao.",
+          error: "Dados inválidos para remover a movimentação.",
           issues: error.issues,
         },
         { status: 400 }
@@ -97,7 +97,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel remover a movimentacao." },
+      { error: "Não foi possível remover a movimentação." },
       { status: 500 }
     )
   }
@@ -109,7 +109,7 @@ export async function PUT(request: Request) {
     const user = await getAuthUserFromToken(token)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = movementUpdateSchema.parse(await request.json())
@@ -123,7 +123,7 @@ export async function PUT(request: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
-          error: "Dados invalidos para atualizar a movimentacao.",
+          error: "Dados inválidos para atualizar a movimentação.",
           issues: error.issues,
         },
         { status: 400 }
@@ -131,7 +131,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel atualizar a movimentacao." },
+      { error: "Não foi possível atualizar a movimentação." },
       { status: 500 }
     )
   }

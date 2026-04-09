@@ -33,7 +33,10 @@ export function FinanceDashboard({
   addDialogOpen: boolean
   onAddDialogOpenChange: (open: boolean) => void
 }) {
-  const normalizedSection = activeSection.toLowerCase()
+  const normalizedSection = activeSection
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
   const currentDate = React.useMemo(() => new Date(), [])
   const currentFinanceRange = React.useMemo(
     () => getCurrentMonthYear(currentDate),
@@ -123,7 +126,7 @@ export function FinanceDashboard({
     })
 
     if (!response.ok) {
-      throw new Error("Nao foi possivel salvar a movimentacao.")
+      throw new Error("Não foi possível salvar a movimentação.")
     }
 
     const payload = (await response.json()) as { dataset: FinanceDataset }
@@ -140,7 +143,7 @@ export function FinanceDashboard({
     })
 
     if (!response.ok) {
-      throw new Error("Nao foi possivel remover a movimentacao.")
+      throw new Error("Não foi possível remover a movimentação.")
     }
 
     const payload = (await response.json()) as { dataset: FinanceDataset }
@@ -157,7 +160,7 @@ export function FinanceDashboard({
     })
 
     if (!response.ok) {
-      throw new Error("Nao foi possivel atualizar a movimentacao.")
+      throw new Error("Não foi possível atualizar a movimentação.")
     }
 
     const payload = (await response.json()) as { dataset: FinanceDataset }
@@ -170,7 +173,7 @@ export function FinanceDashboard({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-emerald-700 dark:text-emerald-300">
-              Adicionar movimentacao
+              Adicionar movimentação
             </h2>
             <p className="text-sm text-muted-foreground">
               Cadastre uma receita ou despesa sem sair da tela atual.
@@ -272,7 +275,7 @@ export function FinanceDashboard({
             <BellRingIcon className="mt-0.5 size-5 shrink-0" />
             <div>
               <p className="font-semibold">
-                Voce tem {pendingSharedAccountsCount} conta(s) compartilhada(s) aguardando aceite.
+                Você tem {pendingSharedAccountsCount} conta(s) compartilhada(s) aguardando aceite.
               </p>
               <p className="text-sm text-amber-800/80">
                 Abra a aba de contas compartilhadas para aceitar ou recusar.

@@ -390,7 +390,7 @@ export async function updateFinanceMovement(
       `,
       [
         input.date,
-        input.description ?? "Despesa variavel",
+        input.description ?? "Despesa variável",
         input.category ?? "Outros",
         input.value,
         input.id,

@@ -62,7 +62,7 @@ export function CryptoDashboard() {
       const response = await fetch("/api/crypto", { cache: "no-store" })
 
       if (!response.ok) {
-        setError("Nao foi possivel carregar os dados de criptomoedas.")
+        setError("Não foi possível carregar os dados de criptomoedas.")
         return
       }
 
@@ -119,9 +119,9 @@ export function CryptoDashboard() {
       </div>
       <Card className="border-emerald-100">
         <CardHeader>
-          <CardTitle>Bitcoin no ultimo ano</CardTitle>
+          <CardTitle>Bitcoin no último ano</CardTitle>
           <CardDescription>
-            Historico convertido para BRL usando taxa de cambio em tempo real.
+            Histórico convertido para BRL usando taxa de câmbio em tempo real.
           </CardDescription>
         </CardHeader>
         <CardContent>

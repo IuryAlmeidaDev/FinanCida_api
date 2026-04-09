@@ -83,7 +83,7 @@ export function ChartAreaInteractive() {
         <CardTitle>Grafico financeiro antigo</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Receitas e despesas dos ultimos meses
+            Receitas e despesas dos últimos meses
           </span>
           <span className="@[540px]/card:hidden">Ultimos meses</span>
         </CardDescription>

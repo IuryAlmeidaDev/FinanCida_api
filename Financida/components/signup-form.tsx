@@ -32,7 +32,7 @@ export function SignupForm({
     event.preventDefault()
 
     if (password !== confirmPassword) {
-      setError("As senhas nao conferem.")
+      setError("As senhas não conferem.")
       return
     }
 
@@ -51,7 +51,7 @@ export function SignupForm({
         const payload = (await response.json().catch(() => null)) as
           | { error?: string }
           | null
-        setError(payload?.error ?? "Nao foi possivel criar a conta.")
+        setError(payload?.error ?? "Não foi possível criar a conta.")
         return
       }
 
@@ -73,11 +73,11 @@ export function SignupForm({
                 </div>
                 <div className="space-y-4">
                   <h2 className="text-4xl font-semibold leading-tight">
-                    Crie sua conta e acompanhe tudo em um unico lugar.
+                    Crie sua conta e acompanhe tudo em um único lugar.
                   </h2>
                   <p className="max-w-md text-base leading-7 text-white/85">
                     Organize receitas, despesas, limites e contas compartilhadas
-                    com a mesma experiencia visual da tela de login.
+                    com a mesma experiência visual da tela de login.
                   </p>
                 </div>
               </div>
@@ -93,7 +93,7 @@ export function SignupForm({
                   Crie sua conta
                 </h1>
                 <p className="text-base text-muted-foreground">
-                  Informe seus dados para comecar a organizar sua vida
+                  Informe seus dados para começar a organizar sua vida
                   financeira.
                 </p>
               </div>
@@ -104,7 +104,7 @@ export function SignupForm({
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Joao Silva"
+                      placeholder="João Silva"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
                       required
@@ -166,7 +166,7 @@ export function SignupForm({
                 </FieldGroup>
               </form>
               <p className="mt-6 text-sm text-muted-foreground">
-                Ja tem uma conta?{" "}
+                Já tem uma conta?{" "}
                 <Link
                   href="/"
                   className="font-medium text-foreground underline underline-offset-4"

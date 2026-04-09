@@ -59,7 +59,7 @@ export type FinanceMovement = {
   date: string
   description: string
   category: ExpenseCategory | "Receita"
-  type: "Receita" | "Despesa fixa" | "Despesa variavel"
+  type: "Receita" | "Despesa fixa" | "Despesa variável"
   value: number
   status: FixedExpenseStatus | "-"
 }
@@ -152,7 +152,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
       date: expense.date,
       description: expense.description,
       category: expense.category,
-      type: "Despesa variavel" as const,
+      type: "Despesa variável" as const,
       value: expense.value,
       status: "-" as const,
     })),

@@ -37,7 +37,7 @@ export function NavMain({
             <SidebarMenuButton
               tooltip="Adicionar"
               className="min-w-8 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 duration-200 ease-linear hover:bg-emerald-700 hover:text-white active:bg-emerald-700 active:text-white"
-              onClick={() => onItemSelect?.("Lancamentos")}
+              onClick={() => onItemSelect?.("Lançamentos")}
             >
               <CirclePlusIcon />
               <span>Adicionar</span>

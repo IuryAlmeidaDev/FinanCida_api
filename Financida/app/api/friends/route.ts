@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const user = await getRequestUser(request)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   const [friends, pendingRequests] = await Promise.all([
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = friendRequestInputSchema.parse(await request.json())
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel enviar o convite." },
+      { error: "Não foi possível enviar o convite." },
       { status: 400 }
     )
   }
@@ -62,7 +62,7 @@ export async function PATCH(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = friendRequestActionSchema.parse(await request.json())
@@ -80,7 +80,7 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel aceitar o convite." },
+      { error: "Não foi possível aceitar o convite." },
       { status: 500 }
     )
   }

@@ -79,7 +79,7 @@ export function FriendsDashboard() {
         <CardHeader>
           <CardTitle>Seu identificador</CardTitle>
           <CardDescription>
-            Compartilhe este codigo para receber convites.
+            Compartilhe este código para receber convites.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -101,7 +101,7 @@ export function FriendsDashboard() {
       <div className="grid gap-4">
         <Card className="border-emerald-100">
           <CardHeader>
-            <CardTitle>Solicitacoes pendentes</CardTitle>
+            <CardTitle>Solicitações pendentes</CardTitle>
             <CardDescription>
               Aceite um convite para adicionar a pessoa na sua lista de amigos.
             </CardDescription>
@@ -151,7 +151,7 @@ export function FriendsDashboard() {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                Voce ainda nao tem amigos confirmados.
+                Você ainda não tem amigos confirmados.
               </p>
             )}
           </CardContent>

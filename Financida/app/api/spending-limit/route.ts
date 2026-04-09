@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const user = await getRequestUser(request)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   return NextResponse.json({
@@ -32,7 +32,7 @@ export async function PUT(request: Request) {
     const user = await getRequestUser(request)
 
     if (!user) {
-      return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+      return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
     const input = spendingLimitInputSchema.parse(await request.json())
@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Nao foi possivel salvar o limite de gastos." },
+      { error: "Não foi possível salvar o limite de gastos." },
       { status: 500 }
     )
   }

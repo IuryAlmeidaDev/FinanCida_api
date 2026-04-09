@@ -17,10 +17,22 @@ export type SharedAccount = {
   counterpartName: string
   counterpartHandle: string
   description: string
+  category:
+    | "Moradia"
+    | "Familia"
+    | "Educacao"
+    | "Comunicacao"
+    | "Transporte"
+    | "Alimentacao"
+    | "Saude"
+    | "Lazer"
+    | "Outros"
+  note: string
   totalAmount: number
   installments: number
   installmentValue: number
   paymentDates: string[]
+  recurrenceType: "unique" | "installment" | "recurring"
   status: "Pendente" | "Aceita" | "Recusada"
   role: "requester" | "recipient"
 }
@@ -58,7 +70,10 @@ export function useSharedTransactions() {
     async (input: {
       friendUserId: string
       description: string
+      category: SharedAccount["category"]
+      note: string
       totalAmount: number
+      recurrenceType: SharedAccount["recurrenceType"]
       installments: number
       paymentDates: string[]
     }) => {
@@ -72,7 +87,7 @@ export function useSharedTransactions() {
         const payload = (await response.json().catch(() => null)) as
           | { error?: string }
           | null
-        throw new Error(payload?.error ?? "Nao foi possivel criar a conta compartilhada.")
+        throw new Error(payload?.error ?? "Não foi possível criar a conta compartilhada.")
       }
 
       const payload = (await response.json()) as { accounts: SharedAccount[] }
@@ -96,7 +111,7 @@ export function useSharedTransactions() {
       const payload = (await response.json().catch(() => null)) as
         | { error?: string }
         | null
-      throw new Error(payload?.error ?? "Nao foi possivel atualizar a conta compartilhada.")
+      throw new Error(payload?.error ?? "Não foi possível atualizar a conta compartilhada.")
     }
 
     const payload = (await response.json()) as { accounts: SharedAccount[] }

@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const user = await getAuthUserFromToken(token)
 
   if (!user) {
-    return NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
   }
 
   const [pricesResponse, historyResponse, exchangeRateResponse] = await Promise.all([
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
 
   if (!pricesResponse.ok || !historyResponse.ok || !exchangeRateResponse.ok) {
     return NextResponse.json(
-      { error: "Nao foi possivel carregar as criptomoedas." },
+      { error: "Não foi possível carregar as criptomoedas." },
       { status: 502 }
     )
   }

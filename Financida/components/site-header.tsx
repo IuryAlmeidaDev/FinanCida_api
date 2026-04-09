@@ -49,7 +49,7 @@ export function SiteHeader({ activeSection }: { activeSection: string }) {
               {title}
             </h1>
             <p className="text-xs text-muted-foreground">
-              Visao mensal de receitas, despesas e saldo
+              Visão mensal de receitas, despesas e saldo
             </p>
           </div>
         </div>

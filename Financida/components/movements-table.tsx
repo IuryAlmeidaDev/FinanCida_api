@@ -11,18 +11,21 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CategoryBadge } from "@/components/category-badge"
+import { CurrencyInput } from "@/components/currency-input"
 import { Input } from "@/components/ui/input"
 import type { FinanceDataset } from "@/lib/finance"
 import {
+  expenseCategories,
+  fixedExpenseStatuses,
   listFinanceMovements,
   type MovementDeleteInput,
   type MovementUpdateInput,
 } from "@/lib/finance-movements"
-
-const moneyFormatter = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-})
+import {
+  formatCurrencyInput,
+  moneyFormatter,
+  parseCurrencyInput,
+} from "@/lib/formatters"
 
 function formatBrazilianDate(date: string) {
   if (date === "-") {
@@ -59,7 +62,7 @@ export function MovementsTable({
     setDraftDate(editingMovement.date === "-" ? "" : editingMovement.date)
     setDraftDescription(editingMovement.description)
     setDraftCategory(editingMovement.category)
-    setDraftValue(String(editingMovement.value))
+    setDraftValue(formatCurrencyInput(editingMovement.value))
     setDraftStatus(editingMovement.status === "-" ? "Em aberto" : editingMovement.status)
   }, [editingMovement])
 
@@ -74,7 +77,7 @@ export function MovementsTable({
       date: draftDate,
       description: draftDescription,
       category: draftCategory as MovementUpdateInput["category"],
-      value: Number(draftValue.replace(",", ".")),
+      value: parseCurrencyInput(draftValue),
       status: draftStatus as MovementUpdateInput["status"],
     })
 
@@ -85,9 +88,9 @@ export function MovementsTable({
     <div className="px-4 lg:px-6">
       <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
-          <CardTitle>Tudo que foi lancado</CardTitle>
+          <CardTitle>Tudo que foi lançado</CardTitle>
           <CardDescription>
-            Lista unificada de receitas, despesas fixas e despesas variaveis.
+            Lista unificada de receitas, despesas fixas e despesas variáveis.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,12 +99,12 @@ export function MovementsTable({
               <thead className="border-b border-emerald-100 bg-emerald-50 text-emerald-900">
                 <tr>
                   <th className="px-3 py-2 font-medium">Data</th>
-                  <th className="px-3 py-2 font-medium">Descricao</th>
+                  <th className="px-3 py-2 font-medium">Descrição</th>
                   <th className="px-3 py-2 font-medium">Categoria</th>
                   <th className="px-3 py-2 font-medium">Tipo</th>
                   <th className="px-3 py-2 font-medium">Status</th>
                   <th className="px-3 py-2 text-right font-medium">Valor</th>
-                  <th className="px-3 py-2 text-right font-medium">Acoes</th>
+                  <th className="px-3 py-2 text-right font-medium">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,18 +158,17 @@ export function MovementsTable({
           <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-5 shadow-2xl">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold tracking-tight">
-                Editar movimentacao
+                Editar movimentação
               </h2>
               <p className="text-sm text-muted-foreground">
-                Ajuste valor, data e dados principais do lancamento.
+                Ajuste valor, data e dados principais do lançamento.
               </p>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <Input type="date" value={draftDate} onChange={(event) => setDraftDate(event.target.value)} />
-              <Input
-                inputMode="decimal"
+              <CurrencyInput
                 value={draftValue}
-                onChange={(event) => setDraftValue(event.target.value)}
+                onValueChange={(maskedValue) => setDraftValue(maskedValue)}
                 placeholder="Valor"
               />
               {editingMovement.source !== "revenue" ? (
@@ -174,7 +176,7 @@ export function MovementsTable({
                   <Input
                     value={draftDescription}
                     onChange={(event) => setDraftDescription(event.target.value)}
-                    placeholder="Descricao"
+                    placeholder="Descrição"
                     className="md:col-span-2"
                   />
                   <select
@@ -182,15 +184,9 @@ export function MovementsTable({
                     value={draftCategory}
                     onChange={(event) => setDraftCategory(event.target.value)}
                   >
-                    <option>Moradia</option>
-                    <option>Familia</option>
-                    <option>Educacao</option>
-                    <option>Comunicacao</option>
-                    <option>Transporte</option>
-                    <option>Alimentacao</option>
-                    <option>Saude</option>
-                    <option>Lazer</option>
-                    <option>Outros</option>
+                    {expenseCategories.map((item) => (
+                      <option key={item}>{item}</option>
+                    ))}
                   </select>
                 </>
               ) : null}
@@ -200,9 +196,9 @@ export function MovementsTable({
                   value={draftStatus}
                   onChange={(event) => setDraftStatus(event.target.value)}
                 >
-                  <option>Em aberto</option>
-                  <option>Pago</option>
-                  <option>Atrasado</option>
+                  {fixedExpenseStatuses.map((item) => (
+                    <option key={item}>{item}</option>
+                  ))}
                 </select>
               ) : null}
             </div>

@@ -164,7 +164,7 @@ export function NavUser({
         })
 
         if (!uploadResponse.ok) {
-          throw new Error("Nao foi possivel enviar a imagem de perfil.")
+          throw new Error("Não foi possível enviar a imagem de perfil.")
         }
 
         const uploadPayload = (await uploadResponse.json()) as { avatarUrl: string }
@@ -186,7 +186,7 @@ export function NavUser({
       })
 
       if (!response.ok) {
-        throw new Error("Nao foi possivel salvar o perfil.")
+        throw new Error("Não foi possível salvar o perfil.")
       }
 
       const payload = (await response.json()) as ProfilePayload
@@ -202,7 +202,7 @@ export function NavUser({
       toast.success("Perfil salvo com sucesso.")
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Nao foi possivel salvar o perfil."
+        error instanceof Error ? error.message : "Não foi possível salvar o perfil."
       )
     } finally {
       setIsSaving(false)
