@@ -23,7 +23,7 @@ import { buildMonthlyFinanceChartData } from "@/lib/finance-chart-data"
 const chartConfig = {
   receita: {
     label: "Receita",
-    color: "#007A55",
+    color: "#15B789",
   },
   despesa: {
     label: "Despesa",

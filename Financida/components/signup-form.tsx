@@ -79,7 +79,7 @@ export function SignupForm({
         {...props}
       >
         <div className="flex flex-col items-center gap-4">
-          <div className="size-10 animate-pulse rounded-full bg-[#007A55]/15" />
+          <div className="size-10 animate-pulse rounded-full bg-[#15B789]/15" />
           <p className="text-sm text-muted-foreground">Carregando FinanCida...</p>
         </div>
       </div>
@@ -184,7 +184,7 @@ export function SignupForm({
                   <Field>
                     <Button
                       type="submit"
-                      className="w-full bg-[#007A55] hover:bg-[#006346]"
+                      className="w-full bg-[#15B789] hover:bg-[#007A55]"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? "Criando..." : "Criar conta"}
