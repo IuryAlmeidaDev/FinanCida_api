@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LoaderCircleIcon, SaveIcon } from "lucide-react"
+import { LoaderCircleIcon, SaveIcon, SparklesIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -17,35 +17,51 @@ import {
 import type { FinancialSummary } from "@/lib/finance"
 import { formatCurrencyInput, moneyFormatter } from "@/lib/formatters"
 
-const suggestedLimits = [3000, 6000, 10000, 15000]
-
 function getLimitStatus(percentage: number) {
   if (percentage >= 100) {
     return {
-      label: "Limite Estourado",
+      label: "Limite estourado",
       className: "border-red-200 bg-red-50 text-red-700",
     }
   }
 
   if (percentage >= 80) {
     return {
-      label: "Atenção",
+      label: "Atencao",
       className: "border-amber-200 bg-amber-50 text-amber-700",
     }
   }
 
   return {
-    label: "Saudável",
+    label: "Saudavel",
     className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   }
 }
 
+function roundUpToStep(value: number, step: number) {
+  return Math.ceil(value / step) * step
+}
+
 export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
-  const [monthlyLimit, setMonthlyLimit] = React.useState(6000)
-  const [monthlyLimitInput, setMonthlyLimitInput] = React.useState("6.000,00")
+  const automaticMonthlyBase = Math.max(Math.round(summary.totalRevenue), 1000)
+  const [monthlyLimit, setMonthlyLimit] = React.useState(automaticMonthlyBase)
+  const [monthlyLimitInput, setMonthlyLimitInput] = React.useState(
+    formatCurrencyInput(automaticMonthlyBase)
+  )
   const [isLoading, setIsLoading] = React.useState(true)
   const [isSaving, setIsSaving] = React.useState(false)
-  const percentage = Math.min((summary.totalExpenses / monthlyLimit) * 100, 100)
+  const sliderMax = roundUpToStep(
+    Math.max(
+      automaticMonthlyBase * 2,
+      monthlyLimit * 1.35,
+      summary.totalExpenses * 1.5,
+      10000
+    ),
+    500
+  )
+  const percentage = monthlyLimit > 0
+    ? Math.min((summary.totalExpenses / monthlyLimit) * 100, 100)
+    : 0
   const remainingAmount = monthlyLimit - summary.totalExpenses
   const limitStatus = getLimitStatus(percentage)
 
@@ -57,6 +73,8 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
 
       if (!response.ok) {
         if (!ignore) {
+          setMonthlyLimit(automaticMonthlyBase)
+          setMonthlyLimitInput(formatCurrencyInput(automaticMonthlyBase))
           setIsLoading(false)
         }
         return
@@ -76,7 +94,7 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
     return () => {
       ignore = true
     }
-  }, [])
+  }, [automaticMonthlyBase])
 
   async function saveSpendingLimit() {
     setIsSaving(true)
@@ -92,11 +110,17 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
     setIsSaving(false)
 
     if (!response.ok) {
-      toast.error("Não foi possível salvar o limite de gastos.")
+      toast.error("Nao foi possivel salvar o limite de gastos")
       return
     }
 
-      toast.success("Limite de gastos salvo com sucesso.")
+    toast.success("Limite de gastos salvo com sucesso")
+  }
+
+  function applyMonthlyLimit(nextLimit: number) {
+    const normalizedLimit = Math.max(Math.round(nextLimit), 1000)
+    setMonthlyLimit(normalizedLimit)
+    setMonthlyLimitInput(formatCurrencyInput(normalizedLimit))
   }
 
   return (
@@ -107,7 +131,7 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
             <div>
               <CardTitle>Limite de gastos</CardTitle>
               <CardDescription>
-                Ajuste seu teto mensal com uma experiência mais visual e acompanhe o uso em tempo real.
+                O sistema usa sua receita atual do mes como base e voce ainda pode ajustar manualmente ou pela barra
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -123,41 +147,27 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid gap-3 md:grid-cols-4">
-            {suggestedLimits.map((limit) => (
-              <Button
-                key={limit}
-                type="button"
-                variant={monthlyLimit === limit ? "default" : "outline"}
-                className={
-                  monthlyLimit === limit
-                    ? "justify-start bg-emerald-600 text-white hover:bg-emerald-700"
-                    : "justify-start border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                }
-                onClick={() => {
-                  setMonthlyLimit(limit)
-                  setMonthlyLimitInput(formatCurrencyInput(limit))
-                }}
-                disabled={isLoading || isSaving}
-              >
-                {moneyFormatter.format(limit)}
-              </Button>
-            ))}
-          </div>
-
           <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
             <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-emerald-100/60 p-5">
-              <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Limite mensal definido</p>
                   <p className="text-3xl font-semibold tabular-nums">
                     {moneyFormatter.format(monthlyLimit)}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-muted-foreground">Uso atual</p>
-                  <p className="text-3xl font-semibold tabular-nums text-emerald-700">
-                    {percentage.toFixed(1)}%
+                <div className="rounded-2xl border border-emerald-100 bg-white/90 px-4 py-3 shadow-sm">
+                  <div className="flex items-center gap-2 text-emerald-700">
+                    <SparklesIcon className="size-4" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">
+                      Base automatica
+                    </span>
+                  </div>
+                  <p className="mt-1 text-lg font-semibold">
+                    {moneyFormatter.format(automaticMonthlyBase)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Receita atual do mes
                   </p>
                 </div>
               </div>
@@ -167,19 +177,15 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
                   className="h-2 w-full cursor-pointer appearance-none rounded-full bg-emerald-100 accent-emerald-600"
                   type="range"
                   min={1000}
-                  max={20000}
+                  max={sliderMax}
                   step={100}
-                  value={monthlyLimit}
+                  value={Math.min(monthlyLimit, sliderMax)}
                   disabled={isLoading || isSaving}
-                  onChange={(event) => {
-                    const nextLimit = Math.max(Number(event.target.value), 1000)
-                    setMonthlyLimit(nextLimit)
-                    setMonthlyLimitInput(formatCurrencyInput(nextLimit))
-                  }}
+                  onChange={(event) => applyMonthlyLimit(Number(event.target.value))}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{moneyFormatter.format(1000)}</span>
-                  <span>{moneyFormatter.format(20000)}</span>
+                  <span>{moneyFormatter.format(sliderMax)}</span>
                 </div>
               </div>
 
@@ -207,13 +213,19 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
 
             <div className="grid gap-3">
               <div className="rounded-2xl border border-emerald-100 p-4">
+                <p className="text-sm font-medium text-muted-foreground">Receita do mes</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">
+                  {moneyFormatter.format(summary.totalRevenue)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-emerald-100 p-4">
                 <p className="text-sm font-medium text-muted-foreground">Gasto atual</p>
                 <p className="mt-2 text-2xl font-semibold tabular-nums">
                   {moneyFormatter.format(summary.totalExpenses)}
                 </p>
               </div>
               <div className="rounded-2xl border border-emerald-100 p-4">
-                <p className="text-sm font-medium text-muted-foreground">Saldo disponível</p>
+                <p className="text-sm font-medium text-muted-foreground">Saldo disponivel</p>
                 <p
                   className={
                     remainingAmount >= 0
@@ -232,9 +244,18 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
                   disabled={isLoading || isSaving}
                   onValueChange={(maskedValue, numericValue) => {
                     setMonthlyLimitInput(maskedValue)
-                    setMonthlyLimit(Math.max(numericValue, 1000))
+                    setMonthlyLimit(Math.max(Math.round(numericValue), 1000))
                   }}
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3 w-full"
+                  disabled={isLoading || isSaving}
+                  onClick={() => applyMonthlyLimit(automaticMonthlyBase)}
+                >
+                  Usar receita do mes
+                </Button>
               </div>
             </div>
           </div>

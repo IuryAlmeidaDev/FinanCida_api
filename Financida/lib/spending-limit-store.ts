@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { calculateFinancialSummary, getCurrentMonthYear } from "@/lib/finance"
+import { readFinanceDataset } from "@/lib/finance-store"
 import { getPool, hasDatabaseUrl } from "@/lib/postgres"
 
 export const spendingLimitInputSchema = z.object({
@@ -46,7 +48,14 @@ export async function readSpendingLimit(userId: string) {
     [userId]
   )
 
-  return result.rows[0]?.monthly_limit ?? 6000
+  if (result.rows[0]?.monthly_limit) {
+    return result.rows[0].monthly_limit
+  }
+
+  const dataset = await readFinanceDataset(userId)
+  const summary = calculateFinancialSummary(dataset, getCurrentMonthYear())
+
+  return Math.max(Math.round(summary.totalRevenue), 1000)
 }
 
 export async function writeSpendingLimit(

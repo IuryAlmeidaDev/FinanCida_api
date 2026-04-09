@@ -53,7 +53,7 @@ export function FinanceBarChart({
     <Card className="@container/card flex h-full flex-col border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
       <CardHeader>
         <CardTitle>Receitas e despesas</CardTitle>
-        <CardDescription>Histórico dos últimos 12 meses.</CardDescription>
+        <CardDescription>Histórico dos últimos 12 meses</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 pt-2">
         <ChartContainer

@@ -50,7 +50,7 @@ export function FinanceOverviewCharts({
       <Card className="border-emerald-100">
         <CardHeader>
           <CardTitle>Evolucao do saldo</CardTitle>
-          <CardDescription>Ultimos 6 meses em formato compacto.</CardDescription>
+          <CardDescription>Ultimos 6 meses em formato compacto</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={balanceConfig} className="h-[210px] w-full">
@@ -72,7 +72,7 @@ export function FinanceOverviewCharts({
       <Card className="border-emerald-100">
         <CardHeader>
           <CardTitle>Fluxo financeiro</CardTitle>
-          <CardDescription>Receitas e despesas em area acumulada.</CardDescription>
+          <CardDescription>Receitas e despesas em area acumulada</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={cashflowConfig} className="h-[210px] w-full">

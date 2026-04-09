@@ -149,7 +149,7 @@ export function SignupForm({
                       onChange={(event) => setConfirmPassword(event.target.value)}
                       required
                     />
-                    <FieldDescription>Confirme sua senha.</FieldDescription>
+                    <FieldDescription>Confirme sua senha</FieldDescription>
                   </Field>
                   <Field>
                     <Button

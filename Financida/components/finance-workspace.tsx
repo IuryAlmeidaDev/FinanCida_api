@@ -216,7 +216,7 @@ export function FinanceWorkspace({
         <CardHeader>
           <CardTitle>Calendário financeiro</CardTitle>
           <CardDescription>
-            Dias com lançamentos ficam marcados com destaque visual.
+            Dias com lançamentos ficam marcados com destaque visual
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -268,7 +268,7 @@ export function FinanceWorkspace({
         <CardHeader>
           <CardTitle>Adicionar movimentação</CardTitle>
           <CardDescription>
-            Cadastre receita ou despesa única/recorrente para atualizar o dashboard.
+            Cadastre receita ou despesa única/recorrente para atualizar o dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -382,7 +382,7 @@ export function FinanceWorkspace({
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Despesas vencidas e não pagas entram como atrasadas automaticamente nos cálculos.
+                    Despesas vencidas e não pagas entram como atrasadas automaticamente nos cálculos
                   </FieldDescription>
                 </Field>
               )}
