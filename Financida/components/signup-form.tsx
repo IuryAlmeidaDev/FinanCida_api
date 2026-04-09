@@ -6,13 +6,7 @@ import { useRouter } from "next/navigation"
 
 import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Field,
   FieldDescription,
@@ -69,45 +63,40 @@ export function SignupForm({
 
   return (
     <div className={cn("w-full", className)} {...props}>
-      <Card className="overflow-hidden border-slate-200 shadow-2xl shadow-slate-900/5">
+      <Card className="overflow-hidden border-0 bg-transparent p-0 shadow-2xl shadow-[#007A55]/10">
         <div className="grid min-h-[660px] md:grid-cols-2">
-          <div className="relative hidden bg-[#2C2D2D] md:flex">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.2),_transparent_42%),linear-gradient(145deg,_rgba(44,45,45,0.98),_rgba(0,122,85,0.95))]" />
-            <div className="relative flex h-full flex-col justify-between p-10 text-white">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
-                Organize metas, contas e compartilhamentos
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
-                    Sua rotina financeira
-                  </p>
-                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
-                    Crie sua conta e centralize sua vida financeira em um so lugar.
-                  </h2>
+          <div className="hidden bg-[#007A55] md:flex">
+            <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
+              <div className="space-y-5">
+                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
+                  Plataforma Financeira
                 </div>
-                <div className="grid gap-3 text-sm text-white/80">
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Controle despesas, receitas e limites com uma visao simples.
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Compartilhe contas com amigos e acompanhe tudo em tempo real.
-                  </div>
+                <div className="space-y-4">
+                  <h2 className="text-4xl font-semibold leading-tight">
+                    Crie sua conta e acompanhe tudo em um unico lugar.
+                  </h2>
+                  <p className="max-w-md text-base leading-7 text-white/85">
+                    Organize receitas, despesas, limites e contas compartilhadas
+                    com a mesma experiencia visual da tela de login.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center p-8 md:p-10">
-            <div className="mb-10 flex justify-center">
-              <BrandLogo className="h-42 w-[33rem] max-w-full" priority />
+          <div className="flex flex-col justify-center bg-white p-8 md:p-10">
+            <div className="mb-10 flex flex-col items-center gap-3 text-center">
+              <BrandLogo className="h-48 w-[37rem] max-w-full" priority />
             </div>
-            <CardHeader className="px-0 pt-0">
-              <CardTitle className="text-3xl">Crie sua conta</CardTitle>
-              <CardDescription className="text-base">
-                Informe seus dados para comecar a organizar sua vida financeira.
-              </CardDescription>
-            </CardHeader>
             <CardContent className="px-0 pb-0">
+              <div className="mb-6 space-y-2">
+                <h1 className="text-3xl font-semibold text-foreground">
+                  Crie sua conta
+                </h1>
+                <p className="text-base text-muted-foreground">
+                  Informe seus dados para comecar a organizar sua vida
+                  financeira.
+                </p>
+              </div>
               <form onSubmit={handleSubmit}>
                 <FieldGroup>
                   <Field>
