@@ -85,6 +85,7 @@ async function ensureSchema() {
 
       alter table friend_accounts add column if not exists owner_user_id text;
       alter table friend_accounts add column if not exists requester_user_id text;
+      alter table friend_accounts add column if not exists friend_user_id text;
       alter table friend_accounts add column if not exists status text not null default 'pending';
       alter table friend_accounts add column if not exists accepted_at timestamptz;
       alter table friend_accounts add column if not exists finance_synced_at timestamptz;
