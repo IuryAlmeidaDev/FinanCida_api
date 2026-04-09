@@ -96,6 +96,10 @@ async function ensureSchema() {
       where requester_user_id is null;
 
       update friend_accounts
+      set owner_user_id = coalesce(owner_user_id, requester_user_id)
+      where owner_user_id is null;
+
+      update friend_accounts
       set payment_dates = '[]'::jsonb
       where payment_dates is null;
 
@@ -205,11 +209,12 @@ export async function createFriendAccount(
   await database.query(
     `
       insert into friend_accounts
-        (id, requester_user_id, friend_user_id, description, total_amount, installments, payment_dates, status)
-      values ($1, $2, $3, $4, $5, $6, $7::jsonb, 'pending')
+        (id, owner_user_id, requester_user_id, friend_user_id, description, total_amount, installments, payment_dates, status)
+      values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, 'pending')
     `,
     [
       id,
+      userId,
       userId,
       parsedInput.friendUserId,
       parsedInput.description,
