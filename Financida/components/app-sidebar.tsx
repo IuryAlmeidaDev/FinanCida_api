@@ -85,7 +85,7 @@ export function AppSidebar({
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#" className="h-12 text-white">
-                <BrandLogo className="h-10 w-36 shrink-0" />
+                <BrandLogo className="h-11 w-40 shrink-0" />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
