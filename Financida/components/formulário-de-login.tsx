@@ -61,7 +61,7 @@ const socialProviders = [
     ),
   },
   {
-    name: "Email",
+    name: "LinkedIn",
     icon: (
       <svg
         aria-hidden="true"
@@ -69,7 +69,7 @@ const socialProviders = [
         viewBox="0 0 24 24"
       >
         <path
-          d="M4 6.75A2.75 2.75 0 0 1 6.75 4h10.5A2.75 2.75 0 0 1 20 6.75v10.5A2.75 2.75 0 0 1 17.25 20H6.75A2.75 2.75 0 0 1 4 17.25V6.75Zm2.2.55v.27l5.8 4.36l5.8-4.36V7.3a.55.55 0 0 0-.55-.55H6.75a.55.55 0 0 0-.55.55Zm11.6 2.74l-5.14 3.86a1.15 1.15 0 0 1-1.32 0L6.2 10.04v7.21c0 .3.25.55.55.55h10.5c.3 0 .55-.25.55-.55v-7.21Z"
+          d="M5.75 4A1.75 1.75 0 0 0 4 5.75v12.5C4 19.22 4.78 20 5.75 20h12.5c.97 0 1.75-.78 1.75-1.75V5.75C20 4.78 19.22 4 18.25 4H5.75Zm2.06 4.31a1.19 1.19 0 1 1 0 2.38a1.19 1.19 0 0 1 0-2.38Zm-1.03 3.56H8.9V17H6.78v-5.13Zm3.45 0h2.03v.7h.03c.28-.5.98-.86 2.02-.86c2.16 0 2.56 1.42 2.56 3.26V17h-2.12v-2.84c0-.68-.01-1.55-.95-1.55c-.95 0-1.1.74-1.1 1.5V17h-2.12v-5.13Z"
           fill="currentColor"
         />
       </svg>
@@ -138,24 +138,48 @@ export function LoginForm({
         <div className="grid min-h-[620px] md:grid-cols-2">
           <div className="hidden bg-[#007A55] md:flex">
             <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm backdrop-blur">
-                Controle financeiro com clareza
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm font-medium uppercase tracking-[0.24em] text-white/70">
-                    Plataforma Financeira
-                  </p>
-                  <h2 className="mt-3 text-4xl font-semibold leading-tight">
-                    Organize seu dinheiro com uma experiencia leve e objetiva.
-                  </h2>
+              <div className="space-y-5">
+                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
+                  Plataforma Financeira
                 </div>
-                <div className="grid gap-3 text-sm text-white/80">
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Acompanhe metas, limites e movimentacoes em um unico painel.
+                <div className="space-y-4">
+                  <h2 className="text-4xl font-semibold leading-tight">
+                    Organize seu dinheiro com mais clareza e menos atrito.
+                  </h2>
+                  <p className="max-w-md text-sm leading-6 text-white/80">
+                    Tudo o que voce precisa para acompanhar metas, despesas,
+                    contas compartilhadas e indicadores em um unico lugar.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="grid gap-3 text-sm">
+                  <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                    <p className="font-medium text-white">Visao centralizada</p>
+                    <p className="mt-1 leading-6 text-white/75">
+                      Monitore receitas, despesas e limites sem perder contexto.
+                    </p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                    Tenha visao rapida das contas compartilhadas e do calendario financeiro.
+                  <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                    <p className="font-medium text-white">Colaboracao simples</p>
+                    <p className="mt-1 leading-6 text-white/75">
+                      Acompanhe contas compartilhadas e pendencias com mais
+                      transparencia.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                    <p className="text-2xl font-semibold text-white">12 meses</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/60">
+                      Historico financeiro
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                    <p className="text-2xl font-semibold text-white">360°</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/60">
+                      Controle da rotina
+                    </p>
                   </div>
                 </div>
               </div>
