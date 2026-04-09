@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { BrandLogo } from "@/components/brand-logo"
-import { useBrandLogoReady } from "@/hooks/use-brand-logo-ready"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -75,7 +74,6 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter()
-  const isBrandLogoReady = useBrandLogoReady()
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
@@ -106,23 +104,6 @@ export function LoginForm({
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (!isBrandLogoReady) {
-    return (
-      <div
-        className={cn(
-          "flex min-h-[620px] items-center justify-center rounded-3xl bg-background",
-          className
-        )}
-        {...props}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <div className="size-10 animate-pulse rounded-full bg-[#007A55]/15" />
-          <p className="text-sm text-muted-foreground">Carregando FinanCida...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
