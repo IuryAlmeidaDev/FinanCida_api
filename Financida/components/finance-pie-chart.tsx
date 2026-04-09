@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { CategoryIcon } from "@/components/category-icon"
+import { categoryThemeMap } from "@/lib/category-theme"
 import {
   ChartContainer,
   ChartTooltip,
@@ -18,17 +19,6 @@ import {
 } from "@/components/ui/chart"
 import type { FinancialSummary } from "@/lib/finance"
 
-const chartColors = [
-  "#16a34a",
-  "#2563eb",
-  "#f59e0b",
-  "#dc2626",
-  "#7c3aed",
-  "#0891b2",
-  "#65a30d",
-  "#ea580c",
-]
-
 const chartConfig = {
   total: {
     label: "Total",
@@ -36,10 +26,10 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
-  const chartData = summary.categoryTotals.map((item, index) => ({
+  const chartData = summary.categoryTotals.map((item) => ({
     category: item.category,
     total: item.total,
-    fill: chartColors[index % chartColors.length],
+    fill: categoryThemeMap[item.category].chartColor,
   }))
   const hasData = chartData.length > 0
   const pieData = hasData
@@ -92,7 +82,7 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
           )}
           {chartData.map((item) => (
             <div key={item.category} className="flex items-center gap-2">
-              <CategoryIcon category={item.category} className="size-3.5" />
+              <CategoryIcon category={item.category} />
               <span>{item.category}</span>
             </div>
           ))}
