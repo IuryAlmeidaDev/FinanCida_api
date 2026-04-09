@@ -8,15 +8,8 @@ import { BrandLogo } from "@/components/brand-logo"
 import { useBrandLogoReady } from "@/hooks/use-brand-logo-ready"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Card, CardContent } from "@/components/ui/card"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
@@ -152,42 +145,41 @@ export function LoginForm({
                   </p>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="grid gap-3 text-sm">
-                  <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                    <p className="font-medium text-white">Visao centralizada</p>
-                    <p className="mt-1 leading-6 text-white/75">
-                      Monitore receitas, despesas e limites sem perder contexto.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
-                    <p className="font-medium text-white">Colaboracao simples</p>
-                    <p className="mt-1 leading-6 text-white/75">
-                      Acompanhe contas compartilhadas e pendencias com mais
-                      transparencia.
-                    </p>
-                  </div>
+              <div className="grid gap-3 text-sm">
+                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                  <p className="font-medium text-white">Dashboard intuitivo</p>
+                  <p className="mt-1 leading-6 text-white/75">
+                    Monitore receitas, despesas e limites com uma leitura mais
+                    direta.
+                  </p>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
-                    <p className="text-2xl font-semibold text-white">12 meses</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/60">
-                      Historico financeiro
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
-                    <p className="text-2xl font-semibold text-white">360°</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/60">
-                      Controle da rotina
-                    </p>
-                  </div>
+                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                  <p className="font-medium text-white">Relatorios claros</p>
+                  <p className="mt-1 leading-6 text-white/75">
+                    Encontre tendencias do seu historico financeiro sem perder
+                    contexto.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                  <p className="font-medium text-white">Contas compartilhadas</p>
+                  <p className="mt-1 leading-6 text-white/75">
+                    Acompanhe pendencias com amigos e aprovacoes com mais
+                    transparencia.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                  <p className="font-medium text-white">Alertas e metas</p>
+                  <p className="mt-1 leading-6 text-white/75">
+                    Tenha mais controle do mes e acompanhe limites com menos
+                    atrito.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-col justify-center bg-white p-8 md:p-10">
             <div className="mb-10 flex flex-col items-center gap-3 text-center">
-              <BrandLogo className="h-28 w-[22rem] max-w-full" priority />
+              <BrandLogo className="h-42 w-[33rem] max-w-full" priority />
             </div>
             <CardContent className="px-0 pb-0">
               <form onSubmit={handleSubmit}>
