@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 
 type CryptoPayload = {
   prices: Array<{
@@ -60,6 +61,10 @@ export function CryptoDashboard() {
 
     async function loadCrypto() {
       const response = await fetch("/api/crypto", { cache: "no-store" })
+
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
 
       if (!response.ok) {
         setError("Não foi possível carregar os dados de criptomoedas.")

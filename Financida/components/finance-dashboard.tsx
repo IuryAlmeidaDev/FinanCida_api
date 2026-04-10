@@ -20,6 +20,7 @@ import {
   getCurrentMonthYear,
   type FinanceDataset,
 } from "@/lib/finance"
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 import type { MovementInput } from "@/lib/finance-movements"
 import type { MovementDeleteInput } from "@/lib/finance-movements"
 import type { MovementUpdateInput } from "@/lib/finance-movements"
@@ -62,6 +63,10 @@ export function FinanceDashboard({
     async function loadDataset() {
       const response = await fetch("/api/finance", { cache: "no-store" })
 
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
+
       if (!response.ok) {
         return
       }
@@ -85,6 +90,10 @@ export function FinanceDashboard({
 
     async function loadSharedAccountWarnings() {
       const response = await fetch("/api/friend-accounts", { cache: "no-store" })
+
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
 
       if (!response.ok) {
         return
@@ -125,6 +134,10 @@ export function FinanceDashboard({
       body: JSON.stringify(movement),
     })
 
+    if (handleUnauthorizedResponse(response)) {
+      throw new Error("Sessao expirada.")
+    }
+
     if (!response.ok) {
       throw new Error("Não foi possível salvar a movimentação.")
     }
@@ -141,6 +154,10 @@ export function FinanceDashboard({
       },
       body: JSON.stringify(movement),
     })
+
+    if (handleUnauthorizedResponse(response)) {
+      throw new Error("Sessao expirada.")
+    }
 
     if (!response.ok) {
       throw new Error("Não foi possível remover a movimentação.")
@@ -159,6 +176,10 @@ export function FinanceDashboard({
       body: JSON.stringify(nextDataset),
     })
 
+    if (handleUnauthorizedResponse(response)) {
+      throw new Error("Sessao expirada.")
+    }
+
     if (!response.ok) {
       throw new Error("Nao foi possivel salvar as categorias.")
     }
@@ -175,6 +196,10 @@ export function FinanceDashboard({
       },
       body: JSON.stringify(movement),
     })
+
+    if (handleUnauthorizedResponse(response)) {
+      throw new Error("Sessao expirada.")
+    }
 
     if (!response.ok) {
       throw new Error("Não foi possível atualizar a movimentação.")

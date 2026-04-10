@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 import type { FinancialSummary } from "@/lib/finance"
 import { formatCurrencyInput, moneyFormatter } from "@/lib/formatters"
 
@@ -71,6 +72,10 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
     async function loadSpendingLimit() {
       const response = await fetch("/api/spending-limit", { cache: "no-store" })
 
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
+
       if (!response.ok) {
         if (!ignore) {
           setMonthlyLimit(automaticMonthlyBase)
@@ -106,6 +111,10 @@ export function SpendingLimit({ summary }: { summary: FinancialSummary }) {
       },
       body: JSON.stringify({ monthlyLimit }),
     })
+
+    if (handleUnauthorizedResponse(response)) {
+      return
+    }
 
     setIsSaving(false)
 

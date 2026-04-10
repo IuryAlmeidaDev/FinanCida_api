@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 
 type DragState = {
   pointerId: number
@@ -70,6 +71,10 @@ export function NavUser({
 
     async function loadProfile() {
       const response = await fetch("/api/profile", { cache: "no-store" })
+
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
 
       if (!response.ok) {
         return
@@ -163,6 +168,10 @@ export function NavUser({
           body: formData,
         })
 
+        if (handleUnauthorizedResponse(uploadResponse)) {
+          throw new Error("Sessao expirada.")
+        }
+
         if (!uploadResponse.ok) {
           throw new Error("Não foi possível enviar a imagem de perfil.")
         }
@@ -184,6 +193,10 @@ export function NavUser({
           avatarZoom,
         }),
       })
+
+      if (handleUnauthorizedResponse(response)) {
+        throw new Error("Sessao expirada.")
+      }
 
       if (!response.ok) {
         throw new Error("Não foi possível salvar o perfil.")

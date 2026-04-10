@@ -3,6 +3,7 @@
 import * as React from "react"
 import { toast } from "sonner"
 
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 import type { AppNotification } from "@/lib/notifications-store"
 
 export function useNotifications() {
@@ -12,6 +13,10 @@ export function useNotifications() {
 
   const loadNotifications = React.useCallback(async () => {
     const response = await fetch("/api/notifications", { cache: "no-store" })
+
+    if (handleUnauthorizedResponse(response)) {
+      return
+    }
 
     if (!response.ok) {
       return
@@ -98,6 +103,10 @@ export function useNotifications() {
         },
         body: JSON.stringify({ notificationId }),
       })
+
+      if (handleUnauthorizedResponse(response)) {
+        return
+      }
 
       if (!response.ok) {
         return

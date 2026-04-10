@@ -3,6 +3,8 @@
 import * as React from "react"
 import { toast } from "sonner"
 
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
+
 export type SharedFriendProfile = {
   id: string
   name: string
@@ -47,6 +49,10 @@ export function useSharedTransactions() {
       fetch("/api/friends", { cache: "no-store" }),
     ])
 
+    if (handleUnauthorizedResponse(accountsResponse) || handleUnauthorizedResponse(friendsResponse)) {
+      return
+    }
+
     if (accountsResponse.ok) {
       const payload = (await accountsResponse.json()) as {
         accounts: SharedAccount[]
@@ -83,6 +89,10 @@ export function useSharedTransactions() {
         body: JSON.stringify(input),
       })
 
+      if (handleUnauthorizedResponse(response)) {
+        throw new Error("Sessao expirada.")
+      }
+
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as
           | { error?: string }
@@ -106,6 +116,10 @@ export function useSharedTransactions() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     })
+
+    if (handleUnauthorizedResponse(response)) {
+      throw new Error("Sessao expirada.")
+    }
 
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { handleUnauthorizedResponse } from "@/lib/client-auth"
 
 type FriendProfile = {
   id: string
@@ -39,6 +40,10 @@ export function FriendsDashboard() {
   async function loadFriends() {
     const response = await fetch("/api/friends", { cache: "no-store" })
 
+    if (handleUnauthorizedResponse(response)) {
+      return
+    }
+
     if (response.ok) {
       setPayload((await response.json()) as FriendsPayload)
     }
@@ -55,6 +60,10 @@ export function FriendsDashboard() {
       body: JSON.stringify({ handle }),
     })
 
+    if (handleUnauthorizedResponse(response)) {
+      return
+    }
+
     if (response.ok) {
       setHandle("")
       await loadFriends()
@@ -67,6 +76,10 @@ export function FriendsDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ friendshipId }),
     })
+
+    if (handleUnauthorizedResponse(response)) {
+      return
+    }
 
     if (response.ok) {
       setPayload((await response.json()) as FriendsPayload)
