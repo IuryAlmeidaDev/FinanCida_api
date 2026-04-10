@@ -308,8 +308,8 @@ export function FinanceWorkspace({
       )}
 
       {showForm && (
-        <div className="space-y-4">
-          <Card className="border-emerald-100 dark:border-emerald-900/60">
+        <div className="grid gap-4 xl:grid-cols-[minmax(320px,0.9fr)_minmax(420px,1.1fr)] xl:items-start">
+          <Card className="border-emerald-100 dark:border-emerald-900/60 xl:sticky xl:top-6">
             <CardHeader>
               <CardTitle>Categorias personalizadas</CardTitle>
               <CardDescription>
@@ -317,7 +317,7 @@ export function FinanceWorkspace({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-[1.2fr_140px_180px_auto]">
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_88px_140px_auto]">
                 <Input
                   value={newCategoryName}
                   onChange={(event) => setNewCategoryName(event.target.value)}
@@ -351,7 +351,7 @@ export function FinanceWorkspace({
                 {categoryDrafts.map((item, index) => (
                   <div
                     key={item.name}
-                    className="grid gap-3 rounded-2xl border border-border/60 p-3 md:grid-cols-[1fr_140px_180px]"
+                    className="grid gap-3 rounded-2xl border border-border/60 p-3 md:grid-cols-[minmax(0,1fr)_88px_140px]"
                   >
                     <div className="flex items-center gap-3">
                       <CategoryBadge category={item.name} categories={categoryDrafts} />
@@ -509,7 +509,7 @@ export function FinanceWorkspace({
                   </div>
                   {movementType === "expense" ? (
                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
                         <CategoryIcon
                           category={category}
                           definition={getCategoryDefinition(dataset, category)}
