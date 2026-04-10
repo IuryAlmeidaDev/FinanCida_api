@@ -241,6 +241,7 @@ export function FinanceDashboard({
             onAddDialogOpenChange(false)
           }}
           showCalendar={false}
+          showCategoryManager={false}
         />
       </div>
     </div>
@@ -255,6 +256,7 @@ export function FinanceDashboard({
           onDatasetSave={handleDatasetSave}
           onMovementCreate={handleMovementCreate}
           showCalendar={false}
+          showCategoryManager={true}
         />
         <MovementsTable
           dataset={dataset}

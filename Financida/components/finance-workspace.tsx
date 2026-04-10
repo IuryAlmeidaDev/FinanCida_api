@@ -57,6 +57,7 @@ export function FinanceWorkspace({
   onMovementCreate,
   showCalendar = true,
   showForm = true,
+  showCategoryManager = true,
 }: {
   dataset: FinanceDataset
   onDatasetChange: (dataset: FinanceDataset) => void
@@ -64,6 +65,7 @@ export function FinanceWorkspace({
   onMovementCreate?: (movement: MovementInput) => void | Promise<void>
   showCalendar?: boolean
   showForm?: boolean
+  showCategoryManager?: boolean
 }) {
   const currentDate = React.useMemo(() => new Date(), [])
   const [selectedDate, setSelectedDate] = React.useState(currentDate)
@@ -308,7 +310,14 @@ export function FinanceWorkspace({
       )}
 
       {showForm && (
-        <div className="grid gap-4 xl:grid-cols-[minmax(280px,0.78fr)_minmax(440px,1.22fr)] xl:items-start">
+        <div
+          className={
+            showCategoryManager
+              ? "grid gap-4 xl:grid-cols-[minmax(280px,0.78fr)_minmax(440px,1.22fr)] xl:items-start"
+              : "grid gap-4"
+          }
+        >
+          {showCategoryManager ? (
           <Card className="overflow-hidden border-emerald-100 bg-linear-to-br from-white via-emerald-50/40 to-teal-50/60 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card xl:sticky xl:top-6">
             <CardHeader className="border-b border-emerald-100/80 pb-4 dark:border-emerald-900/60">
               <div className="flex items-start justify-between gap-3">
@@ -456,8 +465,15 @@ export function FinanceWorkspace({
               </div>
             </CardContent>
           </Card>
+          ) : null}
 
-          <Card className="overflow-hidden border-emerald-100 bg-linear-to-br from-white via-white to-emerald-50/40 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card">
+          <Card
+            className={
+              showCategoryManager
+                ? "overflow-hidden border-emerald-100 bg-linear-to-br from-white via-white to-emerald-50/40 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card"
+                : "overflow-hidden border-emerald-100 bg-linear-to-br from-white via-white to-emerald-50/40 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card xl:max-w-4xl"
+            }
+          >
             <CardHeader className="border-b border-emerald-100/80 pb-4 dark:border-emerald-900/60">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1.5">
