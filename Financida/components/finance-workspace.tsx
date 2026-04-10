@@ -308,53 +308,104 @@ export function FinanceWorkspace({
       )}
 
       {showForm && (
-        <div className="grid gap-4 xl:grid-cols-[minmax(320px,0.9fr)_minmax(420px,1.1fr)] xl:items-start">
-          <Card className="border-emerald-100 dark:border-emerald-900/60 xl:sticky xl:top-6">
-            <CardHeader>
-              <CardTitle>Categorias personalizadas</CardTitle>
-              <CardDescription>
-                Ajuste cor e icone de cada categoria ou crie uma nova para seus lancamentos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_88px_140px_auto]">
-                <Input
-                  value={newCategoryName}
-                  onChange={(event) => setNewCategoryName(event.target.value)}
-                  placeholder="Nova categoria"
-                />
-                <Input
-                  type="color"
-                  value={newCategoryColor}
-                  onChange={(event) => setNewCategoryColor(event.target.value)}
-                  className="h-10"
-                />
-                <select
-                  className="h-10 rounded-md border border-input bg-card px-3 text-sm"
-                  value={newCategoryIcon}
-                  onChange={(event) =>
-                    setNewCategoryIcon(event.target.value as CategoryIconName)
-                  }
-                >
-                  {categoryIconOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <Button type="button" onClick={() => void handleCreateCategory()}>
-                  <PlusIcon className="size-4" />
-                  Criar
-                </Button>
+        <div className="grid gap-4 xl:grid-cols-[minmax(280px,0.78fr)_minmax(440px,1.22fr)] xl:items-start">
+          <Card className="overflow-hidden border-emerald-100 bg-linear-to-br from-white via-emerald-50/40 to-teal-50/60 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card xl:sticky xl:top-6">
+            <CardHeader className="border-b border-emerald-100/80 pb-4 dark:border-emerald-900/60">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-semibold tracking-[0.22em] text-emerald-700 uppercase dark:text-emerald-300">
+                    Identidade visual
+                  </p>
+                  <CardTitle className="text-lg">Categorias personalizadas</CardTitle>
+                  <CardDescription className="max-w-sm text-xs leading-5">
+                    Ajuste cor e icone sem deixar a tela pesada.
+                  </CardDescription>
+                </div>
+                <div className="rounded-2xl border border-emerald-200/80 bg-white/80 px-3 py-2 text-right shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-emerald-950/20">
+                  <p className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Ativas
+                  </p>
+                  <p className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">
+                    {categoryDrafts.length}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-3">
+            </CardHeader>
+            <CardContent className="space-y-4 p-4">
+              <div className="rounded-3xl border border-white/70 bg-white/85 p-3 shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-card">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_76px_130px]">
+                  <Input
+                    value={newCategoryName}
+                    onChange={(event) => setNewCategoryName(event.target.value)}
+                    placeholder="Nova categoria"
+                    className="h-9 rounded-xl bg-background/70"
+                  />
+                  <Input
+                    type="color"
+                    value={newCategoryColor}
+                    onChange={(event) => setNewCategoryColor(event.target.value)}
+                    className="h-9 rounded-xl p-1"
+                  />
+                  <select
+                    className="h-9 rounded-xl border border-input bg-background/70 px-3 text-sm"
+                    value={newCategoryIcon}
+                    onChange={(event) =>
+                      setNewCategoryIcon(event.target.value as CategoryIconName)
+                    }
+                  >
+                    {categoryIconOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2 rounded-2xl bg-emerald-50 px-2.5 py-2 text-xs text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200">
+                    <CategoryIcon
+                      category={newCategoryName.trim() || "Outros"}
+                      definition={{
+                        name: newCategoryName.trim() || "Outros",
+                        color: newCategoryColor,
+                        icon: newCategoryIcon,
+                      }}
+                      color={newCategoryColor}
+                      withBadge
+                    />
+                    <span className="truncate">
+                      {newCategoryName.trim() || "Preview da categoria"}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="rounded-xl px-3"
+                    onClick={() => void handleCreateCategory()}
+                  >
+                    <PlusIcon className="size-4" />
+                    Criar
+                  </Button>
+                </div>
+              </div>
+              <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
                 {categoryDrafts.map((item, index) => (
                   <div
                     key={item.name}
-                    className="grid gap-3 rounded-2xl border border-border/60 p-3 md:grid-cols-[minmax(0,1fr)_88px_140px]"
+                    className="grid gap-2 rounded-2xl border border-white/80 bg-white/80 p-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-900/60 dark:bg-card/90 md:grid-cols-[minmax(0,1fr)_76px_130px]"
                   >
-                    <div className="flex items-center gap-3">
-                      <CategoryBadge category={item.name} categories={categoryDrafts} />
+                    <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-muted/40 px-2.5 py-2">
+                      <CategoryIcon
+                        category={item.name}
+                        definition={item}
+                        color={item.color}
+                        withBadge
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{item.name}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {categoryIconOptions.find((option) => option.value === item.icon)?.label ?? item.icon}
+                        </p>
+                      </div>
                     </div>
                     <Input
                       type="color"
@@ -368,10 +419,10 @@ export function FinanceWorkspace({
                           )
                         )
                       }
-                      className="h-10"
+                      className="h-9 rounded-xl p-1"
                     />
                     <select
-                      className="h-10 rounded-md border border-input bg-card px-3 text-sm"
+                      className="h-9 rounded-xl border border-input bg-background/80 px-3 text-sm"
                       value={item.icon}
                       onChange={(event) =>
                         setCategoryDrafts((current) =>
@@ -395,8 +446,11 @@ export function FinanceWorkspace({
                   </div>
                 ))}
               </div>
-              <div className="flex justify-end">
-                <Button type="button" variant="outline" onClick={() => void handleSaveCategories()}>
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-emerald-200/80 bg-white/70 px-3 py-2.5 dark:border-emerald-900/60 dark:bg-card/80">
+                <p className="text-xs text-muted-foreground">
+                  Mudancas visuais ficam salvas para toda a tela de lancamentos.
+                </p>
+                <Button type="button" variant="outline" size="sm" onClick={() => void handleSaveCategories()}>
                   Salvar categorias
                 </Button>
               </div>
