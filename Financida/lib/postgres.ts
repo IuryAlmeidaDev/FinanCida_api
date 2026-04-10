@@ -13,6 +13,13 @@ export function getPool() {
 
   pool ??= new Pool({
     connectionString: process.env.DATABASE_URL,
+    max: 3,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 10_000,
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false }
+        : undefined,
   })
 
   return pool
