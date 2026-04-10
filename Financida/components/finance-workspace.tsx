@@ -457,22 +457,63 @@ export function FinanceWorkspace({
             </CardContent>
           </Card>
 
-          <Card className="border-emerald-100 dark:border-emerald-900/60">
-            <CardHeader>
-              <CardTitle>Adicionar movimentacao</CardTitle>
-              <CardDescription>
-                Cadastre receita ou despesa unica/recorrente para atualizar o dashboard.
-              </CardDescription>
+          <Card className="overflow-hidden border-emerald-100 bg-linear-to-br from-white via-white to-emerald-50/40 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:from-card dark:via-card dark:to-card">
+            <CardHeader className="border-b border-emerald-100/80 pb-4 dark:border-emerald-900/60">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-semibold tracking-[0.22em] text-emerald-700 uppercase dark:text-emerald-300">
+                    Novo lancamento
+                  </p>
+                  <CardTitle className="text-lg">Adicionar movimentacao</CardTitle>
+                  <CardDescription className="max-w-md text-xs leading-5">
+                    Registre entradas e saidas com um fluxo rapido, claro e sem poluir a tela.
+                  </CardDescription>
+                </div>
+                <div className="rounded-2xl border border-emerald-200/80 bg-white/80 px-3 py-2 text-right shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-emerald-950/20">
+                  <p className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Data
+                  </p>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                    {formatBrazilianDate(selectedDate)}
+                  </p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4 p-4">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/80 bg-white/85 px-3 py-2.5 shadow-sm dark:border-emerald-900/60 dark:bg-card/90">
+                  <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Tipo
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {movementType === "expense" ? "Despesa" : "Receita"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/80 bg-white/85 px-3 py-2.5 shadow-sm dark:border-emerald-900/60 dark:bg-card/90">
+                  <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Recorrencia
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {recurrenceType === "unique" ? "Unica" : "Recorrente"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/80 bg-white/85 px-3 py-2.5 shadow-sm dark:border-emerald-900/60 dark:bg-card/90">
+                  <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Categoria
+                  </p>
+                  <div className="mt-1">
+                    <CategoryBadge category={category} categories={dataset.categories} />
+                  </div>
+                </div>
+              </div>
               <form onSubmit={handleSubmit}>
-                <FieldGroup>
+                <FieldGroup className="rounded-3xl border border-white/80 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-card/90">
                   <div className="grid gap-4 md:grid-cols-2">
                     <Field>
                       <FieldLabel htmlFor="movement-type">Tipo</FieldLabel>
                       <select
                         id="movement-type"
-                        className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                        className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm text-foreground"
                         value={movementType}
                         onChange={(event) =>
                           setMovementType(event.target.value as MovementType)
@@ -486,7 +527,7 @@ export function FinanceWorkspace({
                       <FieldLabel htmlFor="recurrence-type">Recorrencia</FieldLabel>
                       <select
                         id="recurrence-type"
-                        className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                        className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm text-foreground"
                         value={recurrenceType}
                         onChange={(event) =>
                           setRecurrenceType(event.target.value as RecurrenceType)
@@ -504,6 +545,7 @@ export function FinanceWorkspace({
                       value={description}
                       onChange={(event) => setDescription(event.target.value)}
                       placeholder="Ex: Aluguel, salario, supermercado"
+                      className="h-10 rounded-xl bg-background/80"
                       required
                     />
                   </Field>
@@ -514,7 +556,7 @@ export function FinanceWorkspace({
                         id="date-trigger"
                         type="button"
                         variant="outline"
-                        className="w-full justify-between"
+                        className="h-10 w-full justify-between rounded-xl bg-background/80"
                         onClick={() => setDatePickerOpen((current) => !current)}
                       >
                         {formatBrazilianDate(selectedDate)}
@@ -541,6 +583,7 @@ export function FinanceWorkspace({
                         value={value}
                         onValueChange={(maskedValue) => setValue(maskedValue)}
                         placeholder="0,00"
+                        className="h-10 rounded-xl bg-background/80"
                         required
                       />
                     </Field>
@@ -548,7 +591,7 @@ export function FinanceWorkspace({
                       <FieldLabel htmlFor="category">Categoria</FieldLabel>
                       <select
                         id="category"
-                        className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                        className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm text-foreground"
                         value={category}
                         onChange={(event) => setCategory(event.target.value)}
                         disabled={movementType === "revenue"}
@@ -562,7 +605,7 @@ export function FinanceWorkspace({
                     </Field>
                   </div>
                   {movementType === "expense" ? (
-                    <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
+                    <div className="rounded-2xl border border-emerald-200/70 bg-linear-to-r from-emerald-50 via-white to-teal-50/80 p-3 dark:border-emerald-900/60 dark:from-emerald-950/20 dark:via-card dark:to-card">
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         <CategoryIcon
                           category={category}
@@ -580,7 +623,7 @@ export function FinanceWorkspace({
                       <FieldLabel htmlFor="status">Status da despesa fixa</FieldLabel>
                       <select
                         id="status"
-                        className="h-9 rounded-md border border-input bg-card px-3 text-sm text-foreground"
+                        className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm text-foreground"
                         value={status}
                         onChange={(event) =>
                           setStatus(event.target.value as FixedExpenseStatus)
@@ -595,9 +638,14 @@ export function FinanceWorkspace({
                       </FieldDescription>
                     </Field>
                   )}
-                  <Button type="submit" className="w-full md:w-fit">
-                    Adicionar movimentacao
-                  </Button>
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-emerald-200/80 bg-white/70 px-3 py-2.5 dark:border-emerald-900/60 dark:bg-card/80">
+                    <p className="text-xs text-muted-foreground">
+                      Lancamentos entram no dashboard logo apos salvar.
+                    </p>
+                    <Button type="submit" className="rounded-xl px-4">
+                      Adicionar movimentacao
+                    </Button>
+                  </div>
                 </FieldGroup>
               </form>
             </CardContent>
