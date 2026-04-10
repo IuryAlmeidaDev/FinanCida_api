@@ -18,7 +18,7 @@ describe("finance movements", () => {
         description: "Almoço",
         category: "Alimentacao",
         value: 45.9,
-        status: "Em aberto",
+        status: "Pendente",
       },
       "test-expense"
     )

@@ -1,10 +1,10 @@
 import type {
-  ExpenseCategory,
+  CategoryIconName,
   FinanceDataset,
   FixedExpenseStatus,
   MonthYear,
 } from "@/lib/finance"
-import { createEmptyFinanceDataset } from "@/lib/finance"
+import { createEmptyFinanceDataset, normalizeFinanceDataset } from "@/lib/finance"
 import { calculateFinancialSummary } from "@/lib/finance"
 import {
   addMovementToDataset,
@@ -54,6 +54,15 @@ async function ensureDatabase() {
         created_at timestamptz not null default now()
       );
 
+      create table if not exists finance_categories (
+        user_id text not null,
+        name text not null,
+        color text not null,
+        icon text not null,
+        created_at timestamptz not null default now(),
+        primary key (user_id, name)
+      );
+
       alter table fixed_expenses add column if not exists user_id text;
       alter table variable_expenses add column if not exists user_id text;
       alter table monthly_revenues add column if not exists user_id text;
@@ -61,6 +70,7 @@ async function ensureDatabase() {
       create index if not exists fixed_expenses_user_id_idx on fixed_expenses (user_id);
       create index if not exists variable_expenses_user_id_idx on variable_expenses (user_id);
       create index if not exists monthly_revenues_user_id_idx on monthly_revenues (user_id);
+      create index if not exists finance_categories_user_id_idx on finance_categories (user_id);
     `)
   })()
 
@@ -68,6 +78,7 @@ async function ensureDatabase() {
 }
 
 async function replaceDatabaseContents(userId: string, dataset: FinanceDataset) {
+  const normalizedDataset = normalizeFinanceDataset(dataset)
   const database = getPool()
   const client = await database.connect()
 
@@ -77,8 +88,22 @@ async function replaceDatabaseContents(userId: string, dataset: FinanceDataset) 
     await client.query("delete from monthly_revenues where user_id = $1", [userId])
     await client.query("delete from fixed_expenses where user_id = $1", [userId])
     await client.query("delete from variable_expenses where user_id = $1", [userId])
+    await client.query("delete from finance_categories where user_id = $1", [userId])
 
-    for (const expense of dataset.fixedExpenses) {
+    for (const category of normalizedDataset.categories) {
+      await client.query(
+        `
+          insert into finance_categories (user_id, name, color, icon)
+          values ($1, $2, $3, $4)
+          on conflict (user_id, name) do update
+          set color = excluded.color,
+              icon = excluded.icon
+        `,
+        [userId, category.name, category.color, category.icon]
+      )
+    }
+
+    for (const expense of normalizedDataset.fixedExpenses) {
       await client.query(
         `
           insert into fixed_expenses
@@ -98,7 +123,7 @@ async function replaceDatabaseContents(userId: string, dataset: FinanceDataset) 
       )
     }
 
-    for (const expense of dataset.variableExpenses) {
+    for (const expense of normalizedDataset.variableExpenses) {
       await client.query(
         `
           insert into variable_expenses (id, user_id, date, description, category, value)
@@ -116,7 +141,7 @@ async function replaceDatabaseContents(userId: string, dataset: FinanceDataset) 
       )
     }
 
-    for (const revenue of dataset.monthlyRevenues) {
+    for (const revenue of normalizedDataset.monthlyRevenues) {
       await client.query(
         `
           insert into monthly_revenues (id, user_id, date, value)
@@ -152,12 +177,20 @@ async function readFinanceDatasetFromDatabase(userId: string): Promise<FinanceDa
   await ensureDatabase()
 
   const database = getPool()
-  const [fixedExpenses, variableExpenses, monthlyRevenues] = await Promise.all([
+  const [categories, fixedExpenses, variableExpenses, monthlyRevenues] = await Promise.all([
+    database.query<{
+      name: string
+      color: string
+      icon: string
+    }>(
+      "select name, color, icon from finance_categories where user_id = $1 order by created_at, name",
+      [userId]
+    ),
     database.query<{
       id: string
       transaction_date: Date | string | null
       description: string
-      category: ExpenseCategory
+      category: string
       value: string
       status: FixedExpenseStatus
     }>(
@@ -168,7 +201,7 @@ async function readFinanceDatasetFromDatabase(userId: string): Promise<FinanceDa
       id: string
       date: Date | string
       description: string
-      category: ExpenseCategory
+      category: string
       value: string
     }>(
       "select id, date, description, category, value from variable_expenses where user_id = $1 order by date, created_at",
@@ -184,7 +217,12 @@ async function readFinanceDatasetFromDatabase(userId: string): Promise<FinanceDa
     ),
   ])
 
-  return {
+  return normalizeFinanceDataset({
+    categories: categories.rows.map((category) => ({
+      name: category.name,
+      color: category.color,
+      icon: category.icon as CategoryIconName,
+    })),
     fixedExpenses: fixedExpenses.rows.map((expense) => ({
       id: expense.id,
       transactionDate: formatDatabaseDate(expense.transaction_date),
@@ -205,7 +243,7 @@ async function readFinanceDatasetFromDatabase(userId: string): Promise<FinanceDa
       date: formatDatabaseDate(revenue.date) ?? revenue.date.toString(),
       value: Number(revenue.value),
     })),
-  }
+  })
 }
 
 async function createFinanceMovementInDatabase(userId: string, input: MovementInput) {
@@ -223,6 +261,19 @@ async function createFinanceMovementInDatabase(userId: string, input: MovementIn
       input,
       id
     )
+
+    for (const category of nextDataset.categories) {
+      await client.query(
+        `
+          insert into finance_categories (user_id, name, color, icon)
+          values ($1, $2, $3, $4)
+          on conflict (user_id, name) do update
+          set color = excluded.color,
+              icon = excluded.icon
+        `,
+        [userId, category.name, category.color, category.icon]
+      )
+    }
 
     for (const revenue of nextDataset.monthlyRevenues) {
       await client.query(
@@ -371,7 +422,7 @@ export async function updateFinanceMovement(
         input.description ?? "Despesa fixa",
         input.category ?? "Outros",
         input.value,
-        input.status ?? "Em aberto",
+        input.status ?? "Pendente",
         input.id,
         userId,
       ]

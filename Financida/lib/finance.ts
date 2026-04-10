@@ -1,15 +1,27 @@
-export type FixedExpenseStatus = "Em aberto" | "Pago" | "Atrasado"
+export type FixedExpenseStatus = "Pendente" | "Pago" | "Atrasado"
+export type ExpenseCategory = string
+export type CategoryIconName =
+  | "home"
+  | "users"
+  | "graduation"
+  | "wifi"
+  | "car"
+  | "utensils"
+  | "heart"
+  | "party"
+  | "tag"
+  | "wallet"
+  | "shopping"
+  | "briefcase"
+  | "shirt"
+  | "gamepad"
+  | "plane"
 
-export type ExpenseCategory =
-  | "Moradia"
-  | "Familia"
-  | "Educacao"
-  | "Comunicacao"
-  | "Transporte"
-  | "Alimentacao"
-  | "Saude"
-  | "Lazer"
-  | "Outros"
+export type CategoryDefinition = {
+  name: ExpenseCategory
+  color: string
+  icon: CategoryIconName
+}
 
 export type MonthYear = {
   month: number
@@ -59,17 +71,57 @@ export type FinancialSummary = {
 }
 
 export type FinanceDataset = {
+  categories: CategoryDefinition[]
   fixedExpenses: FixedExpense[]
   variableExpenses: VariableExpense[]
   monthlyRevenues: MonthlyRevenue[]
 }
 
+export const defaultFinanceCategories: CategoryDefinition[] = [
+  { name: "Moradia", color: "#64748b", icon: "home" },
+  { name: "Familia", color: "#e11d48", icon: "users" },
+  { name: "Educacao", color: "#4f46e5", icon: "graduation" },
+  { name: "Comunicacao", color: "#0891b2", icon: "wifi" },
+  { name: "Transporte", color: "#d97706", icon: "car" },
+  { name: "Alimentacao", color: "#ea580c", icon: "utensils" },
+  { name: "Saude", color: "#dc2626", icon: "heart" },
+  { name: "Lazer", color: "#c026d3", icon: "party" },
+  { name: "Outros", color: "#71717a", icon: "tag" },
+] satisfies CategoryDefinition[]
+
 export function createEmptyFinanceDataset(): FinanceDataset {
   return {
+    categories: defaultFinanceCategories,
     fixedExpenses: [],
     variableExpenses: [],
     monthlyRevenues: [],
   }
+}
+
+export function normalizeFinanceDataset(dataset: Partial<FinanceDataset>): FinanceDataset {
+  const categories = dataset.categories?.length
+    ? dataset.categories
+    : defaultFinanceCategories
+
+  return {
+    categories: categories.map((category) => ({ ...category })),
+    fixedExpenses: dataset.fixedExpenses ?? [],
+    variableExpenses: dataset.variableExpenses ?? [],
+    monthlyRevenues: dataset.monthlyRevenues ?? [],
+  }
+}
+
+export function getCategoryDefinition(
+  dataset: Pick<FinanceDataset, "categories">,
+  category: ExpenseCategory
+) {
+  return (
+    dataset.categories.find((item) => item.name === category) ?? {
+      name: category,
+      color: "#71717a",
+      icon: "tag" as const,
+    }
+  )
 }
 
 export function getCurrentMonthYear(referenceDate = new Date()): MonthYear {
@@ -115,6 +167,7 @@ export function filterFinanceDatasetByMonthYear(
   range: MonthYear
 ): FinanceDataset {
   return {
+    categories: dataset.categories,
     fixedExpenses: dataset.fixedExpenses.filter((expense) =>
       isInMonthYear(expense.transactionDate, range)
     ),
@@ -143,7 +196,7 @@ export function groupExpensesByCategory(
   fixedExpenses: FixedExpense[],
   variableExpenses: VariableExpense[]
 ): CategoryTotal[] {
-  const totals = new Map<ExpenseCategory, number>()
+  const totals = new Map<string, number>()
 
   for (const expense of [...fixedExpenses, ...variableExpenses]) {
     totals.set(expense.category, (totals.get(expense.category) ?? 0) + expense.value)
@@ -191,7 +244,7 @@ export function calculateFinancialSummary(
     sumByValue(previousFixedExpenses) + sumByValue(previousDataset.variableExpenses)
 
   const totalOpen = sumByValue(
-    fixedExpenses.filter((expense) => expense.status === "Em aberto")
+    fixedExpenses.filter((expense) => expense.status === "Pendente")
   )
   const totalLate = sumByValue(
     fixedExpenses.filter((expense) => expense.status === "Atrasado")

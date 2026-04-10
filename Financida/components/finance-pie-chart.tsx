@@ -10,14 +10,17 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { CategoryIcon } from "@/components/category-icon"
-import { categoryThemeMap } from "@/lib/category-theme"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import type { FinancialSummary } from "@/lib/finance"
+import {
+  getCategoryDefinition,
+  type FinanceDataset,
+  type FinancialSummary,
+} from "@/lib/finance"
 
 const chartConfig = {
   total: {
@@ -25,11 +28,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
+export function FinancePieChart({
+  summary,
+  dataset,
+}: {
+  summary: FinancialSummary
+  dataset: FinanceDataset
+}) {
   const chartData = summary.categoryTotals.map((item) => ({
     category: item.category,
     total: item.total,
-    fill: categoryThemeMap[item.category].chartColor,
+    fill: getCategoryDefinition(dataset, item.category).color,
   }))
   const hasData = chartData.length > 0
   const pieData = hasData
@@ -47,7 +56,7 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
       <CardHeader>
         <CardTitle>Despesas por categoria</CardTitle>
         <CardDescription>
-          Distribuicao dos gastos no periodo selecionado
+          Distribuicao dos gastos no periodo selecionado.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col justify-center gap-6 px-4 pt-4 sm:px-6 sm:pt-6 lg:flex-row lg:items-center lg:justify-center lg:gap-10">
@@ -82,7 +91,16 @@ export function FinancePieChart({ summary }: { summary: FinancialSummary }) {
           )}
           {chartData.map((item) => (
             <div key={item.category} className="flex items-center gap-2">
-              <CategoryIcon category={item.category} />
+              <span
+                className="size-3 rounded-full"
+                style={{ backgroundColor: item.fill }}
+              />
+              <CategoryIcon
+                category={item.category}
+                definition={getCategoryDefinition(dataset, item.category)}
+                color={item.fill}
+                className="size-3.5"
+              />
               <span>{item.category}</span>
             </div>
           ))}

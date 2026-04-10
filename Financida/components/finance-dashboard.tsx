@@ -150,6 +150,23 @@ export function FinanceDashboard({
     setDataset(payload.dataset)
   }
 
+  async function handleDatasetSave(nextDataset: FinanceDataset) {
+    const response = await fetch("/api/finance", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nextDataset),
+    })
+
+    if (!response.ok) {
+      throw new Error("Nao foi possivel salvar as categorias.")
+    }
+
+    const payload = (await response.json()) as { dataset: FinanceDataset }
+    setDataset(payload.dataset)
+  }
+
   async function handleMovementEdit(movement: MovementUpdateInput) {
     const response = await fetch("/api/finance/movements", {
       method: "PUT",
@@ -193,6 +210,7 @@ export function FinanceDashboard({
             setDataset(nextDataset)
             onAddDialogOpenChange(false)
           }}
+          onDatasetSave={handleDatasetSave}
           onMovementCreate={async (movement) => {
             await handleMovementCreate(movement)
             onAddDialogOpenChange(false)
@@ -209,6 +227,7 @@ export function FinanceDashboard({
         <FinanceWorkspace
           dataset={dataset}
           onDatasetChange={setDataset}
+          onDatasetSave={handleDatasetSave}
           onMovementCreate={handleMovementCreate}
           showCalendar={false}
         />
@@ -225,7 +244,7 @@ export function FinanceDashboard({
   if (normalizedSection.startsWith("relat")) {
     return (
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <FinancialReports summary={summary} />
+        <FinancialReports summary={summary} dataset={dataset} />
         {addMovementDialog}
       </div>
     )
@@ -290,12 +309,13 @@ export function FinanceDashboard({
           <FinanceWorkspace
             dataset={dataset}
             onDatasetChange={setDataset}
+            onDatasetSave={handleDatasetSave}
             onMovementCreate={handleMovementCreate}
             showForm={false}
           />
         </div>
         <div className="h-full">
-          <FinancePieChart summary={summary} />
+          <FinancePieChart summary={summary} dataset={dataset} />
         </div>
         <div className="h-full xl:col-span-2">
           <FinanceBarChart dataset={dataset} range={currentFinanceRange} />

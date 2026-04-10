@@ -10,7 +10,11 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CategoryIcon } from "@/components/category-icon"
-import type { FinancialSummary } from "@/lib/finance"
+import {
+  getCategoryDefinition,
+  type FinanceDataset,
+  type FinancialSummary,
+} from "@/lib/finance"
 import { moneyFormatter } from "@/lib/formatters"
 
 function downloadBlob(content: BlobPart, fileName: string, type: string) {
@@ -119,7 +123,13 @@ ${startXref}
   return pdf
 }
 
-export function FinancialReports({ summary }: { summary: FinancialSummary }) {
+export function FinancialReports({
+  summary,
+  dataset,
+}: {
+  summary: FinancialSummary
+  dataset: FinanceDataset
+}) {
   function downloadReport(format: "csv" | "pdf") {
     if (format === "csv") {
       downloadBlob(buildCsv(summary), "relatorio-financida.csv", "text/csv;charset=utf-8")
@@ -173,20 +183,29 @@ export function FinancialReports({ summary }: { summary: FinancialSummary }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          {summary.categoryTotals.map((item) => (
-            <div
-              key={item.category}
-              className="flex justify-between gap-4 rounded-xl border border-emerald-50 p-3 dark:border-emerald-900/50"
-            >
-              <span className="flex items-center gap-2">
-                <CategoryIcon category={item.category} />
-                {item.category}
-              </span>
-              <span className="font-medium tabular-nums">
-                {moneyFormatter.format(item.total)}
-              </span>
-            </div>
-          ))}
+          {summary.categoryTotals.map((item) => {
+            const definition = getCategoryDefinition(dataset, item.category)
+
+            return (
+              <div
+                key={item.category}
+                className="flex justify-between gap-4 rounded-xl border border-emerald-50 p-3 dark:border-emerald-900/50"
+              >
+                <span className="flex items-center gap-2">
+                  <CategoryIcon
+                    category={item.category}
+                    definition={definition}
+                    color={definition.color}
+                    withBadge
+                  />
+                  {item.category}
+                </span>
+                <span className="font-medium tabular-nums">
+                  {moneyFormatter.format(item.total)}
+                </span>
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
     </div>

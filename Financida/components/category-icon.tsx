@@ -1,50 +1,107 @@
+"use client"
+
 import {
+  BriefcaseBusinessIcon,
   CarIcon,
   CoinsIcon,
+  Gamepad2Icon,
   GraduationCapIcon,
   HeartPulseIcon,
   HomeIcon,
   PartyPopperIcon,
+  PlaneIcon,
+  ShoppingBagIcon,
+  ShirtIcon,
   TagIcon,
   UsersRoundIcon,
   UtensilsIcon,
+  WalletIcon,
   WifiIcon,
   type LucideIcon,
 } from "lucide-react"
 
-import type { ExpenseCategory } from "@/lib/finance"
-import { categoryThemeMap } from "@/lib/category-theme"
+import type {
+  CategoryDefinition,
+  CategoryIconName,
+  ExpenseCategory,
+} from "@/lib/finance"
 import { cn } from "@/lib/utils"
 
-const categoryIcons: Record<ExpenseCategory, LucideIcon> = {
-  Moradia: HomeIcon,
-  Familia: UsersRoundIcon,
-  Educacao: GraduationCapIcon,
-  Comunicacao: WifiIcon,
-  Transporte: CarIcon,
-  Alimentacao: UtensilsIcon,
-  Saude: HeartPulseIcon,
-  Lazer: PartyPopperIcon,
-  Outros: TagIcon,
+const iconMap: Record<CategoryIconName | "revenue", LucideIcon> = {
+  home: HomeIcon,
+  users: UsersRoundIcon,
+  graduation: GraduationCapIcon,
+  wifi: WifiIcon,
+  car: CarIcon,
+  utensils: UtensilsIcon,
+  heart: HeartPulseIcon,
+  party: PartyPopperIcon,
+  tag: TagIcon,
+  wallet: WalletIcon,
+  shopping: ShoppingBagIcon,
+  briefcase: BriefcaseBusinessIcon,
+  shirt: ShirtIcon,
+  gamepad: Gamepad2Icon,
+  plane: PlaneIcon,
+  revenue: CoinsIcon,
+}
+
+export const categoryIconOptions: Array<{
+  value: CategoryIconName
+  label: string
+}> = [
+  { value: "home", label: "Casa" },
+  { value: "users", label: "Familia" },
+  { value: "graduation", label: "Educacao" },
+  { value: "wifi", label: "Internet" },
+  { value: "car", label: "Carro" },
+  { value: "utensils", label: "Comida" },
+  { value: "heart", label: "Saude" },
+  { value: "party", label: "Lazer" },
+  { value: "tag", label: "Etiqueta" },
+  { value: "wallet", label: "Carteira" },
+  { value: "shopping", label: "Compras" },
+  { value: "briefcase", label: "Trabalho" },
+  { value: "shirt", label: "Roupas" },
+  { value: "gamepad", label: "Games" },
+  { value: "plane", label: "Viagem" },
+]
+
+function buildSurfaceStyle(color?: string) {
+  if (!color) {
+    return undefined
+  }
+
+  return {
+    borderColor: `${color}3d`,
+    backgroundColor: `${color}14`,
+    color,
+  }
 }
 
 export function CategoryIcon({
   category,
+  definition,
   className,
-  withBadge = true,
+  color,
+  withBadge = false,
 }: {
   category: ExpenseCategory | "Receita"
+  definition?: CategoryDefinition
   className?: string
+  color?: string
   withBadge?: boolean
 }) {
-  const Icon = category === "Receita" ? CoinsIcon : categoryIcons[category]
-  const theme = categoryThemeMap[category]
+  const iconName = category === "Receita" ? "revenue" : definition?.icon ?? "tag"
+  const iconColor = color ?? definition?.color ?? (category === "Receita" ? "#16a34a" : "#71717a")
+  const Icon = iconMap[iconName]
 
   if (!withBadge) {
     return (
       <Icon
         aria-hidden="true"
-        className={cn("size-4 shrink-0", theme.iconClassName, className)}
+        className={cn("size-4 shrink-0", className)}
+        style={{ color: iconColor }}
       />
     )
   }
@@ -53,12 +110,11 @@ export function CategoryIcon({
     <span
       className={cn(
         "inline-flex size-7 shrink-0 items-center justify-center rounded-2xl border shadow-sm",
-        theme.iconSurfaceClassName,
-        theme.iconBorderClassName,
         className
       )}
+      style={buildSurfaceStyle(iconColor)}
     >
-      <Icon aria-hidden="true" className={cn("size-3.5", theme.iconClassName)} />
+      <Icon aria-hidden="true" className="size-3.5" style={{ color: iconColor }} />
     </span>
   )
 }

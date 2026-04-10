@@ -53,6 +53,7 @@ describe("finance movements API", () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
     financeStoreMocks.readFinanceDataset.mockResolvedValue({
+      categories: [],
       fixedExpenses: [],
       variableExpenses: [],
       monthlyRevenues: [],
@@ -74,6 +75,7 @@ describe("finance movements API", () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
     financeStoreMocks.createFinanceMovement.mockResolvedValue({
+      categories: [],
       fixedExpenses: [],
       variableExpenses: [
         {
@@ -98,7 +100,7 @@ describe("finance movements API", () => {
           description: "Restaurante",
           category: "Alimentacao",
           value: 120,
-          status: "Em aberto",
+          status: "Pendente",
         }),
       })
     )
@@ -148,6 +150,7 @@ describe("finance movements API", () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
     financeStoreMocks.deleteFinanceMovement.mockResolvedValue({
+      categories: [],
       fixedExpenses: [],
       variableExpenses: [],
       monthlyRevenues: [],
@@ -178,6 +181,7 @@ describe("finance movements API", () => {
     authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
     authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
     financeStoreMocks.updateFinanceMovement.mockResolvedValue({
+      categories: [],
       fixedExpenses: [],
       variableExpenses: [],
       monthlyRevenues: [],

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,13 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { CategoryBadge } from "@/components/category-badge"
 import { CurrencyInput } from "@/components/currency-input"
 import { Input } from "@/components/ui/input"
 import type { FinanceDataset } from "@/lib/finance"
 import {
-  expenseCategories,
   fixedExpenseStatuses,
   listFinanceMovements,
   type MovementDeleteInput,
@@ -52,7 +51,7 @@ export function MovementsTable({
   const [draftDescription, setDraftDescription] = React.useState("")
   const [draftCategory, setDraftCategory] = React.useState("Outros")
   const [draftValue, setDraftValue] = React.useState("")
-  const [draftStatus, setDraftStatus] = React.useState("Em aberto")
+  const [draftStatus, setDraftStatus] = React.useState("Pendente")
 
   React.useEffect(() => {
     if (!editingMovement) {
@@ -63,7 +62,7 @@ export function MovementsTable({
     setDraftDescription(editingMovement.description)
     setDraftCategory(editingMovement.category)
     setDraftValue(formatCurrencyInput(editingMovement.value))
-    setDraftStatus(editingMovement.status === "-" ? "Em aberto" : editingMovement.status)
+    setDraftStatus(editingMovement.status === "-" ? "Pendente" : editingMovement.status)
   }, [editingMovement])
 
   async function handleSaveEdit() {
@@ -88,9 +87,9 @@ export function MovementsTable({
     <div className="px-4 lg:px-6">
       <Card className="border-emerald-100 dark:border-emerald-900/60">
         <CardHeader>
-          <CardTitle>Tudo que foi lançado</CardTitle>
+          <CardTitle>Tudo que foi lancado</CardTitle>
           <CardDescription>
-            Lista unificada de receitas, despesas fixas e despesas variáveis.
+            Lista unificada de receitas, despesas fixas e despesas variaveis.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,12 +98,12 @@ export function MovementsTable({
               <thead className="border-b border-emerald-100 bg-emerald-50 text-emerald-900">
                 <tr>
                   <th className="px-3 py-2 font-medium">Data</th>
-                  <th className="px-3 py-2 font-medium">Descrição</th>
+                  <th className="px-3 py-2 font-medium">Descricao</th>
                   <th className="px-3 py-2 font-medium">Categoria</th>
                   <th className="px-3 py-2 font-medium">Tipo</th>
                   <th className="px-3 py-2 font-medium">Status</th>
                   <th className="px-3 py-2 text-right font-medium">Valor</th>
-                  <th className="px-3 py-2 text-right font-medium">Ações</th>
+                  <th className="px-3 py-2 text-right font-medium">Acoes</th>
                 </tr>
               </thead>
               <tbody>
@@ -116,7 +115,10 @@ export function MovementsTable({
                     <td className="px-3 py-2">{formatBrazilianDate(movement.date)}</td>
                     <td className="px-3 py-2">{movement.description}</td>
                     <td className="px-3 py-2">
-                      <CategoryBadge category={movement.category} />
+                      <CategoryBadge
+                        category={movement.category}
+                        categories={dataset.categories}
+                      />
                     </td>
                     <td className="px-3 py-2">{movement.type}</td>
                     <td className="px-3 py-2">{movement.status}</td>
@@ -158,10 +160,10 @@ export function MovementsTable({
           <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-5 shadow-2xl">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold tracking-tight">
-                Editar movimentação
+                Editar movimentacao
               </h2>
               <p className="text-sm text-muted-foreground">
-                Ajuste valor, data e dados principais do lançamento.
+                Ajuste valor, data e dados principais do lancamento.
               </p>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -176,7 +178,7 @@ export function MovementsTable({
                   <Input
                     value={draftDescription}
                     onChange={(event) => setDraftDescription(event.target.value)}
-                    placeholder="Descrição"
+                    placeholder="Descricao"
                     className="md:col-span-2"
                   />
                   <select
@@ -184,8 +186,10 @@ export function MovementsTable({
                     value={draftCategory}
                     onChange={(event) => setDraftCategory(event.target.value)}
                   >
-                    {expenseCategories.map((item) => (
-                      <option key={item}>{item}</option>
+                    {dataset.categories.map((category) => (
+                      <option key={category.name} value={category.name}>
+                        {category.name}
+                      </option>
                     ))}
                   </select>
                 </>

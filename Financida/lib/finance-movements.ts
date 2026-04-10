@@ -1,10 +1,12 @@
 import { z } from "zod"
 
 import type {
+  CategoryDefinition,
   ExpenseCategory,
   FinanceDataset,
   FixedExpenseStatus,
 } from "@/lib/finance"
+import { normalizeFinanceDataset } from "@/lib/finance"
 
 export const expenseCategories = [
   "Moradia",
@@ -19,19 +21,42 @@ export const expenseCategories = [
 ] as const satisfies readonly ExpenseCategory[]
 
 export const fixedExpenseStatuses = [
-  "Em aberto",
+  "Pendente",
   "Pago",
   "Atrasado",
 ] as const satisfies readonly FixedExpenseStatus[]
+
+const categoryDefinitionSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  icon: z.enum([
+    "home",
+    "users",
+    "graduation",
+    "wifi",
+    "car",
+    "utensils",
+    "heart",
+    "party",
+    "tag",
+    "wallet",
+    "shopping",
+    "briefcase",
+    "shirt",
+    "gamepad",
+    "plane",
+  ]),
+})
 
 export const movementInputSchema = z.object({
   type: z.enum(["expense", "revenue"]),
   recurrence: z.enum(["unique", "recurring"]),
   date: z.iso.date(),
   description: z.string().trim().min(1).max(120),
-  category: z.enum(expenseCategories),
+  category: z.string().trim().min(1).max(40),
   value: z.number().positive(),
   status: z.enum(fixedExpenseStatuses).optional(),
+  categoryDefinition: categoryDefinitionSchema.optional(),
 })
 
 export type MovementInput = z.infer<typeof movementInputSchema>
@@ -46,7 +71,7 @@ export const movementUpdateSchema = z.object({
   source: z.enum(["revenue", "fixed-expense", "variable-expense"]),
   date: z.iso.date(),
   description: z.string().trim().min(1).max(120).optional(),
-  category: z.enum([...expenseCategories, "Receita"]).optional(),
+  category: z.string().trim().min(1).max(40).optional(),
   value: z.number().positive(),
   status: z.enum(fixedExpenseStatuses).optional(),
 })
@@ -76,6 +101,13 @@ export function addMovementToDataset(
   id = crypto.randomUUID()
 ): FinanceDataset {
   const parsedInput = movementInputSchema.parse(input)
+  const normalizedDataset = normalizeFinanceDataset(dataset)
+  const categories = parsedInput.categoryDefinition
+    ? mergeCategoryDefinition(
+        normalizedDataset.categories,
+        parsedInput.categoryDefinition
+      )
+    : normalizedDataset.categories
 
   if (parsedInput.type === "revenue") {
     const monthlyRevenues = Array.from({
@@ -87,32 +119,35 @@ export function addMovementToDataset(
     }))
 
     return {
-      ...dataset,
-      monthlyRevenues: [...dataset.monthlyRevenues, ...monthlyRevenues],
+      ...normalizedDataset,
+      categories,
+      monthlyRevenues: [...normalizedDataset.monthlyRevenues, ...monthlyRevenues],
     }
   }
 
   if (parsedInput.recurrence === "recurring") {
     return {
-      ...dataset,
+      ...normalizedDataset,
+      categories,
       fixedExpenses: [
-        ...dataset.fixedExpenses,
+        ...normalizedDataset.fixedExpenses,
         {
           id,
           transactionDate: parsedInput.date,
           description: parsedInput.description,
           category: parsedInput.category,
           value: parsedInput.value,
-          status: parsedInput.status ?? "Em aberto",
+          status: parsedInput.status ?? "Pendente",
         },
       ],
     }
   }
 
   return {
-    ...dataset,
+    ...normalizedDataset,
+    categories,
     variableExpenses: [
-      ...dataset.variableExpenses,
+      ...normalizedDataset.variableExpenses,
       {
         id,
         date: parsedInput.date,
@@ -125,8 +160,10 @@ export function addMovementToDataset(
 }
 
 export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[] {
+  const normalizedDataset = normalizeFinanceDataset(dataset)
+
   return [
-    ...dataset.monthlyRevenues.map((revenue) => ({
+    ...normalizedDataset.monthlyRevenues.map((revenue) => ({
       id: revenue.id,
       source: "revenue" as const,
       date: revenue.date,
@@ -136,7 +173,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
       value: revenue.value,
       status: "-" as const,
     })),
-    ...dataset.fixedExpenses.map((expense) => ({
+    ...normalizedDataset.fixedExpenses.map((expense) => ({
       id: expense.id,
       source: "fixed-expense" as const,
       date: expense.transactionDate ?? "-",
@@ -146,7 +183,7 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
       value: expense.value,
       status: expense.status,
     })),
-    ...dataset.variableExpenses.map((expense) => ({
+    ...normalizedDataset.variableExpenses.map((expense) => ({
       id: expense.id,
       source: "variable-expense" as const,
       date: expense.date,
@@ -154,7 +191,25 @@ export function listFinanceMovements(dataset: FinanceDataset): FinanceMovement[]
       category: expense.category,
       type: "Despesa variável" as const,
       value: expense.value,
-      status: "-" as const,
+      status: "Pendente" as const,
     })),
   ].sort((left, right) => right.date.localeCompare(left.date))
+}
+
+export function mergeCategoryDefinition(
+  categories: CategoryDefinition[],
+  nextCategory: CategoryDefinition
+) {
+  const sanitized = categoryDefinitionSchema.parse(nextCategory)
+  const existingIndex = categories.findIndex(
+    (category) => category.name === sanitized.name
+  )
+
+  if (existingIndex === -1) {
+    return [...categories, sanitized]
+  }
+
+  const nextCategories = [...categories]
+  nextCategories[existingIndex] = sanitized
+  return nextCategories
 }

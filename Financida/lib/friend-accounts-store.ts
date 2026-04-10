@@ -109,9 +109,15 @@ async function ensureSchema() {
       alter table friend_accounts add column if not exists friend_name text;
       alter table friend_accounts add column if not exists friend_handle text;
       alter table friend_accounts add column if not exists friend_email text;
+      alter table friend_accounts add column if not exists description text;
+      alter table friend_accounts add column if not exists total_amount numeric(12, 2);
+      alter table friend_accounts add column if not exists installments integer;
+      alter table friend_accounts add column if not exists payment_dates jsonb;
       alter table friend_accounts add column if not exists status text not null default 'pending';
       alter table friend_accounts add column if not exists accepted_at timestamptz;
       alter table friend_accounts add column if not exists finance_synced_at timestamptz;
+      alter table friend_accounts add column if not exists created_at timestamptz not null default now();
+      alter table friend_accounts add column if not exists updated_at timestamptz not null default now();
 
       update friend_accounts
       set requester_user_id = coalesce(requester_user_id, owner_user_id)
@@ -178,6 +184,18 @@ async function ensureSchema() {
 
       alter table friend_accounts
       alter column recurrence_type set not null;
+
+      update friend_accounts
+      set installments = 1
+      where installments is null;
+
+      update friend_accounts
+      set total_amount = 0
+      where total_amount is null;
+
+      update friend_accounts
+      set description = 'Conta compartilhada'
+      where description is null or description = '';
 
       update friend_accounts
       set status = coalesce(status, 'accepted')
@@ -379,7 +397,7 @@ async function syncAcceptedAccountToFinance(row: FriendAccountRow) {
       description,
       category: row.category,
       value: installmentValue,
-      status: "Em aberto",
+      status: "Pendente",
     })
 
     await createFinanceMovement(row.friend_user_id, {

@@ -1,4 +1,4 @@
-import type { FinanceDataset, MonthYear } from "@/lib/finance"
+import { defaultFinanceCategories, type FinanceDataset, type MonthYear } from "@/lib/finance"
 
 export const currentFinanceRange: MonthYear = {
   month: 4,
@@ -6,6 +6,7 @@ export const currentFinanceRange: MonthYear = {
 }
 
 export const financeDataset: FinanceDataset = {
+  categories: defaultFinanceCategories,
   fixedExpenses: [
     {
       id: "fix-001",
@@ -21,7 +22,7 @@ export const financeDataset: FinanceDataset = {
       description: "Escola",
       category: "Educacao",
       value: 780,
-      status: "Em aberto",
+      status: "Pendente",
     },
     {
       id: "fix-003",
@@ -29,7 +30,7 @@ export const financeDataset: FinanceDataset = {
       description: "Internet",
       category: "Comunicacao",
       value: 129.9,
-      status: "Em aberto",
+      status: "Pendente",
     },
     {
       id: "fix-004",
@@ -37,7 +38,7 @@ export const financeDataset: FinanceDataset = {
       description: "Plano de saude",
       category: "Saude",
       value: 510,
-      status: "Em aberto",
+      status: "Pendente",
     },
     {
       id: "fix-005",
