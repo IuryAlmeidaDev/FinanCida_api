@@ -71,14 +71,9 @@ const socialProviders = [
 
 const featureHighlights = [
   {
-    title: "Compartilhe uma dívida",
+    title: "Plataforma Financeira",
     description:
-      "Lance valores com amigos, acompanhe pendências e organize cada aceite com mais transparência.",
-  },
-  {
-    title: "Acompanhe metas e limites",
-    description:
-      "Visualize receitas, despesas e alertas do mes em um dashboard simples e direto.",
+      "Acompanhe receitas, despesas, relatorios, amizades e contas compartilhadas em um unico lugar.",
   },
 ]
 
@@ -109,7 +104,7 @@ export function LoginForm({
         const payload = (await response.json().catch(() => null)) as
           | { error?: string }
           | null
-        setError(payload?.error ?? "Não foi possível autenticar.")
+        setError(payload?.error ?? "Nao foi possivel autenticar.")
         return
       }
 
@@ -126,12 +121,6 @@ export function LoginForm({
           <div className="hidden bg-[#007A55] md:flex">
             <div className="flex h-full flex-col justify-between bg-[#007A55] p-10 text-white">
               <div className="space-y-5">
-                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
-                  Plataforma Financeira
-                </div>
-                <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
-                  Compartilhe uma dívida
-                </div>
                 <div className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium backdrop-blur">
                   Metas e limites
                 </div>
@@ -233,7 +222,7 @@ export function LoginForm({
                 </div>
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                Ainda não tem uma conta?{" "}
+                Ainda nao tem uma conta?{" "}
                 <Link
                   className="font-medium text-foreground underline underline-offset-4"
                   href="/signup"
