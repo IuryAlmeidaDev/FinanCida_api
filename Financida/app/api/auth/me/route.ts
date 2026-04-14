@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
 
-import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
+import {
+  clearAuthCookie,
+  getAuthUserFromToken,
+  readAuthTokenFromCookieHeader,
+  setAuthCookie,
+  signAuthToken,
+} from "@/lib/auth"
 
 export const runtime = "nodejs"
 
@@ -9,8 +15,13 @@ export async function GET(request: Request) {
   const user = await getAuthUserFromToken(token)
 
   if (!user) {
-    return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
+    const response = NextResponse.json({ error: "Nao autenticado." }, { status: 401 })
+    clearAuthCookie(response)
+    return response
   }
 
-  return NextResponse.json({ user })
+  const refreshedToken = await signAuthToken(user)
+  const response = NextResponse.json({ user })
+  setAuthCookie(response, refreshedToken)
+  return response
 }

@@ -12,7 +12,7 @@ describe("me API", () => {
     delete process.env.AUTH_JWT_SECRET
   })
 
-  it("retorna usuario autenticado", async () => {
+  it("retorna usuario autenticado e renova o cookie", async () => {
     const token = await signAuthToken({
       id: "user-1",
       name: "Ana",
@@ -32,11 +32,13 @@ describe("me API", () => {
 
     expect(response.status).toBe(200)
     expect(payload.user.email).toBe("ana@example.com")
+    expect(response.headers.get("set-cookie")).toContain("financida_auth_token=")
   })
 
-  it("rejeita sem cookie", async () => {
+  it("rejeita sem cookie e limpa a sessao local", async () => {
     const response = await GET(new Request("http://localhost/api/auth/me"))
 
     expect(response.status).toBe(401)
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0")
   })
 })

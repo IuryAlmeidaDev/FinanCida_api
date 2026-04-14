@@ -2,8 +2,8 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 
 import {
-  authCookieName,
   normalizeEmail,
+  setAuthCookie,
   signAuthToken,
   toPublicAuthUser,
   verifyPassword,
@@ -32,13 +32,7 @@ export async function POST(request: Request) {
     const token = await signAuthToken(toPublicAuthUser(user))
     const response = NextResponse.json({ user: toPublicAuthUser(user) })
 
-    response.cookies.set(authCookieName, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    })
+    setAuthCookie(response, token)
 
     return response
   } catch (error) {
@@ -50,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Não foi possível autenticar." },
+      { error: "Nao foi possivel autenticar." },
       { status: 500 }
     )
   }

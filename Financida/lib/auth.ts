@@ -2,8 +2,10 @@ import { randomUUID } from "node:crypto"
 
 import bcrypt from "bcryptjs"
 import { jwtVerify, SignJWT } from "jose"
+import type { NextResponse } from "next/server"
 
 export const authCookieName = "financida_auth_token"
+export const authTokenMaxAgeInSeconds = 60 * 60 * 24 * 7
 
 export type AuthUser = {
   id: string
@@ -64,7 +66,7 @@ export async function signAuthToken(user: AuthUser) {
     .setIssuedAt()
     .setJti(randomUUID())
     .setSubject(user.id)
-    .setExpirationTime("7d")
+    .setExpirationTime(`${authTokenMaxAgeInSeconds}s`)
     .sign(getJwtSecret())
 }
 
@@ -116,4 +118,24 @@ export async function getAuthUserFromToken(token?: string | null) {
   } catch {
     return null
   }
+}
+
+export function setAuthCookie(response: NextResponse, token: string) {
+  response.cookies.set(authCookieName, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: authTokenMaxAgeInSeconds,
+  })
+}
+
+export function clearAuthCookie(response: NextResponse) {
+  response.cookies.set(authCookieName, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+  })
 }
