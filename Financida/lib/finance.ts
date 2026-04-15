@@ -1,3 +1,5 @@
+import { z } from "zod"
+
 export type FixedExpenseStatus = "Pendente" | "Pago" | "Atrasado"
 export type ExpenseCategory = string
 export type CategoryIconName =
@@ -89,6 +91,77 @@ export const defaultFinanceCategories: CategoryDefinition[] = [
   { name: "Outros", color: "#71717a", icon: "tag" },
 ] satisfies CategoryDefinition[]
 
+const categoryIconNameSchema = z.enum([
+  "home",
+  "users",
+  "graduation",
+  "wifi",
+  "car",
+  "utensils",
+  "heart",
+  "party",
+  "tag",
+  "wallet",
+  "shopping",
+  "briefcase",
+  "shirt",
+  "gamepad",
+  "plane",
+])
+
+const moneyValueSchema = z.number().finite().nonnegative().max(999_999_999.99)
+const idSchema = z.string().trim().min(1).max(120)
+const categoryNameSchema = z.string().trim().min(1).max(40)
+const optionalDateSchema = z.iso.date().optional()
+
+const financeDatasetSchema = z.object({
+  categories: z
+    .array(
+      z.object({
+        name: categoryNameSchema,
+        color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+        icon: categoryIconNameSchema,
+      })
+    )
+    .max(60)
+    .optional(),
+  fixedExpenses: z
+    .array(
+      z.object({
+        id: idSchema,
+        transactionDate: optionalDateSchema,
+        description: z.string().trim().min(1).max(120),
+        category: categoryNameSchema,
+        value: moneyValueSchema,
+        status: z.enum(["Pendente", "Pago", "Atrasado"]),
+      })
+    )
+    .max(500)
+    .optional(),
+  variableExpenses: z
+    .array(
+      z.object({
+        id: idSchema,
+        date: z.iso.date(),
+        description: z.string().trim().min(1).max(120),
+        category: categoryNameSchema,
+        value: moneyValueSchema,
+      })
+    )
+    .max(500)
+    .optional(),
+  monthlyRevenues: z
+    .array(
+      z.object({
+        id: idSchema,
+        date: z.iso.date(),
+        value: moneyValueSchema,
+      })
+    )
+    .max(500)
+    .optional(),
+})
+
 export function createEmptyFinanceDataset(): FinanceDataset {
   return {
     categories: defaultFinanceCategories,
@@ -99,15 +172,16 @@ export function createEmptyFinanceDataset(): FinanceDataset {
 }
 
 export function normalizeFinanceDataset(dataset: Partial<FinanceDataset>): FinanceDataset {
-  const categories = dataset.categories?.length
-    ? dataset.categories
+  const parsedDataset = financeDatasetSchema.parse(dataset)
+  const categories = parsedDataset.categories?.length
+    ? parsedDataset.categories
     : defaultFinanceCategories
 
   return {
     categories: categories.map((category) => ({ ...category })),
-    fixedExpenses: dataset.fixedExpenses ?? [],
-    variableExpenses: dataset.variableExpenses ?? [],
-    monthlyRevenues: dataset.monthlyRevenues ?? [],
+    fixedExpenses: parsedDataset.fixedExpenses ?? [],
+    variableExpenses: parsedDataset.variableExpenses ?? [],
+    monthlyRevenues: parsedDataset.monthlyRevenues ?? [],
   }
 }
 

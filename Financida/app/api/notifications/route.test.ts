@@ -48,6 +48,7 @@ describe("notifications API", () => {
     const response = await PATCH(
       new Request("http://localhost/api/notifications", {
         method: "PATCH",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ notificationId: "notification-1" }),
       })
     )

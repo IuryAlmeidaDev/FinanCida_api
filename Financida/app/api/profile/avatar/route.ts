@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server"
 
 import { getAuthUserFromToken, readAuthTokenFromCookieHeader } from "@/lib/auth"
+import {
+  rejectCrossSiteRequest,
+  rejectLargeRequest,
+  unsupportedMediaTypeResponse,
+} from "@/lib/security"
 import { uploadProfileAvatar } from "@/lib/supabase-storage"
 
 export const runtime = "nodejs"
@@ -12,6 +17,24 @@ async function getRequestUser(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 3 * 1024 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentType = request.headers.get("content-type")
+
+    if (!contentType?.toLowerCase().includes("multipart/form-data")) {
+      return unsupportedMediaTypeResponse()
+    }
+
     const user = await getRequestUser(request)
 
     if (!user) {

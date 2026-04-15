@@ -52,6 +52,7 @@ describe("spending limit API", () => {
     const response = await PUT(
       new Request("http://localhost/api/spending-limit", {
         method: "PUT",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ monthlyLimit: 9000 }),
       })
     )
@@ -61,5 +62,23 @@ describe("spending limit API", () => {
       "user-1",
       { monthlyLimit: 9000 }
     )
+  })
+
+  it("retorna erro 400 para JSON malformado", async () => {
+    authMocks.readAuthTokenFromCookieHeader.mockReturnValue("token")
+    authMocks.getAuthUserFromToken.mockResolvedValue(authUser)
+
+    const response = await PUT(
+      new Request("http://localhost/api/spending-limit", {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: "{bad-json",
+      })
+    )
+
+    expect(response.status).toBe(400)
+    expect(spendingLimitMocks.writeSpendingLimit).not.toHaveBeenCalled()
   })
 })

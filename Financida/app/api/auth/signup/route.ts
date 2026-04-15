@@ -9,6 +9,16 @@ import {
   toPublicAuthUser,
 } from "@/lib/auth"
 import { createUser, findUserByEmail } from "@/lib/auth-store"
+import {
+  checkRateLimit,
+  getClientIp,
+  jsonParseErrorResponse,
+  rateLimitResponse,
+  readJsonBody,
+  rejectLargeRequest,
+  rejectCrossSiteRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -20,8 +30,35 @@ const signupSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const input = signupSchema.parse(await request.json())
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 32 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
+    const input = signupSchema.parse(await readJsonBody(request))
     const email = normalizeEmail(input.email)
+    const rateLimit = checkRateLimit(`signup:${getClientIp(request)}`, {
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (rateLimit.limited) {
+      return rateLimitResponse(rateLimit.retryAfterSeconds)
+    }
+
     const existingUser = await findUserByEmail(email)
 
     if (existingUser) {
@@ -46,6 +83,12 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Dados invalidos para o cadastro.", issues: error.issues },

@@ -6,6 +6,8 @@ import type { NextResponse } from "next/server"
 
 export const authCookieName = "financida_auth_token"
 export const authTokenMaxAgeInSeconds = 60 * 60 * 24 * 7
+const authTokenIssuer = "financida"
+const authTokenAudience = "financida-web"
 
 export type AuthUser = {
   id: string
@@ -65,13 +67,18 @@ export async function signAuthToken(user: AuthUser) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setJti(randomUUID())
+    .setIssuer(authTokenIssuer)
+    .setAudience(authTokenAudience)
     .setSubject(user.id)
     .setExpirationTime(`${authTokenMaxAgeInSeconds}s`)
     .sign(getJwtSecret())
 }
 
 export async function verifyAuthToken(token: string) {
-  const { payload } = await jwtVerify(token, getJwtSecret())
+  const { payload } = await jwtVerify(token, getJwtSecret(), {
+    issuer: authTokenIssuer,
+    audience: authTokenAudience,
+  })
   const typedPayload = payload as Partial<JwtPayload>
 
   if (
@@ -123,7 +130,7 @@ export async function getAuthUserFromToken(token?: string | null) {
 export function setAuthCookie(response: NextResponse, token: string) {
   response.cookies.set(authCookieName, token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: authTokenMaxAgeInSeconds,
@@ -133,7 +140,7 @@ export function setAuthCookie(response: NextResponse, token: string) {
 export function clearAuthCookie(response: NextResponse) {
   response.cookies.set(authCookieName, "", {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 0,

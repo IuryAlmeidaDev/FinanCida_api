@@ -9,6 +9,16 @@ import {
   verifyPassword,
 } from "@/lib/auth"
 import { findUserByEmail } from "@/lib/auth-store"
+import {
+  checkRateLimit,
+  getClientIp,
+  jsonParseErrorResponse,
+  rateLimitResponse,
+  readJsonBody,
+  rejectLargeRequest,
+  rejectCrossSiteRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -19,8 +29,39 @@ const loginSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const input = loginSchema.parse(await request.json())
-    const user = await findUserByEmail(normalizeEmail(input.email))
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
+    const input = loginSchema.parse(await readJsonBody(request))
+    const email = normalizeEmail(input.email)
+    const rateLimit = checkRateLimit(
+      `login:${getClientIp(request)}:${email}`,
+      {
+        limit: 8,
+        windowMs: 15 * 60 * 1000,
+      }
+    )
+
+    if (rateLimit.limited) {
+      return rateLimitResponse(rateLimit.retryAfterSeconds)
+    }
+
+    const user = await findUserByEmail(email)
 
     if (!user || !(await verifyPassword(input.password, user.passwordHash))) {
       return NextResponse.json(
@@ -36,6 +77,12 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Dados invalidos para o login.", issues: error.issues },

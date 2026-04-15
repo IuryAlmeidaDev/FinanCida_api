@@ -61,7 +61,10 @@ describe("finance movements API", () => {
 
     const response = await GET(
       new Request("http://localhost/api/finance/movements", {
-        headers: { cookie: "financida_auth_token=token" },
+        headers: {
+          "content-type": "application/json",
+          cookie: "financida_auth_token=token",
+        },
       })
     )
     const payload = (await response.json()) as { movements: unknown[] }
@@ -92,7 +95,10 @@ describe("finance movements API", () => {
     const response = await POST(
       new Request("http://localhost/api/finance/movements", {
         method: "POST",
-        headers: { cookie: "financida_auth_token=token" },
+        headers: {
+          "content-type": "application/json",
+          cookie: "financida_auth_token=token",
+        },
         body: JSON.stringify({
           type: "expense",
           recurrence: "unique",
@@ -131,7 +137,10 @@ describe("finance movements API", () => {
     const response = await POST(
       new Request("http://localhost/api/finance/movements", {
         method: "POST",
-        headers: { cookie: "financida_auth_token=token" },
+        headers: {
+          "content-type": "application/json",
+          cookie: "financida_auth_token=token",
+        },
         body: JSON.stringify({
           type: "expense",
           recurrence: "unique",
@@ -159,7 +168,10 @@ describe("finance movements API", () => {
     const response = await DELETE(
       new Request("http://localhost/api/finance/movements", {
         method: "DELETE",
-        headers: { cookie: "financida_auth_token=token" },
+        headers: {
+          "content-type": "application/json",
+          cookie: "financida_auth_token=token",
+        },
         body: JSON.stringify({
           id: "mov-1",
           source: "variable-expense",
@@ -190,7 +202,10 @@ describe("finance movements API", () => {
     const response = await PUT(
       new Request("http://localhost/api/finance/movements", {
         method: "PUT",
-        headers: { cookie: "financida_auth_token=token" },
+        headers: {
+          "content-type": "application/json",
+          cookie: "financida_auth_token=token",
+        },
         body: JSON.stringify({
           id: "mov-1",
           source: "variable-expense",

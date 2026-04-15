@@ -7,6 +7,13 @@ import {
   spendingLimitInputSchema,
   writeSpendingLimit,
 } from "@/lib/spending-limit-store"
+import {
+  jsonParseErrorResponse,
+  readJsonBody,
+  rejectCrossSiteRequest,
+  rejectLargeRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -29,17 +36,41 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const user = await getRequestUser(request)
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = spendingLimitInputSchema.parse(await request.json())
+    const input = spendingLimitInputSchema.parse(await readJsonBody(request))
     const monthlyLimit = await writeSpendingLimit(user.id, input)
 
     return NextResponse.json({ monthlyLimit })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
     }

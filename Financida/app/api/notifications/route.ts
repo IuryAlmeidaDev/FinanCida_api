@@ -6,6 +6,13 @@ import {
   listNotifications,
   markNotificationAsRead,
 } from "@/lib/notifications-store"
+import {
+  jsonParseErrorResponse,
+  readJsonBody,
+  rejectCrossSiteRequest,
+  rejectLargeRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -32,17 +39,41 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const user = await getRequestUser(request)
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = notificationReadSchema.parse(await request.json())
+    const input = notificationReadSchema.parse(await readJsonBody(request))
     await markNotificationAsRead(user.id, input.notificationId)
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
     }

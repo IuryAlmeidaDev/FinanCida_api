@@ -59,6 +59,7 @@ describe("friends API", () => {
     const response = await POST(
       new Request("http://localhost/api/friends", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ handle: "joao#7777" }),
       })
     )
@@ -79,6 +80,7 @@ describe("friends API", () => {
     const response = await PATCH(
       new Request("http://localhost/api/friends", {
         method: "PATCH",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ friendshipId: "friendship-1" }),
       })
     )

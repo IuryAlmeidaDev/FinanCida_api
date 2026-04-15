@@ -59,6 +59,7 @@ describe("friend accounts API", () => {
     const response = await POST(
       new Request("http://localhost/api/friend-accounts", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           friendUserId: "friend-1",
           description: "Emprestimo",
@@ -87,6 +88,7 @@ describe("friend accounts API", () => {
     const response = await PATCH(
       new Request("http://localhost/api/friend-accounts", {
         method: "PATCH",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ accountId: "account-1", action: "accept" }),
       })
     )

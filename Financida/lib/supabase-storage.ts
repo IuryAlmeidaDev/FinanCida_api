@@ -14,14 +14,41 @@ function getSupabaseStorageConfig() {
   }
 }
 
-function getFileExtension(fileName: string) {
-  const extension = fileName.split(".").pop()?.toLowerCase()
-  return extension && extension.length <= 6 ? extension : "png"
+export const maxAvatarFileSizeBytes = 2 * 1024 * 1024
+
+const allowedAvatarContentTypes = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+} as const
+
+export function validateAvatarFile(file: File) {
+  const fileExtension =
+    allowedAvatarContentTypes[
+      file.type as keyof typeof allowedAvatarContentTypes
+    ]
+
+  if (!fileExtension) {
+    throw new Error("Formato de imagem nao permitido.")
+  }
+
+  if (file.size > maxAvatarFileSizeBytes) {
+    throw new Error("Imagem muito grande. Envie um arquivo de ate 2 MB.")
+  }
+
+  if (file.size === 0) {
+    throw new Error("Arquivo de imagem vazio.")
+  }
+
+  return {
+    contentType: file.type,
+    fileExtension,
+  }
 }
 
 export async function uploadProfileAvatar(userId: string, file: File) {
   const { supabaseUrl, serviceRoleKey, bucketName } = getSupabaseStorageConfig()
-  const fileExtension = getFileExtension(file.name)
+  const { contentType, fileExtension } = validateAvatarFile(file)
   const filePath = `profiles/${userId}/${crypto.randomUUID()}.${fileExtension}`
   const fileBuffer = Buffer.from(await file.arrayBuffer())
 
@@ -32,7 +59,7 @@ export async function uploadProfileAvatar(userId: string, file: File) {
       headers: {
         Authorization: `Bearer ${serviceRoleKey}`,
         apikey: serviceRoleKey,
-        "Content-Type": file.type || "application/octet-stream",
+        "Content-Type": contentType,
         "x-upsert": "true",
       },
       body: fileBuffer,

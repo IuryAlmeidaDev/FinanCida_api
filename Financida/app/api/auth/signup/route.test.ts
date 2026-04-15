@@ -33,6 +33,7 @@ describe("signup API", () => {
     const response = await POST(
       new Request("http://localhost/api/auth/signup", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           name: "Ana",
           email: "ana@example.com",
@@ -64,6 +65,7 @@ describe("signup API", () => {
     const response = await POST(
       new Request("http://localhost/api/auth/signup", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           name: "Ana",
           email: "ana@example.com",
@@ -73,5 +75,24 @@ describe("signup API", () => {
     )
 
     expect(response.status).toBe(409)
+  })
+
+  it("bloqueia cadastro vindo de outra origem", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/auth/signup", {
+        method: "POST",
+        headers: {
+          origin: "https://evil.example",
+        },
+        body: JSON.stringify({
+          name: "Ana",
+          email: "ana@example.com",
+          password: "senha-segura-123",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(403)
+    expect(authStoreMocks.createUser).not.toHaveBeenCalled()
   })
 })

@@ -10,6 +10,13 @@ import {
   listPendingFriendRequests,
   sendFriendRequest,
 } from "@/lib/friends-store"
+import {
+  jsonParseErrorResponse,
+  readJsonBody,
+  rejectCrossSiteRequest,
+  rejectLargeRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -35,17 +42,41 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const user = await getRequestUser(request)
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = friendRequestInputSchema.parse(await request.json())
+    const input = friendRequestInputSchema.parse(await readJsonBody(request))
     await sendFriendRequest(user.id, input.handle)
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
     }
@@ -59,13 +90,31 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const user = await getRequestUser(request)
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = friendRequestActionSchema.parse(await request.json())
+    const input = friendRequestActionSchema.parse(await readJsonBody(request))
     await acceptFriendRequest(user.id, input.friendshipId)
 
     const [friends, pendingRequests] = await Promise.all([
@@ -75,6 +124,12 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ friends, pendingRequests, currentHandle: user.handle })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Dados invalidos." }, { status: 400 })
     }

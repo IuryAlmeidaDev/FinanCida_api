@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   calculateFinancialSummary,
   filterFinanceDatasetByMonthYear,
+  normalizeFinanceDataset,
 } from "@/lib/finance"
 import { financeDataset } from "@/lib/finance-sample-data"
 
@@ -34,5 +35,31 @@ describe("finance business rules", () => {
     expect(aprilDataset.fixedExpenses).toHaveLength(4)
     expect(aprilDataset.variableExpenses).toHaveLength(3)
     expect(aprilDataset.monthlyRevenues).toHaveLength(1)
+  })
+
+  it("rejeita datasets financeiros grandes demais", () => {
+    expect(() =>
+      normalizeFinanceDataset({
+        categories: Array.from({ length: 61 }, (_, index) => ({
+          name: `Categoria ${index}`,
+          color: "#71717a",
+          icon: "tag",
+        })),
+      })
+    ).toThrow()
+  })
+
+  it("rejeita valores financeiros fora do limite", () => {
+    expect(() =>
+      normalizeFinanceDataset({
+        monthlyRevenues: [
+          {
+            id: "revenue-1",
+            date: "2026-04-01",
+            value: Number.POSITIVE_INFINITY,
+          },
+        ],
+      })
+    ).toThrow()
   })
 })

@@ -14,6 +14,13 @@ import {
   readFinanceDataset,
   updateFinanceMovement,
 } from "@/lib/finance-store"
+import {
+  jsonParseErrorResponse,
+  readJsonBody,
+  rejectCrossSiteRequest,
+  rejectLargeRequest,
+  rejectUnsupportedJsonContentType,
+} from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -34,6 +41,24 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 64 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
     const user = await getAuthUserFromToken(token)
 
@@ -41,7 +66,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = movementInputSchema.parse(await request.json())
+    const input = movementInputSchema.parse(await readJsonBody(request))
     const dataset = await createFinanceMovement(user.id, input)
 
     return NextResponse.json(
@@ -52,6 +77,12 @@ export async function POST(request: Request) {
       { status: 201 }
     )
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
@@ -71,6 +102,24 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 16 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
     const user = await getAuthUserFromToken(token)
 
@@ -78,7 +127,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = movementDeleteSchema.parse(await request.json())
+    const input = movementDeleteSchema.parse(await readJsonBody(request))
     const dataset = await deleteFinanceMovement(user.id, input)
 
     return NextResponse.json({
@@ -86,6 +135,12 @@ export async function DELETE(request: Request) {
       movements: listFinanceMovements(dataset),
     })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
@@ -105,6 +160,24 @@ export async function DELETE(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const crossSiteResponse = rejectCrossSiteRequest(request)
+
+    if (crossSiteResponse) {
+      return crossSiteResponse
+    }
+
+    const largeRequestResponse = rejectLargeRequest(request, 64 * 1024)
+
+    if (largeRequestResponse) {
+      return largeRequestResponse
+    }
+
+    const contentTypeResponse = rejectUnsupportedJsonContentType(request)
+
+    if (contentTypeResponse) {
+      return contentTypeResponse
+    }
+
     const token = readAuthTokenFromCookieHeader(request.headers.get("cookie"))
     const user = await getAuthUserFromToken(token)
 
@@ -112,7 +185,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 })
     }
 
-    const input = movementUpdateSchema.parse(await request.json())
+    const input = movementUpdateSchema.parse(await readJsonBody(request))
     const dataset = await updateFinanceMovement(user.id, input)
 
     return NextResponse.json({
@@ -120,6 +193,12 @@ export async function PUT(request: Request) {
       movements: listFinanceMovements(dataset),
     })
   } catch (error) {
+    const jsonErrorResponse = jsonParseErrorResponse(error)
+
+    if (jsonErrorResponse) {
+      return jsonErrorResponse
+    }
+
     if (error instanceof ZodError) {
       return NextResponse.json(
         {

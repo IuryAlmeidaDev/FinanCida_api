@@ -64,6 +64,7 @@ describe("profile API", () => {
     const response = await PUT(
       new Request("http://localhost/api/profile", {
         method: "PUT",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           displayName: "Ana Silva",
           avatarUrl: "https://example.com/avatar.png",

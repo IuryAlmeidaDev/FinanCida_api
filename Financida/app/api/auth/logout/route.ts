@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { clearAuthCookie } from "@/lib/auth"
+import { rejectCrossSiteRequest } from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -13,5 +14,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request)
+
+  if (crossSiteResponse) {
+    return crossSiteResponse
+  }
+
   return GET(request)
 }

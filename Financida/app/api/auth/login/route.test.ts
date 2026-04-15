@@ -32,6 +32,7 @@ describe("login API", () => {
     const response = await POST(
       new Request("http://localhost/api/auth/login", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email: "ana@example.com",
           password: "senha-segura-123",
@@ -44,6 +45,9 @@ describe("login API", () => {
     expect(response.status).toBe(200)
     expect(payload.user.email).toBe("ana@example.com")
     expect(response.headers.get("set-cookie")).toContain("financida_auth_token")
+    expect(response.headers.get("set-cookie")?.toLowerCase()).toContain(
+      "samesite=strict"
+    )
   })
 
   it("rejeita credenciais invalidas", async () => {
@@ -52,6 +56,7 @@ describe("login API", () => {
     const response = await POST(
       new Request("http://localhost/api/auth/login", {
         method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email: "ana@example.com",
           password: "senha-segura-123",
@@ -60,5 +65,65 @@ describe("login API", () => {
     )
 
     expect(response.status).toBe(401)
+  })
+
+  it("bloqueia login vindo de outra origem", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/auth/login", {
+        method: "POST",
+        headers: {
+          origin: "https://evil.example",
+        },
+        body: JSON.stringify({
+          email: "ana@example.com",
+          password: "senha-segura-123",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(403)
+    expect(authStoreMocks.findUserByEmail).not.toHaveBeenCalled()
+  })
+
+  it("retorna erro 400 para JSON de login malformado", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/auth/login", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: "{bad-json",
+      })
+    )
+
+    expect(response.status).toBe(400)
+    expect(authStoreMocks.findUserByEmail).not.toHaveBeenCalled()
+  })
+
+  it("limita repetidas tentativas de login", async () => {
+    authStoreMocks.findUserByEmail.mockResolvedValue(null)
+
+    const statuses = []
+
+    for (let attempt = 0; attempt < 9; attempt += 1) {
+      const response = await POST(
+        new Request("http://localhost/api/auth/login", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "198.51.100.42",
+          },
+          body: JSON.stringify({
+            email: "rate-limit-login@example.com",
+            password: "senha-segura-123",
+          }),
+        })
+      )
+
+      statuses.push(response.status)
+    }
+
+    expect(statuses.slice(0, 8)).toEqual(Array(8).fill(401))
+    expect(statuses.at(-1)).toBe(429)
   })
 })
