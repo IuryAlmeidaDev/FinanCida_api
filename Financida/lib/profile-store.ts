@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { getPool, hasDatabaseUrl } from "@/lib/postgres"
+import { getPool, hasDatabaseUrl, runSchemaBootstrap } from "@/lib/postgres"
 
 export const profileUpdateSchema = z.object({
   displayName: z.string().trim().min(1).max(120),
@@ -35,9 +35,7 @@ async function ensureSchema() {
   }
 
   schemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       alter table app_users add column if not exists display_name text;
       alter table app_users add column if not exists avatar_url text;
       alter table app_users add column if not exists avatar_offset_x integer default 0;
