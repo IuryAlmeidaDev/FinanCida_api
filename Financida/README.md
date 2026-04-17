@@ -156,6 +156,10 @@ docker compose down -v
 
 Mais detalhes em [README-docker.md](./README-docker.md).
 
+## Homologacao
+
+Para configurar um ambiente de homologacao na Vercel usando a branch `develop` e um banco Supabase separado, veja [docs/homologacao-vercel-supabase.md](./docs/homologacao-vercel-supabase.md).
+
 ## Scripts disponiveis
 
 ```bash
