@@ -20,6 +20,13 @@ function sumValues(values: number[]) {
   return values.reduce((total, value) => total + value, 0)
 }
 
+export type MonthlyFinanceChartPoint = {
+  month: string
+  receita: number
+  despesa: number
+  saldo: number
+}
+
 export function buildMonthlyFinanceChartData(
   dataset: FinanceDataset,
   range: MonthYear,
@@ -47,6 +54,27 @@ export function buildMonthlyFinanceChartData(
       receita,
       despesa,
       saldo: receita - despesa,
-    }
+    } satisfies MonthlyFinanceChartPoint
   })
+}
+
+export function trimLeadingEmptyMonths(
+  data: MonthlyFinanceChartPoint[],
+  minPoints = 4
+) {
+  if (data.length <= minPoints) {
+    return data
+  }
+
+  const firstMonthWithData = data.findIndex(
+    (point) => point.receita !== 0 || point.despesa !== 0 || point.saldo !== 0
+  )
+
+  if (firstMonthWithData === -1) {
+    return data.slice(-minPoints)
+  }
+
+  const startIndex = Math.max(0, firstMonthWithData - (minPoints - 1))
+
+  return data.slice(startIndex)
 }

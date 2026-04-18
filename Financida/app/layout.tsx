@@ -33,7 +33,7 @@ export default function RootLayout({
           {children}
           <MobileAppGate />
           <Toaster />
-          <Analytics />
+          {process.env.NODE_ENV === "production" ? <Analytics /> : null}
         </ThemeProvider>
       </body>
     </html>

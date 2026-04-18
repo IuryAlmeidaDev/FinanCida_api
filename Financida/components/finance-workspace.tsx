@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import { CalendarDaysIcon, PlusIcon } from "lucide-react"
@@ -85,6 +85,7 @@ export function FinanceWorkspace({
   const [newCategoryColor, setNewCategoryColor] = React.useState("#14b8a6")
   const [newCategoryIcon, setNewCategoryIcon] =
     React.useState<CategoryIconName>("wallet")
+  const [calendarDetailsOpen, setCalendarDetailsOpen] = React.useState(false)
 
   React.useEffect(() => {
     setCategoryDrafts(dataset.categories)
@@ -132,6 +133,10 @@ export function FinanceWorkspace({
       type: marker.revenue && marker.expense ? "both" : marker.revenue ? "revenue" : "expense",
     }))
   }, [dataset])
+  const datesWithMovements = React.useMemo(
+    () => new Set(markers.map((marker) => marker.date)),
+    [markers]
+  )
 
   const selectedMovements = React.useMemo(() => {
     const revenues = dataset.monthlyRevenues
@@ -249,65 +254,87 @@ export function FinanceWorkspace({
     <div
       className={
         showCalendar && showForm
-          ? "grid gap-4 px-4 lg:grid-cols-[360px_1fr] lg:px-6"
+          ? "grid gap-4 px-4 lg:grid-cols-[340px_1fr] lg:px-6"
           : showCalendar
-            ? "grid h-full max-w-xl gap-4 px-4 lg:px-6"
+            ? "grid h-full gap-4 px-4 lg:px-6"
             : "grid gap-4 px-4 lg:px-6"
       }
     >
-      {showCalendar && (
-        <Card className="h-full border-emerald-100 dark:border-emerald-900/60">
-          <CardHeader>
-            <CardTitle>Calendario financeiro</CardTitle>
-            <CardDescription>
-              Dias com lancamentos ficam marcados com borda e ponto preto.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Calendar
-              selected={selectedDate}
-              onSelect={(date) => {
-                setSelectedDate(date)
-              }}
-              month={selectedDate}
-              markers={markers}
-            />
-            <div className="rounded-xl border border-border bg-background/60 p-3">
-              <p className="text-sm font-medium">
-                Lancamentos de {formatBrazilianDate(selectedDate)}
-              </p>
-              <div className="mt-3 space-y-2">
-                {selectedMovements.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Nenhuma movimentacao neste dia.
-                  </p>
-                ) : (
-                  selectedMovements.map((movement) => (
-                    <div
-                      key={movement.id}
-                      className="flex items-center justify-between gap-3 text-sm"
-                    >
-                      <div>
-                        <p className="font-medium">{movement.description}</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <p className="text-xs text-muted-foreground">{movement.label}</p>
-                          <CategoryBadge
-                            category={movement.category}
-                            categories={dataset.categories}
-                          />
-                        </div>
-                      </div>
-                      <span className="font-medium">
-                        {moneyFormatter.format(movement.value)}
-                      </span>
-                    </div>
-                  ))
-                )}
+      {showCalendar ? (
+        <div className="h-full w-full max-w-[272px] rounded-2xl border border-border bg-card p-3 shadow-sm">
+          <Calendar
+            selected={selectedDate}
+            onSelect={(date) => {
+              setSelectedDate(date)
+              const clickedDateKey = toDateKey(date)
+
+              if (datesWithMovements.has(clickedDateKey)) {
+                setCalendarDetailsOpen(true)
+                return
+              }
+
+              setCalendarDetailsOpen(false)
+            }}
+            month={selectedDate}
+            markers={markers}
+            className="h-full w-[248px] max-w-[248px] bg-transparent p-0 shadow-none ring-0"
+          />
+        </div>
+      ) : null}
+
+      {showCalendar && calendarDetailsOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+          <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-emerald-100 bg-card p-4 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40">
+            <div className="mb-3 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-base font-semibold">
+                  Lançamentos de {formatBrazilianDate(selectedDate)}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {selectedMovements.length} item(ns) encontrado(s)
+                </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="!border-0 !bg-[#007A55] !text-white shadow-none outline-none ring-0 hover:!bg-[#007A55] hover:!text-white focus-visible:!border-0 focus-visible:!bg-[#007A55] focus-visible:!text-white focus-visible:!ring-0"
+                onClick={() => setCalendarDetailsOpen(false)}
+              >
+                Fechar
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div className="space-y-2">
+              {selectedMovements.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma movimentação neste dia.
+                </p>
+              ) : (
+                selectedMovements.map((movement) => (
+                  <div
+                    key={movement.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/50 px-3 py-2 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{movement.description}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <p className="text-xs text-muted-foreground">{movement.label}</p>
+                        <CategoryBadge
+                          category={movement.category}
+                          categories={dataset.categories}
+                        />
+                      </div>
+                    </div>
+                    <span className="font-medium">
+                      {moneyFormatter.format(movement.value)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {showForm && (
         <div
@@ -457,7 +484,7 @@ export function FinanceWorkspace({
               </div>
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-emerald-200/80 bg-white/70 px-3 py-2.5 dark:border-emerald-900/60 dark:bg-card/80">
                 <p className="text-xs text-muted-foreground">
-                  Mudancas visuais ficam salvas para toda a tela de lancamentos.
+                  Mudanças visuais ficam salvas para toda a tela de lançamentos.
                 </p>
                 <Button type="button" variant="outline" size="sm" onClick={() => void handleSaveCategories()}>
                   Salvar categorias
@@ -478,9 +505,9 @@ export function FinanceWorkspace({
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1.5">
                   <p className="text-[11px] font-semibold tracking-[0.22em] text-emerald-700 uppercase dark:text-emerald-300">
-                    Novo lancamento
+                    Novo lançamento
                   </p>
-                  <CardTitle className="text-lg">Adicionar movimentacao</CardTitle>
+                  <CardTitle className="text-lg">Adicionar movimentação</CardTitle>
                   <CardDescription className="max-w-md text-xs leading-5">
                     Registre entradas e saidas com um fluxo rapido, claro e sem poluir a tela.
                   </CardDescription>
@@ -507,10 +534,10 @@ export function FinanceWorkspace({
                 </div>
                 <div className="rounded-2xl border border-white/80 bg-white/85 px-3 py-2.5 shadow-sm dark:border-emerald-900/60 dark:bg-card/90">
                   <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-                    Recorrencia
+                    Recorrência
                   </p>
                   <p className="mt-1 text-sm font-semibold">
-                    {recurrenceType === "unique" ? "Unica" : "Recorrente"}
+                    {recurrenceType === "unique" ? "Única" : "Recorrente"}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/80 bg-white/85 px-3 py-2.5 shadow-sm dark:border-emerald-900/60 dark:bg-card/90">
@@ -540,7 +567,7 @@ export function FinanceWorkspace({
                       </select>
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="recurrence-type">Recorrencia</FieldLabel>
+                      <FieldLabel htmlFor="recurrence-type">Recorrência</FieldLabel>
                       <select
                         id="recurrence-type"
                         className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm text-foreground"
@@ -549,13 +576,13 @@ export function FinanceWorkspace({
                           setRecurrenceType(event.target.value as RecurrenceType)
                         }
                       >
-                        <option value="unique">Unica</option>
+                        <option value="unique">Única</option>
                         <option value="recurring">Recorrente</option>
                       </select>
                     </Field>
                   </div>
                   <Field>
-                    <FieldLabel htmlFor="description">Descricao</FieldLabel>
+                    <FieldLabel htmlFor="description">Descrição</FieldLabel>
                     <Input
                       id="description"
                       value={description}
@@ -587,7 +614,7 @@ export function FinanceWorkspace({
                               setDatePickerOpen(false)
                             }}
                             month={selectedDate}
-                            className="w-[320px] p-3"
+                            className="w-[248px] p-3"
                           />
                         </div>
                       ) : null}
@@ -650,16 +677,16 @@ export function FinanceWorkspace({
                         <option>Atrasado</option>
                       </select>
                       <FieldDescription>
-                        Se nao estiver paga, a despesa fica como pendente ate voce marcar como paga.
+                        Se não estiver paga, a despesa fica como pendente até você marcar como paga.
                       </FieldDescription>
                     </Field>
                   )}
                   <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-emerald-200/80 bg-white/70 px-3 py-2.5 dark:border-emerald-900/60 dark:bg-card/80">
                     <p className="text-xs text-muted-foreground">
-                      Lancamentos entram no dashboard logo apos salvar.
+                      Lançamentos entram no dashboard logo após salvar.
                     </p>
                     <Button type="submit" className="rounded-xl px-4">
-                      Adicionar movimentacao
+                      Adicionar movimentação
                     </Button>
                   </div>
                 </FieldGroup>

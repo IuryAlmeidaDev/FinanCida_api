@@ -6,30 +6,30 @@ function getHeaderTitle(activeSection: string) {
   const normalizedSection = activeSection.toLowerCase()
 
   if (normalizedSection.startsWith("lanc")) {
-    return "Gerenciamento de Transacoes"
+    return "Gerenciamento de Transações"
   }
 
   if (normalizedSection.startsWith("relat")) {
-    return "Relatorios e Exportacao"
+    return "Relatórios e exportação"
   }
 
   if (normalizedSection.startsWith("limite")) {
-    return "Controle de Metas e Limites"
+    return "Controle de metas e limites"
   }
 
   if (normalizedSection.startsWith("cripto")) {
-    return "Mercado de Criptomoedas"
+    return "Mercado de criptomoedas"
   }
 
   if (normalizedSection.startsWith("amigos")) {
-    return "Rede de Amigos"
+    return "Rede de amigos"
   }
 
   if (normalizedSection.startsWith("contas")) {
-    return "Contas Compartilhadas"
+    return "Contas compartilhadas"
   }
 
-  return "Dashboard financeiro"
+  return "Painel financeiro"
 }
 
 export function SiteHeader({ activeSection }: { activeSection: string }) {

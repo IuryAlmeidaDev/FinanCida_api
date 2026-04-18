@@ -51,7 +51,7 @@ export const categoryIconOptions: Array<{
   label: string
 }> = [
   { value: "home", label: "Casa" },
-  { value: "users", label: "Familia" },
+  { value: "users", label: "Família" },
   { value: "graduation", label: "Educacao" },
   { value: "wifi", label: "Internet" },
   { value: "car", label: "Carro" },
