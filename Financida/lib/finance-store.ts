@@ -12,7 +12,7 @@ import {
   type MovementInput,
   type MovementUpdateInput,
 } from "@/lib/finance-movements"
-import { getPool, hasDatabaseUrl } from "@/lib/postgres"
+import { getPool, hasDatabaseUrl, runSchemaBootstrap } from "@/lib/postgres"
 
 let schemaReady: Promise<void> | undefined
 
@@ -22,9 +22,7 @@ async function ensureDatabase() {
   }
 
   schemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       create table if not exists fixed_expenses (
         id text primary key,
         user_id text,

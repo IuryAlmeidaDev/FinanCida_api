@@ -2,7 +2,7 @@ import { z } from "zod"
 
 import { findUserByHandle, findUserById } from "@/lib/auth-store"
 import { createNotification } from "@/lib/notifications-store"
-import { getPool } from "@/lib/postgres"
+import { getPool, runSchemaBootstrap } from "@/lib/postgres"
 
 export const friendRequestInputSchema = z.object({
   handle: z.string().trim().min(3).max(80),
@@ -46,9 +46,7 @@ async function ensureSchema() {
   }
 
   schemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       create table if not exists friendships (
         id text primary key,
         requester_user_id text not null,

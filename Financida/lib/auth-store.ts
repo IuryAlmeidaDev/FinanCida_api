@@ -1,4 +1,4 @@
-import { getPool } from "@/lib/postgres"
+import { getPool, runSchemaBootstrap } from "@/lib/postgres"
 import { normalizeEmail, type AuthUser } from "@/lib/auth"
 
 export type AuthUserRecord = AuthUser & {
@@ -62,9 +62,7 @@ async function ensureAuthSchema() {
   }
 
   authSchemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       create table if not exists app_users (
         id text primary key,
         name text not null,
@@ -79,6 +77,7 @@ async function ensureAuthSchema() {
       create unique index if not exists app_users_handle_key on app_users (handle);
     `)
 
+    const database = getPool()
     const usersWithoutHandle = await database.query<Pick<UserRow, "id" | "name">>(
       "select id, name from app_users where handle is null or handle = ''"
     )

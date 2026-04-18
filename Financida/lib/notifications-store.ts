@@ -1,5 +1,5 @@
 import { readFinanceDataset } from "@/lib/finance-store"
-import { getPool } from "@/lib/postgres"
+import { getPool, runSchemaBootstrap } from "@/lib/postgres"
 
 export type NotificationType =
   | "friend-request"
@@ -34,9 +34,7 @@ async function ensureSchema() {
   }
 
   schemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       create table if not exists notifications (
         id text primary key,
         user_id text not null,

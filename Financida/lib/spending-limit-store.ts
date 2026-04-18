@@ -2,7 +2,7 @@ import { z } from "zod"
 
 import { calculateFinancialSummary, getCurrentMonthYear } from "@/lib/finance"
 import { readFinanceDataset } from "@/lib/finance-store"
-import { getPool, hasDatabaseUrl } from "@/lib/postgres"
+import { getPool, hasDatabaseUrl, runSchemaBootstrap } from "@/lib/postgres"
 
 export const spendingLimitInputSchema = z.object({
   monthlyLimit: z.number().int().min(1000).max(1000000),
@@ -16,9 +16,7 @@ async function ensureSchema() {
   }
 
   schemaReady = (async () => {
-    const database = getPool()
-
-    await database.query(`
+    await runSchemaBootstrap(`
       create table if not exists spending_limits (
         user_id text primary key,
         monthly_limit integer not null,

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import { BellRingIcon } from "lucide-react"
@@ -135,7 +135,7 @@ export function FinanceDashboard({
     })
 
     if (handleUnauthorizedResponse(response)) {
-      throw new Error("Sessao expirada.")
+      throw new Error("Sessão expirada.")
     }
 
     if (!response.ok) {
@@ -156,7 +156,7 @@ export function FinanceDashboard({
     })
 
     if (handleUnauthorizedResponse(response)) {
-      throw new Error("Sessao expirada.")
+      throw new Error("Sessão expirada.")
     }
 
     if (!response.ok) {
@@ -177,11 +177,11 @@ export function FinanceDashboard({
     })
 
     if (handleUnauthorizedResponse(response)) {
-      throw new Error("Sessao expirada.")
+      throw new Error("Sessão expirada.")
     }
 
     if (!response.ok) {
-      throw new Error("Nao foi possivel salvar as categorias.")
+      throw new Error("Não foi possível salvar as categorias.")
     }
 
     const payload = (await response.json()) as { dataset: FinanceDataset }
@@ -198,7 +198,7 @@ export function FinanceDashboard({
     })
 
     if (handleUnauthorizedResponse(response)) {
-      throw new Error("Sessao expirada.")
+      throw new Error("Sessão expirada.")
     }
 
     if (!response.ok) {
@@ -314,7 +314,7 @@ export function FinanceDashboard({
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+    <div className="flex flex-col gap-3 py-3 md:gap-4 md:py-4">
       {pendingSharedAccountsCount > 0 ? (
         <div className="px-4 lg:px-6">
           <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
@@ -331,8 +331,8 @@ export function FinanceDashboard({
         </div>
       ) : null}
       <SectionCards summary={summary} range={currentFinanceRange} />
-      <div className="grid w-full items-stretch gap-4 px-4 xl:grid-cols-[minmax(320px,420px)_minmax(420px,1fr)] lg:px-6">
-        <div className="h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
+      <div className="grid w-full items-stretch gap-3 px-4 xl:grid-cols-[272px_minmax(0,4fr)_minmax(0,5fr)] xl:auto-rows-fr lg:px-6">
+        <div className="min-w-0 h-full [&>div]:h-full [&>div]:max-w-none [&>div]:px-0 [&>div]:lg:px-0">
           <FinanceWorkspace
             dataset={dataset}
             onDatasetChange={setDataset}
@@ -341,13 +341,13 @@ export function FinanceDashboard({
             showForm={false}
           />
         </div>
-        <div className="h-full">
+        <div className="min-w-0 h-full">
           <FinancePieChart summary={summary} dataset={dataset} />
         </div>
-        <div className="h-full xl:col-span-2">
+        <div className="min-w-0 h-full">
           <FinanceBarChart dataset={dataset} range={currentFinanceRange} />
         </div>
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-3">
           <FinanceOverviewCharts dataset={dataset} range={currentFinanceRange} />
         </div>
       </div>
@@ -355,3 +355,4 @@ export function FinanceDashboard({
     </div>
   )
 }
+

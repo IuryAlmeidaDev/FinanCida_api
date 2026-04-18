@@ -1,13 +1,11 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -46,19 +44,16 @@ export function FinanceBarChart({
 }) {
   const chartData = buildMonthlyFinanceChartData(dataset, range, 12)
 
-  const currentMonth = chartData.at(-1)
-  const balance = (currentMonth?.receita ?? 0) - (currentMonth?.despesa ?? 0)
-
   return (
     <Card className="@container/card flex h-full flex-col border-emerald-100 shadow-lg shadow-emerald-950/5 dark:border-emerald-900/60 dark:shadow-black/30">
-      <CardHeader>
+      <CardHeader className="pb-2">
         <CardTitle>Receitas e despesas</CardTitle>
         <CardDescription>Histórico dos últimos 12 meses</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-1 pt-2">
+      <CardContent className="pt-0 pb-6">
         <ChartContainer
           config={chartConfig}
-          className="h-[180px] w-full flex-1 aspect-auto"
+          className="h-[250px] w-full aspect-auto"
         >
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
@@ -76,8 +71,7 @@ export function FinanceBarChart({
                   formatter={(value, name) => (
                     <div className="flex min-w-32 items-center justify-between gap-3">
                       <span className="text-muted-foreground">
-                        {chartConfig[name as keyof typeof chartConfig]?.label ??
-                          name}
+                        {chartConfig[name as keyof typeof chartConfig]?.label ?? name}
                       </span>
                       <span className="font-mono font-medium text-foreground">
                         {typeof value === "number"
@@ -94,15 +88,6 @@ export function FinanceBarChart({
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Saldo do mes: {moneyFormatter.format(balance)}
-          <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Barras verdes indicam receitas e vermelhas indicam despesas.
-        </div>
-      </CardFooter>
     </Card>
   )
 }

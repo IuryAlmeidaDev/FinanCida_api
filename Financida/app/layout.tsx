@@ -1,6 +1,7 @@
 import "./globals.css"
 import type { Metadata } from "next"
 import { Nunito } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
 
 import { MobileAppGate } from "@/components/mobile-app-gate"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -32,6 +33,7 @@ export default function RootLayout({
           {children}
           <MobileAppGate />
           <Toaster />
+          {process.env.NODE_ENV === "production" ? <Analytics /> : null}
         </ThemeProvider>
       </body>
     </html>

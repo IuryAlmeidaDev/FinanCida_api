@@ -30,6 +30,7 @@ export function CategoryBadge({
   category: ExpenseCategory | "Receita"
   categories?: CategoryDefinition[]
 }) {
+  const categoryLabel = category === "Familia" ? "Família" : category
   const definition =
     category === "Receita" || !categories
       ? undefined
@@ -52,7 +53,7 @@ export function CategoryBadge({
         color={definition?.color}
         className="text-current"
       />
-      {category}
+      {categoryLabel}
     </Badge>
   )
 }

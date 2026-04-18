@@ -49,11 +49,11 @@ export function FinanceOverviewCharts({
     <div className="grid gap-4 lg:grid-cols-2">
       <Card className="border-emerald-100">
         <CardHeader>
-          <CardTitle>Evolucao do saldo</CardTitle>
-          <CardDescription>Ultimos 6 meses em formato compacto</CardDescription>
+          <CardTitle>Evolução do saldo</CardTitle>
+          <CardDescription>Últimos 6 meses em formato compacto</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={balanceConfig} className="h-[210px] w-full">
+          <ChartContainer config={balanceConfig} className="h-[270px] w-full">
             <LineChart accessibilityLayer data={chartData}>
               <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis hide />
@@ -71,11 +71,13 @@ export function FinanceOverviewCharts({
       </Card>
       <Card className="border-emerald-100">
         <CardHeader>
-          <CardTitle>Fluxo financeiro</CardTitle>
-          <CardDescription>Receitas e despesas em area acumulada</CardDescription>
+          <CardTitle>Fluxo de caixa</CardTitle>
+          <CardDescription>
+            Receitas e despesas em gráfico de área acumulada
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={cashflowConfig} className="h-[210px] w-full">
+          <ChartContainer config={cashflowConfig} className="h-[270px] w-full">
             <AreaChart accessibilityLayer data={chartData}>
               <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis hide />
