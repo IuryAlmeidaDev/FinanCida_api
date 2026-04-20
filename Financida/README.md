@@ -82,6 +82,7 @@ Crie um arquivo `.env.local` na raiz do projeto.
 
 ```bash
 DATABASE_URL="postgres://usuario:senha@localhost:5432/financida"
+APP_DB_SCHEMA="public"
 SUPABASE_URL="https://seu-projeto.supabase.co"
 SUPABASE_ANON_KEY="sua-anon-key"
 ```

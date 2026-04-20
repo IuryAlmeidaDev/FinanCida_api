@@ -16,11 +16,14 @@ export function getPool() {
     throw new Error("DATABASE_URL nao configurada.")
   }
 
+  const schema = process.env.APP_DB_SCHEMA?.trim()
+
   pool ??= new Pool({
     connectionString: process.env.DATABASE_URL,
     max: 3,
     idleTimeoutMillis: 20_000,
     connectionTimeoutMillis: 10_000,
+    options: schema ? `-c search_path=${schema},public` : undefined,
     ssl:
       process.env.NODE_ENV === "production"
         ? { rejectUnauthorized: false }
