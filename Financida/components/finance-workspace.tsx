@@ -283,11 +283,23 @@ export function FinanceWorkspace({
       ) : null}
 
       {showCalendar && calendarDetailsOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
-          <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-emerald-100 bg-card p-4 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setCalendarDetailsOpen(false)
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="calendar-details-title"
+            className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-emerald-100 bg-card p-4 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40"
+          >
             <div className="mb-3 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold">
+                <h3 id="calendar-details-title" className="text-base font-semibold">
                   Lançamentos de {formatBrazilianDate(selectedDate)}
                 </h3>
                 <p className="text-xs text-muted-foreground">

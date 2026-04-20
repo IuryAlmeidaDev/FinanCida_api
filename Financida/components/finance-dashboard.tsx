@@ -46,6 +46,8 @@ export function FinanceDashboard({
   const [dataset, setDataset] = React.useState<FinanceDataset>(
     createEmptyFinanceDataset()
   )
+  const [isLoadingDataset, setIsLoadingDataset] = React.useState(true)
+  const [loadError, setLoadError] = React.useState<string | null>(null)
   const [pendingSharedAccountsCount, setPendingSharedAccountsCount] = React.useState(0)
   const summary = React.useMemo(
     () =>
@@ -61,13 +63,22 @@ export function FinanceDashboard({
     let ignore = false
 
     async function loadDataset() {
+      setIsLoadingDataset(true)
+      setLoadError(null)
       const response = await fetch("/api/finance", { cache: "no-store" })
 
       if (handleUnauthorizedResponse(response)) {
+        if (!ignore) {
+          setIsLoadingDataset(false)
+        }
         return
       }
 
       if (!response.ok) {
+        if (!ignore) {
+          setLoadError("Nao foi possivel carregar os dados financeiros.")
+          setIsLoadingDataset(false)
+        }
         return
       }
 
@@ -75,6 +86,7 @@ export function FinanceDashboard({
 
       if (!ignore) {
         setDataset(payload.dataset)
+        setIsLoadingDataset(false)
       }
     }
 
@@ -92,10 +104,16 @@ export function FinanceDashboard({
       const response = await fetch("/api/friend-accounts", { cache: "no-store" })
 
       if (handleUnauthorizedResponse(response)) {
+        if (!ignore) {
+          setIsLoadingDataset(false)
+        }
         return
       }
 
       if (!response.ok) {
+        if (!ignore) {
+          setLoadError("Nao foi possivel carregar as contas compartilhadas.")
+        }
         return
       }
 
@@ -210,11 +228,26 @@ export function FinanceDashboard({
   }
 
   const addMovementDialog = addDialogOpen ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-emerald-100 bg-card p-5 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onAddDialogOpenChange(false)
+        }
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-movement-title"
+        className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-emerald-100 bg-card p-5 shadow-2xl shadow-emerald-950/10 dark:border-emerald-900/60 dark:shadow-black/40"
+      >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight text-emerald-700 dark:text-emerald-300">
+            <h2
+              id="add-movement-title"
+              className="text-xl font-semibold tracking-tight text-emerald-700 dark:text-emerald-300"
+            >
               Adicionar movimentação
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -315,6 +348,18 @@ export function FinanceDashboard({
 
   return (
     <div className="flex flex-col gap-3 py-3 md:gap-4 md:py-4">
+      {isLoadingDataset ? (
+        <div className="px-4 text-sm text-muted-foreground lg:px-6">
+          Carregando dados financeiros...
+        </div>
+      ) : null}
+      {loadError ? (
+        <div className="px-4 lg:px-6">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {loadError}
+          </div>
+        </div>
+      ) : null}
       {pendingSharedAccountsCount > 0 ? (
         <div className="px-4 lg:px-6">
           <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">

@@ -36,10 +36,12 @@ DATABASE_URL=postgres://financida:financida_password@db:5432/financida
 
 As tabelas sao criadas automaticamente pela API na primeira leitura/escrita.
 
-## Autenticacao
+## Autenticacao (Supabase)
 
 O container tambem usa:
 
 ```bash
-AUTH_JWT_SECRET=financida-session-secret
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_ANON_KEY=sua-anon-key
+SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 ```

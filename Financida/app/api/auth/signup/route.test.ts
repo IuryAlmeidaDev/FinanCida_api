@@ -1,33 +1,34 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const authStoreMocks = vi.hoisted(() => ({
-  findUserByEmail: vi.fn(),
-  createUser: vi.fn(),
+const authMocks = vi.hoisted(() => ({
+  normalizeEmail: vi.fn((value: string) => value.trim().toLowerCase()),
+  signupWithSupabase: vi.fn(),
+  applySessionCookies: vi.fn(),
 }))
 
-vi.mock("@/lib/auth-store", () => authStoreMocks)
+vi.mock("@/lib/auth", () => authMocks)
 
 import { POST } from "@/app/api/auth/signup/route"
 
 describe("signup API", () => {
   beforeEach(() => {
-    process.env.AUTH_JWT_SECRET = "test-secret"
-    authStoreMocks.findUserByEmail.mockReset()
-    authStoreMocks.createUser.mockReset()
+    authMocks.normalizeEmail.mockClear()
+    authMocks.signupWithSupabase.mockReset()
+    authMocks.applySessionCookies.mockReset()
   })
 
-  afterEach(() => {
-    delete process.env.AUTH_JWT_SECRET
-  })
-
-  it("cria usuario e retorna cookie JWT", async () => {
-    authStoreMocks.findUserByEmail.mockResolvedValue(null)
-    authStoreMocks.createUser.mockResolvedValue({
-      id: "user-1",
-      name: "Ana",
-      email: "ana@example.com",
-      handle: "ana#1234",
-      passwordHash: "hashed-password",
+  it("cria usuario com Supabase", async () => {
+    authMocks.signupWithSupabase.mockResolvedValue({
+      user: {
+        id: "user-1",
+        name: "Ana",
+        email: "ana@example.com",
+        handle: "ana#1234",
+      },
+      session: {
+        access_token: "access-token",
+        refresh_token: "refresh-token",
+      },
     })
 
     const response = await POST(
@@ -49,18 +50,12 @@ describe("signup API", () => {
     expect(response.status).toBe(201)
     expect(payload.user.email).toBe("ana@example.com")
     expect(payload.user.handle).toBe("ana#1234")
-    expect(authStoreMocks.createUser).toHaveBeenCalledTimes(1)
-    expect(response.headers.get("set-cookie")).toContain("financida_auth_token")
+    expect(authMocks.signupWithSupabase).toHaveBeenCalledTimes(1)
+    expect(authMocks.applySessionCookies).toHaveBeenCalledTimes(1)
   })
 
   it("rejeita email duplicado", async () => {
-    authStoreMocks.findUserByEmail.mockResolvedValue({
-      id: "user-1",
-      name: "Ana",
-      email: "ana@example.com",
-      handle: "ana#1234",
-      passwordHash: "hashed-password",
-    })
+    authMocks.signupWithSupabase.mockRejectedValue(new Error("User already registered"))
 
     const response = await POST(
       new Request("http://localhost/api/auth/signup", {
@@ -93,6 +88,6 @@ describe("signup API", () => {
     )
 
     expect(response.status).toBe(403)
-    expect(authStoreMocks.createUser).not.toHaveBeenCalled()
+    expect(authMocks.signupWithSupabase).not.toHaveBeenCalled()
   })
 })

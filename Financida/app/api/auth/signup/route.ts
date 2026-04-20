@@ -2,13 +2,10 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 
 import {
-  hashPassword,
+  applySessionCookies,
   normalizeEmail,
-  setAuthCookie,
-  signAuthToken,
-  toPublicAuthUser,
+  signupWithSupabase,
 } from "@/lib/auth"
-import { createUser, findUserByEmail } from "@/lib/auth-store"
 import {
   checkRateLimit,
   getClientIp,
@@ -19,6 +16,7 @@ import {
   rejectCrossSiteRequest,
   rejectUnsupportedJsonContentType,
 } from "@/lib/security"
+import { SupabaseAuthError } from "@/lib/supabase-auth"
 
 export const runtime = "nodejs"
 
@@ -51,7 +49,7 @@ export async function POST(request: Request) {
     const input = signupSchema.parse(await readJsonBody(request))
     const email = normalizeEmail(input.email)
     const rateLimit = checkRateLimit(`signup:${getClientIp(request)}`, {
-      limit: 5,
+      limit: process.env.NODE_ENV === "production" ? 5 : 200,
       windowMs: 60 * 60 * 1000,
     })
 
@@ -59,27 +57,17 @@ export async function POST(request: Request) {
       return rateLimitResponse(rateLimit.retryAfterSeconds)
     }
 
-    const existingUser = await findUserByEmail(email)
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Este email ja possui cadastro." },
-        { status: 409 }
-      )
-    }
-
-    const user = await createUser({
+    const { user, session } = await signupWithSupabase({
       name: input.name,
       email,
-      passwordHash: await hashPassword(input.password),
+      password: input.password,
     })
-    const token = await signAuthToken(toPublicAuthUser(user))
     const response = NextResponse.json(
-      { user: toPublicAuthUser(user) },
+      { user },
       { status: 201 }
     )
 
-    setAuthCookie(response, token)
+    applySessionCookies(response, session)
 
     return response
   } catch (error) {
@@ -87,6 +75,45 @@ export async function POST(request: Request) {
 
     if (jsonErrorResponse) {
       return jsonErrorResponse
+    }
+
+    if (error instanceof SupabaseAuthError) {
+      if (error.status === 429) {
+        return NextResponse.json(
+          { error: "Muitas tentativas de cadastro. Tente novamente em instantes." },
+          { status: 429 }
+        )
+      }
+
+      if (error.status === 400 && error.code === "email_address_invalid") {
+        return NextResponse.json(
+          { error: "Email invalido para cadastro." },
+          { status: 400 }
+        )
+      }
+
+      if (
+        error.message.toLowerCase().includes("already registered") ||
+        error.message.toLowerCase().includes("already in use") ||
+        error.code === "user_already_exists"
+      ) {
+        return NextResponse.json(
+          { error: "Este email ja possui cadastro." },
+          { status: 409 }
+        )
+      }
+    }
+
+    if (error instanceof Error) {
+      if (
+        error.message.toLowerCase().includes("already registered") ||
+        error.message.toLowerCase().includes("already in use")
+      ) {
+        return NextResponse.json(
+          { error: "Este email ja possui cadastro." },
+          { status: 409 }
+        )
+      }
     }
 
     if (error instanceof z.ZodError) {

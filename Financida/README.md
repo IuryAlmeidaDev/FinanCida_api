@@ -6,7 +6,7 @@ O projeto foi construido com `Next.js` no `App Router`, usando a propria aplicac
 
 ## Principais funcionalidades
 
-- Cadastro e login com sessao via cookie `httpOnly`
+- Cadastro e login com Supabase Auth (sessao via cookies `httpOnly`)
 - Dashboard com resumo financeiro do mes
 - Cadastro e edicao de receitas, despesas fixas e despesas variaveis
 - Relatorios e graficos para acompanhamento financeiro
@@ -38,8 +38,8 @@ O projeto foi construido com `Next.js` no `App Router`, usando a propria aplicac
 
 ### Regra de negocio e persistencia
 
-- `lib/auth.ts`: token JWT, hash de senha e sessao
-- `lib/auth-store.ts`: usuarios e autenticacao no banco
+- `lib/auth.ts`: sessao baseada em token do Supabase Auth
+- `lib/auth-store.ts`: perfil local do usuario (`app_users`) com `handle`
 - `lib/finance-store.ts`: categorias, receitas e despesas
 - `lib/friends-store.ts`: pedidos de amizade e amizades aceitas
 - `lib/friend-accounts-store.ts`: contas compartilhadas entre amigos
@@ -52,7 +52,7 @@ O projeto foi construido com `Next.js` no `App Router`, usando a propria aplicac
 ## Fluxo principal da aplicacao
 
 1. O usuario cria conta ou faz login.
-2. A API autentica o usuario e grava um cookie de sessao assinado.
+2. A API autentica no Supabase Auth e grava cookies de sessao (`access` e `refresh`).
 3. A area `/dashboard` valida a sessao e carrega os dados financeiros.
 4. O usuario pode cadastrar movimentacoes, visualizar graficos, definir limite de gastos e acompanhar alertas.
 5. O modulo social permite adicionar amigos e criar contas compartilhadas.
@@ -82,17 +82,19 @@ Crie um arquivo `.env.local` na raiz do projeto.
 
 ```bash
 DATABASE_URL="postgres://usuario:senha@localhost:5432/financida"
-AUTH_JWT_SECRET="um-segredo-longo-e-seguro"
+SUPABASE_URL="https://seu-projeto.supabase.co"
+SUPABASE_ANON_KEY="sua-anon-key"
 ```
 
 ### Opcionais
 
-Use apenas se quiser habilitar upload de avatar:
+Use para upload de avatar e operacoes server-side no Supabase:
 
 ```bash
-SUPABASE_URL="https://seu-projeto.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="sua-service-role-key"
 SUPABASE_STORAGE_BUCKET="avatars"
+# fallback temporario de login legado (bcrypt em app_users)
+LEGACY_AUTH_FALLBACK="true"
 ```
 
 ## Rodando localmente
@@ -109,7 +111,7 @@ Voce pode usar um banco local seu ou subir com Docker.
 
 ### 3. Configure o `.env.local`
 
-Preencha pelo menos `DATABASE_URL` e `AUTH_JWT_SECRET`.
+Preencha pelo menos `DATABASE_URL`, `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
 
 ### 4. Inicie o projeto
 

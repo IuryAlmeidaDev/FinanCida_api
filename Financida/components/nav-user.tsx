@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { EllipsisVerticalIcon, LogOutIcon, UserPenIcon, ZoomInIcon } from "lucide-react"
 import { toast } from "sonner"
 
@@ -222,6 +221,20 @@ export function NavUser({
     }
   }
 
+  async function handleLogout() {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    })
+
+    if (!response.ok) {
+      toast.error("Nao foi possivel encerrar a sessao.")
+      return
+    }
+
+    window.location.href = "/"
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -283,20 +296,37 @@ export function NavUser({
               <UserPenIcon />
               Editar perfil
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/api/auth/logout">
-                <LogOutIcon />
-                Deslogar
-              </Link>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault()
+                void handleLogout()
+              }}
+            >
+              <LogOutIcon />
+              Deslogar
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
       {profileOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-5 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setProfileOpen(false)
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-edit-title"
+            className="w-full max-w-lg rounded-2xl border border-border bg-card p-5 shadow-2xl"
+          >
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold tracking-tight">Editar perfil</h2>
+              <h2 id="profile-edit-title" className="text-lg font-semibold tracking-tight">
+                Editar perfil
+              </h2>
               <p className="text-sm text-muted-foreground">
                 A imagem sera enviada para o Supabase Storage e o enquadramento sera salvo no banco.
               </p>

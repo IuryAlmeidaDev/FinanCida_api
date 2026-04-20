@@ -38,13 +38,13 @@ Configure estas variaveis na Vercel:
 
 ```bash
 DATABASE_URL=
-AUTH_JWT_SECRET=
 SUPABASE_URL=
+SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_STORAGE_BUCKET=avatars
 ```
 
-`SUPABASE_*` so sao obrigatorias para o fluxo de upload de avatar.
+`SUPABASE_URL` e `SUPABASE_ANON_KEY` sao obrigatorias para autenticacao.
 
 ## Configuracao na Vercel pelo painel
 
@@ -73,8 +73,8 @@ Depois adicione as variaveis de producao:
 
 ```bash
 vercel env add DATABASE_URL production
-vercel env add AUTH_JWT_SECRET production
 vercel env add SUPABASE_URL production
+vercel env add SUPABASE_ANON_KEY production
 vercel env add SUPABASE_SERVICE_ROLE_KEY production
 vercel env add SUPABASE_STORAGE_BUCKET production
 ```
@@ -83,8 +83,8 @@ E as variaveis de homologacao para a branch `develop`:
 
 ```bash
 vercel env add DATABASE_URL preview --git-branch=develop
-vercel env add AUTH_JWT_SECRET preview --git-branch=develop
 vercel env add SUPABASE_URL preview --git-branch=develop
+vercel env add SUPABASE_ANON_KEY preview --git-branch=develop
 vercel env add SUPABASE_SERVICE_ROLE_KEY preview --git-branch=develop
 vercel env add SUPABASE_STORAGE_BUCKET preview --git-branch=develop
 ```

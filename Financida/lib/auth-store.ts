@@ -36,6 +36,17 @@ function createHandleBase(name: string) {
   return normalized || "financida"
 }
 
+function getNameForHandle(input: { name: string; email: string }) {
+  const trimmedName = input.name.trim()
+
+  if (trimmedName.length > 0) {
+    return trimmedName
+  }
+
+  const emailUser = normalizeEmail(input.email).split("@")[0] ?? ""
+  return emailUser || "financida"
+}
+
 async function generateUniqueHandle(name: string) {
   const database = getPool()
   const base = createHandleBase(name)
@@ -150,6 +161,62 @@ export async function createUser(input: {
       returning id, name, email, handle, password_hash
     `,
     [id, input.name.trim(), normalizedEmail, handle, input.passwordHash]
+  )
+
+  return mapUser(result.rows[0])
+}
+
+export async function upsertUserFromAuthProvider(input: {
+  id: string
+  name: string
+  email: string
+}) {
+  await ensureAuthSchema()
+
+  const database = getPool()
+  const normalizedEmail = normalizeEmail(input.email)
+  const normalizedName = input.name.trim() || normalizedEmail
+  const existingById = await findUserById(input.id)
+  const existingByEmail = await findUserByEmail(normalizedEmail)
+
+  if (existingById) {
+    const result = await database.query<UserRow>(
+      `
+        update app_users
+        set name = $2, email = $3, updated_at = now()
+        where id = $1
+        returning id, name, email, handle, password_hash
+      `,
+      [input.id, normalizedName, normalizedEmail]
+    )
+
+    return mapUser(result.rows[0])
+  }
+
+  if (existingByEmail) {
+    const result = await database.query<UserRow>(
+      `
+        update app_users
+        set name = $2, email = $3, updated_at = now()
+        where id = $1
+        returning id, name, email, handle, password_hash
+      `,
+      [existingByEmail.id, normalizedName, normalizedEmail]
+    )
+
+    return mapUser(result.rows[0])
+  }
+
+  const handle = await generateUniqueHandle(
+    getNameForHandle({ name: normalizedName, email: normalizedEmail })
+  )
+  const result = await database.query<UserRow>(
+    `
+      insert into app_users (id, name, email, handle, password_hash)
+      values ($1, $2, $3, $4, $5)
+      returning id, name, email, handle, password_hash
+    `,
+    [input.id, normalizedName, normalizedEmail, handle, "supabase-auth"]
   )
 
   return mapUser(result.rows[0])
