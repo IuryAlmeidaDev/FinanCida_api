@@ -6,14 +6,6 @@ const authMocks = vi.hoisted(() => ({
   applySessionCookies: vi.fn(),
 }))
 
-const authStoreMocks = vi.hoisted(() => ({
-  findUserByEmail: vi.fn(),
-}))
-
-const bcryptMocks = vi.hoisted(() => ({
-  compare: vi.fn(),
-}))
-
 const supabaseAuthMocks = vi.hoisted(() => {
   class SupabaseAuthError extends Error {
     status: number
@@ -29,15 +21,10 @@ const supabaseAuthMocks = vi.hoisted(() => {
 
   return {
     SupabaseAuthError,
-    createSupabaseUserWithPasswordIfMissing: vi.fn(),
   }
 })
 
 vi.mock("@/lib/auth", () => authMocks)
-vi.mock("@/lib/auth-store", () => authStoreMocks)
-vi.mock("bcryptjs", () => ({
-  default: bcryptMocks,
-}))
 vi.mock("@/lib/supabase-auth", () => supabaseAuthMocks)
 
 import { POST } from "@/app/api/auth/login/route"
@@ -48,9 +35,6 @@ describe("login API", () => {
     authMocks.normalizeEmail.mockClear()
     authMocks.loginWithSupabase.mockReset()
     authMocks.applySessionCookies.mockReset()
-    authStoreMocks.findUserByEmail.mockReset()
-    bcryptMocks.compare.mockReset()
-    supabaseAuthMocks.createSupabaseUserWithPasswordIfMissing.mockReset()
   })
 
   it("autentica usuario com Supabase", async () => {
@@ -92,7 +76,6 @@ describe("login API", () => {
     authMocks.loginWithSupabase.mockRejectedValue(
       new SupabaseAuthError("Invalid login credentials", 400, "invalid_credentials")
     )
-    authStoreMocks.findUserByEmail.mockResolvedValue(null)
 
     const response = await POST(
       new Request("http://localhost/api/auth/login", {
@@ -108,50 +91,37 @@ describe("login API", () => {
     expect(response.status).toBe(401)
   })
 
-  it("migra usuario legado no primeiro login", async () => {
-    authMocks.loginWithSupabase
-      .mockRejectedValueOnce(
-        new SupabaseAuthError("Invalid login credentials", 400, "invalid_credentials")
-      )
-      .mockResolvedValueOnce({
-        user: {
-          id: "user-1",
-          name: "Ana",
-          email: "ana@example.com",
-          handle: "ana#1234",
-        },
-        session: {
-          access_token: "access-token",
-          refresh_token: "refresh-token",
-        },
-      })
-    authStoreMocks.findUserByEmail.mockResolvedValue({
-      id: "legacy-1",
-      name: "Ana",
-      email: "ana@example.com",
-      handle: "ana#1234",
-      passwordHash: "legacy-hash",
-    })
-    bcryptMocks.compare.mockResolvedValue(true)
+  it("nao aplica rate limit local no login", async () => {
+    const mutableEnv = process.env as Record<string, string | undefined>
+    const previousNodeEnv = mutableEnv.NODE_ENV
+    mutableEnv.NODE_ENV = "production"
 
-    const response = await POST(
-      new Request("http://localhost/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: "ana@example.com",
-          password: "senha-segura-123",
-        }),
-      })
+    authMocks.loginWithSupabase.mockRejectedValue(
+      new SupabaseAuthError("Invalid login credentials", 400, "invalid_credentials")
     )
 
-    expect(response.status).toBe(200)
-    expect(authStoreMocks.findUserByEmail).toHaveBeenCalledTimes(1)
-    expect(bcryptMocks.compare).toHaveBeenCalledTimes(1)
-    expect(
-      supabaseAuthMocks.createSupabaseUserWithPasswordIfMissing
-    ).toHaveBeenCalledTimes(1)
-    expect(authMocks.loginWithSupabase).toHaveBeenCalledTimes(2)
+    try {
+      let lastStatus = 0
+
+      for (let attempt = 0; attempt < 9; attempt += 1) {
+        const response = await POST(
+          new Request("http://localhost/api/auth/login", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              email: "ana@example.com",
+              password: "senha-segura-123",
+            }),
+          })
+        )
+
+        lastStatus = response.status
+      }
+
+      expect(lastStatus).toBe(401)
+    } finally {
+      mutableEnv.NODE_ENV = previousNodeEnv
+    }
   })
 
   it("bloqueia login vindo de outra origem", async () => {

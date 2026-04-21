@@ -1,17 +1,5 @@
 import { NextResponse } from "next/server"
 
-const rateLimitBuckets = new Map<
-  string,
-  {
-    count: number
-    resetAt: number
-  }
->()
-
-export type RateLimitResult =
-  | { limited: false }
-  | { limited: true; retryAfterSeconds: number }
-
 export class BadJsonRequestError extends Error {
   constructor() {
     super("JSON invalido.")
@@ -111,58 +99,3 @@ export function rejectCrossSiteRequest(request: Request) {
   )
 }
 
-export function getClientIp(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for")
-
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]?.trim() || "unknown"
-  }
-
-  return (
-    request.headers.get("x-real-ip") ??
-    request.headers.get("cf-connecting-ip") ??
-    "unknown"
-  )
-}
-
-export function checkRateLimit(
-  key: string,
-  options: {
-    limit: number
-    windowMs: number
-  }
-): RateLimitResult {
-  const now = Date.now()
-  const bucket = rateLimitBuckets.get(key)
-
-  if (!bucket || bucket.resetAt <= now) {
-    rateLimitBuckets.set(key, {
-      count: 1,
-      resetAt: now + options.windowMs,
-    })
-
-    return { limited: false }
-  }
-
-  if (bucket.count >= options.limit) {
-    return {
-      limited: true,
-      retryAfterSeconds: Math.ceil((bucket.resetAt - now) / 1000),
-    }
-  }
-
-  bucket.count += 1
-  return { limited: false }
-}
-
-export function rateLimitResponse(retryAfterSeconds: number) {
-  return NextResponse.json(
-    { error: "Muitas tentativas. Tente novamente em instantes." },
-    {
-      status: 429,
-      headers: {
-        "Retry-After": retryAfterSeconds.toString(),
-      },
-    }
-  )
-}

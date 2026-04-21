@@ -90,4 +90,36 @@ describe("signup API", () => {
     expect(response.status).toBe(403)
     expect(authMocks.signupWithSupabase).not.toHaveBeenCalled()
   })
+
+  it("nao aplica rate limit local no cadastro", async () => {
+    const mutableEnv = process.env as Record<string, string | undefined>
+    const previousNodeEnv = mutableEnv.NODE_ENV
+    mutableEnv.NODE_ENV = "production"
+
+    authMocks.signupWithSupabase.mockRejectedValue(new Error("User already registered"))
+
+    try {
+      let lastStatus = 0
+
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        const response = await POST(
+          new Request("http://localhost/api/auth/signup", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: "Ana",
+              email: "ana@example.com",
+              password: "senha-segura-123",
+            }),
+          })
+        )
+
+        lastStatus = response.status
+      }
+
+      expect(lastStatus).toBe(409)
+    } finally {
+      mutableEnv.NODE_ENV = previousNodeEnv
+    }
+  })
 })

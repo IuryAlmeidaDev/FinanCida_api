@@ -52,22 +52,6 @@ function getSupabaseAuthConfig() {
   }
 }
 
-function getSupabaseAdminConfig() {
-  const supabaseUrl = process.env.SUPABASE_URL ?? ""
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error(
-      "SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY devem estar configuradas."
-    )
-  }
-
-  return {
-    supabaseUrl: supabaseUrl.replace(/\/$/, ""),
-    serviceRoleKey,
-  }
-}
-
 async function parseSupabaseError(response: Response) {
   const payload = (await response.json().catch(() => null)) as
     | SupabaseErrorResponse
@@ -145,47 +129,6 @@ export async function signUpWithSupabase(email: string, password: string, name: 
   if (!response.ok) {
     throw await parseSupabaseError(response)
   }
-}
-
-export async function createSupabaseUserWithPasswordIfMissing(input: {
-  email: string
-  password: string
-  name: string
-}) {
-  const { supabaseUrl, serviceRoleKey } = getSupabaseAdminConfig()
-  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
-    method: "POST",
-    headers: {
-      apikey: serviceRoleKey,
-      Authorization: `Bearer ${serviceRoleKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: input.email,
-      password: input.password,
-      email_confirm: true,
-      user_metadata: {
-        name: input.name,
-        full_name: input.name,
-      },
-    }),
-  })
-
-  if (response.ok) {
-    return
-  }
-
-  const error = await parseSupabaseError(response)
-
-  if (
-    error.status === 422 ||
-    error.code === "user_already_exists" ||
-    error.message.toLowerCase().includes("already been registered")
-  ) {
-    return
-  }
-
-  throw error
 }
 
 export async function getSupabaseUser(accessToken: string) {

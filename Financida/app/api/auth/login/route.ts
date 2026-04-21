@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
 import { z } from "zod"
 
 import {
@@ -7,21 +6,14 @@ import {
   loginWithSupabase,
   normalizeEmail,
 } from "@/lib/auth"
-import { findUserByEmail } from "@/lib/auth-store"
 import {
-  checkRateLimit,
-  getClientIp,
   jsonParseErrorResponse,
-  rateLimitResponse,
   readJsonBody,
   rejectLargeRequest,
   rejectCrossSiteRequest,
   rejectUnsupportedJsonContentType,
 } from "@/lib/security"
-import {
-  createSupabaseUserWithPasswordIfMissing,
-  SupabaseAuthError,
-} from "@/lib/supabase-auth"
+import { SupabaseAuthError } from "@/lib/supabase-auth"
 
 export const runtime = "nodejs"
 
@@ -29,8 +21,6 @@ const loginSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1),
 })
-const legacyAuthFallbackEnabled =
-  process.env.LEGACY_AUTH_FALLBACK?.toLowerCase() !== "false"
 
 export async function POST(request: Request) {
   try {
@@ -54,65 +44,13 @@ export async function POST(request: Request) {
 
     const input = loginSchema.parse(await readJsonBody(request))
     const email = normalizeEmail(input.email)
-    const rateLimit = checkRateLimit(
-      `login:${getClientIp(request)}:${email}`,
-      {
-        limit: process.env.NODE_ENV === "production" ? 8 : 300,
-        windowMs: 15 * 60 * 1000,
-      }
-    )
-
-    if (rateLimit.limited) {
-      return rateLimitResponse(rateLimit.retryAfterSeconds)
-    }
-
-    try {
-      const { user, session } = await loginWithSupabase({
-        email,
-        password: input.password,
-      })
-      const response = NextResponse.json({ user })
-      applySessionCookies(response, session)
-      return response
-    } catch (error) {
-      if (
-        legacyAuthFallbackEnabled &&
-        error instanceof SupabaseAuthError &&
-        (error.message.toLowerCase().includes("invalid login") ||
-          error.message.toLowerCase().includes("invalid_credentials"))
-      ) {
-        const legacyUser = await findUserByEmail(email)
-
-        if (
-          legacyUser &&
-          legacyUser.passwordHash &&
-          legacyUser.passwordHash !== "supabase-auth"
-        ) {
-          const validLegacyPassword = await bcrypt.compare(
-            input.password,
-            legacyUser.passwordHash
-          )
-
-          if (validLegacyPassword) {
-            await createSupabaseUserWithPasswordIfMissing({
-              email,
-              password: input.password,
-              name: legacyUser.name,
-            })
-
-            const migrated = await loginWithSupabase({
-              email,
-              password: input.password,
-            })
-            const response = NextResponse.json({ user: migrated.user })
-            applySessionCookies(response, migrated.session)
-            return response
-          }
-        }
-      }
-
-      throw error
-    }
+    const { user, session } = await loginWithSupabase({
+      email,
+      password: input.password,
+    })
+    const response = NextResponse.json({ user })
+    applySessionCookies(response, session)
+    return response
   } catch (error) {
     const jsonErrorResponse = jsonParseErrorResponse(error)
 

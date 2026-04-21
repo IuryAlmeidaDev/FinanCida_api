@@ -7,10 +7,7 @@ import {
   signupWithSupabase,
 } from "@/lib/auth"
 import {
-  checkRateLimit,
-  getClientIp,
   jsonParseErrorResponse,
-  rateLimitResponse,
   readJsonBody,
   rejectLargeRequest,
   rejectCrossSiteRequest,
@@ -48,14 +45,6 @@ export async function POST(request: Request) {
 
     const input = signupSchema.parse(await readJsonBody(request))
     const email = normalizeEmail(input.email)
-    const rateLimit = checkRateLimit(`signup:${getClientIp(request)}`, {
-      limit: process.env.NODE_ENV === "production" ? 5 : 200,
-      windowMs: 60 * 60 * 1000,
-    })
-
-    if (rateLimit.limited) {
-      return rateLimitResponse(rateLimit.retryAfterSeconds)
-    }
 
     const { user, session } = await signupWithSupabase({
       name: input.name,

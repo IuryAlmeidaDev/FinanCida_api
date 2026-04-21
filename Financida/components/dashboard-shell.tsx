@@ -8,11 +8,12 @@ import { FinanceDashboard } from "@/components/finance-dashboard"
 import { SiteHeader } from "@/components/site-header"
 import type { AuthUser } from "@/lib/auth"
 import { handleUnauthorizedResponse } from "@/lib/client-auth"
+import { dashboardDefaultSection } from "@/lib/dashboard-sections"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 export function DashboardShell({ user }: { user: AuthUser }) {
   const router = useRouter()
-  const [activeSection, setActiveSection] = React.useState("Visao Geral")
+  const [activeSection, setActiveSection] = React.useState(dashboardDefaultSection)
   const [addDialogOpen, setAddDialogOpen] = React.useState(false)
 
   React.useEffect(() => {

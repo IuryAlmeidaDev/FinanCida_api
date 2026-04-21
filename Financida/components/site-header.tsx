@@ -1,39 +1,10 @@
 import { NotificationsMenu } from "@/components/notifications-menu"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-
-function getHeaderTitle(activeSection: string) {
-  const normalizedSection = activeSection.toLowerCase()
-
-  if (normalizedSection.startsWith("lanc")) {
-    return "Gerenciamento de Transações"
-  }
-
-  if (normalizedSection.startsWith("relat")) {
-    return "Relatórios e exportação"
-  }
-
-  if (normalizedSection.startsWith("limite")) {
-    return "Controle de metas e limites"
-  }
-
-  if (normalizedSection.startsWith("cripto")) {
-    return "Mercado de criptomoedas"
-  }
-
-  if (normalizedSection.startsWith("amigos")) {
-    return "Rede de amigos"
-  }
-
-  if (normalizedSection.startsWith("contas")) {
-    return "Contas compartilhadas"
-  }
-
-  return "Painel financeiro"
-}
+import { getDashboardHeaderTitle } from "@/lib/dashboard-sections"
 
 export function SiteHeader({ activeSection }: { activeSection: string }) {
-  const title = getHeaderTitle(activeSection)
+  const title = getDashboardHeaderTitle(activeSection)
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border bg-background/95 backdrop-blur transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">

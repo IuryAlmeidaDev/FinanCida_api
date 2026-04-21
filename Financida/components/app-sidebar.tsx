@@ -24,45 +24,42 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import type { AuthUser } from "@/lib/auth"
+import { dashboardSections } from "@/lib/dashboard-sections"
+
+function getSectionIcon(kind: (typeof dashboardSections)[number]["kind"]) {
+  if (kind === "overview") {
+    return <LayoutDashboardIcon />
+  }
+
+  if (kind === "movements") {
+    return <ListIcon />
+  }
+
+  if (kind === "reports") {
+    return <ChartBarIcon />
+  }
+
+  if (kind === "limit") {
+    return <PiggyBankIcon />
+  }
+
+  if (kind === "crypto") {
+    return <BitcoinIcon />
+  }
+
+  if (kind === "friends") {
+    return <UsersIcon />
+  }
+
+  return <HandCoinsIcon />
+}
 
 const data = {
-  navMain: [
-    {
-      title: "Visão Geral",
-      url: "#",
-      icon: <LayoutDashboardIcon />,
-    },
-    {
-      title: "Lançamentos",
-      url: "#",
-      icon: <ListIcon />,
-    },
-    {
-      title: "Relatórios",
-      url: "#",
-      icon: <ChartBarIcon />,
-    },
-    {
-      title: "Limite de Gastos",
-      url: "#",
-      icon: <PiggyBankIcon />,
-    },
-    {
-      title: "Criptomoedas",
-      url: "#",
-      icon: <BitcoinIcon />,
-    },
-    {
-      title: "Amigos",
-      url: "#",
-      icon: <UsersIcon />,
-    },
-    {
-      title: "Contas Compartilhadas",
-      url: "#",
-      icon: <HandCoinsIcon />,
-    },
-  ],
+  navMain: dashboardSections.map((section) => ({
+    title: section.title,
+    url: "#",
+    icon: getSectionIcon(section.kind),
+  })),
 }
 
 export function AppSidebar({

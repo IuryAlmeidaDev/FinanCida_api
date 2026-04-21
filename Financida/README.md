@@ -93,8 +93,6 @@ Use para upload de avatar e operacoes server-side no Supabase:
 ```bash
 SUPABASE_SERVICE_ROLE_KEY="sua-service-role-key"
 SUPABASE_STORAGE_BUCKET="avatars"
-# fallback temporario de login legado (bcrypt em app_users)
-LEGACY_AUTH_FALLBACK="true"
 ```
 
 ## Rodando localmente
